@@ -3,12 +3,12 @@
 -- Create ContextualCharacteristics table
 CREATE TABLE ContextualCharacteristic (
     CharacteristicID SERIAL PRIMARY KEY,
-    CharacteristicName VARCHAR(255) NOT NULL
+    CharacteristicName VARCHAR(255) NOT NULL,
     CharacteristicDescription TEXT
 );
 
 -- Create DXFactors table
-CREATE TABLE DXFactors (
+CREATE TABLE DXFactor (
     DxFactorID SERIAL PRIMARY KEY,
     DxFactorName VARCHAR(255) NOT NULL,
     DxFactorDescription TEXT,
@@ -18,7 +18,7 @@ CREATE TABLE DXFactors (
 );
 
 -- Insert ContextualCharacteristics data
-INSERT INTO ContextualCharacteristic (CharacteristicName) VALUES
+INSERT INTO ContextualCharacteristic (CharacteristicName, CharacteristicDescription) VALUES
 ('Expectations', 'Expectations of the team and organization on the developer.'),
 ('Seniority', 'Seniority of the team members.'),
 ('Personal Interests', 'Personal interests of the team members.'),
@@ -28,7 +28,7 @@ INSERT INTO ContextualCharacteristic (CharacteristicName) VALUES
 ('Presence of problems', 'Presence of problems in the codebase.');
 
 -- Insert DXFactors data
-INSERT INTO DXFactors (DxFactorName, DxFactorDescription, FactorCategory, CharacteristicID) VALUES
+INSERT INTO DXFactor (DxFactorName, DxFactorDescription, FactorCategory, CharacteristicID) VALUES
 ('Codebase Health', 'Indicates the quality of the code that is been written and how easy it is to write new code or give it support.', 'Development and Release', 7),
 ('Development Environment', 'The tools and setup used for development work.', 'Development and Release', 6),
 ('Automated Testing', 'The extent to which testing is automated to ensure code quality.', 'Development and Release', 7),
