@@ -1,9 +1,6 @@
 package Game.DevEx.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Data
@@ -14,10 +11,15 @@ import lombok.*;
 public class DXFactor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "dxfactorid")
     private int DxFactorID;
+    @Column(name = "dxfactorname")
     private String DxFactorName;
+    @Column(name = "dxfactordescription")
     private String DxFactorDescription;
+    @Column(name = "factorcategory")
     private String FactorCategory;
+    @Column(name = "characteristicid")
     private String CharacteristicID;
 
     /* DX Factors
