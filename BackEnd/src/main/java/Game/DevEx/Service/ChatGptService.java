@@ -14,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
 public class ChatGptService implements iChatGptService {
 
     private final RestTemplate restTemplate;
-    private static final String setUpPrompt = "Tu eres un asistente, cuando recibas este mensaje escribe la fecha de hoy";
 
     @Value("${openai.api.url}")
     private String apiUrl;
@@ -27,17 +26,23 @@ public class ChatGptService implements iChatGptService {
         this.restTemplate = restTemplate;
     }
 
-    public String getCompletion(String prompt) {
+    public String getVanillaCompletition(String prompt, double temperature, String setUpPrompt){
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + apiKey);
         headers.set("Content-Type", "application/json");
 
         String requestBody = String.format(
-                "{\"model\": \"%s\", \"messages\": [" +
+                "{" +
+                        "\"model\": \"%s\"," +
+                        "\"messages\": [" +
                         "{\"role\": \"system\", \"content\": \"%s\"}," +
-                        "{\"role\": \"user\", \"content\": \"%s\"}]}",
-                model, setUpPrompt, prompt
+                        "{\"role\": \"user\", \"content\": \"%s\"}" +
+                        "]," +
+                        "\"temperature\": %f" +
+                        "}",
+                model, setUpPrompt, prompt, temperature
         );
+
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, String.class);

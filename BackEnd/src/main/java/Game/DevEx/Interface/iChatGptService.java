@@ -1,5 +1,5 @@
 package Game.DevEx.Interface;
 
 public interface iChatGptService {
-    public String getCompletion(String prompt);
+    public String getVanillaCompletition(String prompt, double temperature, String setUpPrompt);
 }

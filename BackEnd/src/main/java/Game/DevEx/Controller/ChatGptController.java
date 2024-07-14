@@ -15,6 +15,6 @@ public class ChatGptController {
 
     @GetMapping("/chatgpt")
     public Mono<String> getCompletion(@RequestBody PromptRequestDto promptRequestDto) {
-        return Mono.just(chatGptService.getCompletion(promptRequestDto.getPrompt()));
+        return Mono.just(chatGptService.getVanillaCompletition(promptRequestDto.getPrompt(), 0.8, ""));
     }
 }
