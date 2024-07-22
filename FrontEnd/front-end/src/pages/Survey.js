@@ -3,19 +3,23 @@ import Phaser from "phaser";
 import GameComponent from "../components/GameComponent";
 
 const spritesDir = '../assets/sprites/morpeko/';
+const backgroundDir = '../assets/background/';
 
 class Survey extends Phaser.Scene {
     preload() {
       
-        this.load.image('sky', `https://labs.phaser.io/assets/skies/space3.png`);
+        this.load.image('barn', `${backgroundDir}barn.png`);
         this.load.image('A1base', `${spritesDir}A1/A1-base.png`);
         this.load.image('A2base', `${spritesDir}A2/A2-base.png`);
       }
     
 
     create() {
-        this.add.image(400, 300, 'sky');
-        this.A1base = this.add.image(200, 200, 'A1base').setScale(0.2);
+        const { width, height } = this.scale;
+        this.barn = this.add.image(width / 2, height / 2, 'barn');
+        this.barn.displayWidth = width;
+        this.barn.displayHeight = height;
+        this.A1base = this.add.image(width/2, height-180, 'A1base').setScale(0.2);
     }
     update(){
         //this.A1base.x += 1;
@@ -25,8 +29,8 @@ class Survey extends Phaser.Scene {
         const config = {
             type: Phaser.AUTO,
             parent: 'phaser-container',
-            width: 800,
-            height: 600,
+            width: window.innerWidth,
+            height: window.innerHeight,
             scene: Survey,
             physics: {
                 default: 'arcade',
