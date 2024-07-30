@@ -8,6 +8,8 @@ const width= window.innerWidth;
 const height= window.innerHeight;
 const imageHeight = 1390;
 const imageWidth = 1417;
+let textObject;
+let userInput = '';
 
 class Survey extends Phaser.Scene {
     preload() {
@@ -24,6 +26,7 @@ class Survey extends Phaser.Scene {
         this.barn.displayWidth = width;
         this.barn.displayHeight = height;
         this.addSprites();
+        this.createTextBox();
         this.createAnimations();
     }
     update(){
@@ -74,6 +77,22 @@ class Survey extends Phaser.Scene {
         this.Enojado.setScale(0.3);
         this.Neutral = this.add.sprite(width-2100, height-floorHeight-50, "Neutral");
         this.Neutral.setScale(0.3);
+    }
+    createTextBox(){
+        // Crear un objeto de texto en la pantalla
+        textObject = this.add.text(100, 100, '', { font: '32px Arial', fill: '#ffffff' });
+        // Configurar el teclado para recibir entrada de texto
+        this.input.keyboard.on('keydown', function (event) {
+        // Si presionan la tecla "Backspace"
+        if (event.key === 'Backspace' && userInput.length > 0) {
+            userInput = userInput.slice(0, -1);
+        } else if (event.key.length === 1) {
+            // Añadir el carácter a la cadena
+            userInput += event.key;
+        }
+        // Actualizar el texto en pantalla
+        textObject.setText(userInput);
+    });
     }
 }
     const SurveyPage = () => {
