@@ -133,7 +133,6 @@ class Survey extends Phaser.Scene {
 }
 function sendHttpRequest(text){
     fullText = "Esto es lo que devolveria el servidor";
-    
 }
 function updateeText() {
     // Calculate the portion of text to display based on currentPage
