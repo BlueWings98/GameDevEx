@@ -2,6 +2,10 @@
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 COPY . .
+RUN ls -l /app
+RUN if [ -f "./mvnw" ]; then echo "mvnw exists"; else echo "mvnw not found"; fi
+RUN sed -i 's/\r$//' ./mvnw
+RUN chmod +x ./mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Etapa final
