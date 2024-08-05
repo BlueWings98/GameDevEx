@@ -18,7 +18,7 @@ class Survey extends Phaser.Scene {
         super({ key: 'Survey' });
     }
     preload() {
-        this.load.image('barn', `${backgroundDir}CampoCasilla.png`);
+        this.load.image('barn', `${backgroundDir}CampoVainilla.png`);
         this.load.spritesheet("Alegre", `${spritesDir}A.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
         this.load.spritesheet("Triste", `${spritesDir}T.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
         this.load.spritesheet("Enojado", `${spritesDir}E.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
@@ -33,7 +33,7 @@ class Survey extends Phaser.Scene {
         this.barn.displayHeight = height;
         characterMood = this.getCharacterMood();
         this.createAndAddAnimations(characterMood);
-        this.createTextBox(0, 300, 1650, 400);
+        this.createTextBox(0, height/2, width/2, 400);
         this.goToRewardsButton();
     }
     update() {
@@ -75,22 +75,22 @@ class Survey extends Phaser.Scene {
         // Add sprites and play corresponding animation based on characterMood
         switch (characterMood) {
             case 0:
-                this.Alegre = this.add.sprite(width - 600, height - floorHeight - 50, "Alegre");
+                this.Alegre = this.add.sprite(width /4, height - floorHeight - 50, "Alegre");
                 this.Alegre.setScale(0.3);
                 this.Alegre.play("AnimAlegre");
                 break;
             case 2:
-                this.Triste = this.add.sprite(width - 1000, height - floorHeight - 50, "Triste");
+                this.Triste = this.add.sprite(width /4, height - floorHeight - 50, "Triste");
                 this.Triste.setScale(0.3);
                 this.Triste.play("AnimTriste");
                 break;
             case 3:
-                this.Enojado = this.add.sprite(width - 1700, height - floorHeight - 50, "Enojado");
+                this.Enojado = this.add.sprite(width /4, height - floorHeight - 50, "Enojado");
                 this.Enojado.setScale(0.3);
                 this.Enojado.play("AnimEnojado");
                 break;
             default:
-                this.Neutral = this.add.sprite(width - 2100, height - floorHeight - 50, "Neutral");
+                this.Neutral = this.add.sprite(width /4, height - floorHeight - 50, "Neutral");
                 this.Neutral.setScale(0.3);
                 this.Neutral.play("AnimNeutral");
                 break;
