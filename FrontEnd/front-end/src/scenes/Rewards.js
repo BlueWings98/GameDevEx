@@ -1,6 +1,4 @@
-import React from "react";
 import Phaser from "phaser";
-import GameComponent from "../components/GameComponent";
 
 const backgroundDir = '../assets/background/';
 const width = window.innerWidth;
@@ -34,6 +32,9 @@ const rewards = [
 var inventory = [];
 
 class Rewards extends Phaser.Scene {
+    constructor() {
+        super({key :'Rewards'});
+    }
     preload() {
         this.load.image('saucer', `${backgroundDir}GoldSaucer.png`);
     }
@@ -142,21 +143,4 @@ function sendHttpRequest() {
     // Devolvemos la recompensa seleccionada aleatoriamente
     return rewards[randomIndex];
 }
-
-const RewardsPage = () => {
-    const config = {
-        type: Phaser.AUTO,
-        parent: 'phaser-container',
-        width: window.innerWidth,
-        height: window.innerHeight,
-        scene: Rewards
-    };
-
-    return (
-        <div>
-            <GameComponent config={config} />
-        </div>
-
-    )
-};
-export default RewardsPage;
+export default Rewards;
