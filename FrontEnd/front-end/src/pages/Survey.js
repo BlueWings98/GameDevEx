@@ -125,7 +125,7 @@ class Survey extends Phaser.Scene {
         }
         // Actualizar el texto en pantalla
         textObject.setText(displayedText);
-        updateeText();
+        updateText();
     });
     
     }
@@ -134,14 +134,24 @@ class Survey extends Phaser.Scene {
 function sendHttpRequest(text){
     fullText = "Esto es lo que devolveria el servidor";
 }
-function updateeText() {
-    // Calculate the portion of text to display based on currentPage
-    const start = currentPage * textPerPage;
-    console.log(start);
-    const end = start + textPerPage;
-    console.log(end);
-    displayedText = fullText.substring(start, end);
-    console.log(displayedText);
+function updateText() {
+    // Divide el texto completo en líneas
+    const lines = fullText.split('\n');
+
+    // Calcula el número de líneas disponibles y el número máximo de líneas a mostrar
+    const linesAvailable = lines.length;
+    const linesToShow = Math.min(4, linesAvailable);
+
+    // Construye el texto a mostrar, uniendo las líneas necesarias con saltos de línea
+    let displayedText = '';
+    for (let i = 0; i < linesToShow; i++) {
+        displayedText += lines[i] + '\n';
+    }
+
+    // Elimina el último salto de línea si existe
+    displayedText = displayedText.trim();
+
+    // Establece el texto en el objeto de texto
     textObject.setText(displayedText);
 }
     const SurveyPage = () => {
