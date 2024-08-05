@@ -33,6 +33,7 @@ class Survey extends Phaser.Scene {
         characterMood = this.getCharacterMood();
         this.createAndAddAnimations(characterMood);
         this.createTextBox(0, 300, 1650, 400);
+        this.goToRewardsButton();
     }
     update(){
         //this.A1base.x += 1;
@@ -128,6 +129,47 @@ class Survey extends Phaser.Scene {
         updateText();
     });
     
+    }
+    goToRewardsButton() {
+        // Dimensiones y posición de la caja
+        const boxWidth = 200;
+        const boxHeight = 100;
+        const boxX = width - 200;
+        const boxY = (height / 2) - (boxHeight / 2);
+    
+        // Crear la caja amarilla
+        this.surveyBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
+        this.surveyBox.setOrigin(0.5); // Establecer el origen en el centro
+    
+        // Crear el texto sobre la caja
+        this.returnButton = this.add.text(boxX, boxY, 'Rewards', {
+            fill: '#FFD700',
+            fontSize: '50px',
+            fontStyle: 'bold'
+        });
+        this.returnButton.setOrigin(0.5); // Centrar el texto
+    
+        // Hacer la caja interactiva
+        this.surveyBox.setInteractive();
+    
+        // Definir los colores para los estados
+        const normalColor = 0xD2691E;
+        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
+    
+        // Cambiar el color al presionar el botón
+        this.surveyBox.on('pointerdown', () => {
+            this.surveyBox.setFillStyle(pressedColor);
+        });
+    
+        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
+        this.surveyBox.on('pointerup', () => {
+            this.surveyBox.setFillStyle(normalColor);
+            this.scene.start('Rewards'); // Ejecuta la acción del botón
+        });
+    
+        this.surveyBox.on('pointerout', () => {
+            this.surveyBox.setFillStyle(normalColor);
+        });
     }
 
 }
