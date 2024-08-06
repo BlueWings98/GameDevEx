@@ -10,8 +10,8 @@ const initializeGame = () => {
     const config = {
       type: Phaser.AUTO,
       parent: 'phaser-container',
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: 1690,
+      height: 835,
       scene: [Rewards, Survey, Report],
     };
     game = new Phaser.Game(config);

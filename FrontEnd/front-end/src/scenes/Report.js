@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 const backgroundDir = '../assets/background/';
 const spritesDir = '../assets/sprites/';
-const width = window.innerWidth;
-const height = window.innerHeight;
+const width = 1690;
+const height = 835;
 const imageHeight = 1887;
 const imageWidth = 1889;
 let textObject1;

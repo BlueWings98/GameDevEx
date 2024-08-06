@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 
 const backgroundDir = '../assets/background/';
-const width = window.innerWidth;
-const height = window.innerHeight;
+const width = 1690;
+const height = 835;
 const rewards = [
     {
         GameItemId: "1",

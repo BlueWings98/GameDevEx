@@ -2,8 +2,8 @@ import Phaser from "phaser";
 
 const spritesDir = '../assets/sprites/morpeko/SpriteSheets/';
 const backgroundDir = '../assets/background/';
-const width = window.innerWidth;
-const height = window.innerHeight;
+const width = 1690;
+const height = 835;
 const imageHeight = 1390;
 const imageWidth = 1417;
 const textPerPage = 50; // Maximum number of characters per page
