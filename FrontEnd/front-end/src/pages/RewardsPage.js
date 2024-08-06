@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import initializeGame from '../config/initializeGame';
-import Rewards from '../scenes/Rewards';
 
 const RewardsPage = () =>{
     useEffect(() => {

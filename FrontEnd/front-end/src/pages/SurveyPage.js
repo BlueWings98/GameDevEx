@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import initializeGame from '../config/initializeGame';
-import Survey from '../scenes/Survey';
 const SurveyPage = () => {
     useEffect(() => {
         const game = initializeGame();
