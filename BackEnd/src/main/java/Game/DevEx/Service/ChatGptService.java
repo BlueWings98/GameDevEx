@@ -42,6 +42,7 @@ public class ChatGptService implements iChatGptService {
                         "}",
                 model, setUpPrompt, prompt, temperature
         );
+        System.out.println(requestBody);
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
