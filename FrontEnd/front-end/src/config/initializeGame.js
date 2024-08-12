@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 import Survey from '../scenes/Survey'
 import Rewards from '../scenes/Rewards'
 import Report from '../scenes/Report'
+import Hen from '../scenes/Hen'
 
 let game;
 
@@ -12,7 +13,7 @@ const initializeGame = () => {
       parent: 'phaser-container',
       width: 1690,
       height: 835,
-      scene: [Rewards, Survey, Report],
+      scene: [Rewards, Survey, Report, Hen],
     };
     game = new Phaser.Game(config);
   }
