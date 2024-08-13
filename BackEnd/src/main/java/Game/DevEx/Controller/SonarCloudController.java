@@ -20,4 +20,25 @@ public class SonarCloudController {
         JSONObject temp = sonarCloudService.getSonarProjectIssues(projectNameValue);
         return temp.toString();
     }
+    @GetMapping("/sonarcloud/analysis")
+    public String getSonarProjectAnalysis(@RequestBody String projectName) {
+        JSONObject json = new JSONObject(projectName);
+        String projectNameValue = json.getString("projectName");
+        JSONObject temp = sonarCloudService.analyzeSonarProject(projectNameValue);
+        return temp.toString();
+    }
+    @GetMapping("/sonarcloud/metrics")
+    public String getSonarProjectMetrics(@RequestBody String projectName) {
+        JSONObject json = new JSONObject(projectName);
+        String projectNameValue = json.getString("projectName");
+        JSONObject temp = sonarCloudService.getSonarProjectMetrics(projectNameValue);
+        return temp.toString();
+    }
+    @GetMapping("/sonarcloud/score")
+    public String getSonarProjectScore(@RequestBody String projectName) {
+        JSONObject json = new JSONObject(projectName);
+        String projectNameValue = json.getString("projectName");
+        JSONObject temp = sonarCloudService.getSonarProjectScore(projectNameValue);
+        return temp.toString();
+    }
 }
