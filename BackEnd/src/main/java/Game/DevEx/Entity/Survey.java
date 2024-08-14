@@ -1,13 +1,12 @@
 package Game.DevEx.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -17,6 +16,27 @@ import lombok.NoArgsConstructor;
 public class Survey {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "surveyid")
     private int SurveyID;
-    private int MouseID;
+    @Column(name = "userid")
+    private int UserID;
+    @Column(name = "userresponse")
+    private String UserResponse;
+    @Column(name = "dxfactorname")
+    private String DXFactorName;
+    @Column(name = "dxfactorid")
+    private int DXFactorID;
+    @Column(name = "dxfactorvalue")
+    private int DXFactorValue;
+    @Column(name = "surveydate")
+    private LocalDate SurveyDate;
+
+    public Survey(String dxFactorName, int DXFactorID, int UserID ,String userResponse, int measuredEmotion) {
+        this.UserID = UserID;
+        this.UserResponse = userResponse;
+        this.DXFactorID = DXFactorID;
+        this.DXFactorName = dxFactorName;
+        this.DXFactorValue = measuredEmotion;
+        this.SurveyDate = LocalDate.now();
+    }
 }

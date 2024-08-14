@@ -17,4 +17,8 @@ public class ChatGptController {
     public Mono<String> getCompletion(@RequestBody PromptRequestDto promptRequestDto) {
         return Mono.just(chatGptService.getVanillaCompletition(promptRequestDto.getPrompt(), 0.8, ""));
     }
+    @GetMapping("/chatgpt/init")
+    public Mono<String> getInitPrompt() {
+        return Mono.just(chatGptService.getVanillaCompletition("", 0.8, "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly."));
+    }
 }
