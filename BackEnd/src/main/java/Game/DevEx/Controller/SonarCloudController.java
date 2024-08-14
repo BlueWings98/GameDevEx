@@ -35,10 +35,10 @@ public class SonarCloudController {
         return temp.toString();
     }
     @GetMapping("/sonarcloud/score")
-    public String getSonarProjectScore(@RequestBody String projectName) {
+    public double getSonarProjectScore(@RequestBody String projectName) {
         JSONObject json = new JSONObject(projectName);
         String projectNameValue = json.getString("projectName");
-        JSONObject temp = sonarCloudService.getSonarProjectScore(projectNameValue);
-        return temp.toString();
+        //Final Tiberon Score
+        return sonarCloudService.getSonarProjectScore(projectNameValue);
     }
 }

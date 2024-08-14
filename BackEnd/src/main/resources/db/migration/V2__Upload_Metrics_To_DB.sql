@@ -24,7 +24,7 @@ INSERT INTO Metric (MetricKey, Name, Description, MetricDate, Type, BestValue, W
 ('reliability_rating', 'Reliability Rating', 'Reliability rating', '2024-08-13', 'RATING', '1.0', '5.0', 100),
 ('security_rating', 'Security Rating', 'Security rating', '2024-08-13', 'RATING', '1.0', '5.0', 100),
 ('sqale_debt_ratio', 'Technical Debt Ratio', 'Ratio of the actual technical debt compared to the estimated cost to develop the whole source code from scratch', '2024-08-13', 'PERCENT', '0.0', '100.0', 100),
-('squale_rating', 'Maintainability Rating', 'A-to-E rating based on the technical debt ratio', '2024-08-13', 'RATING', '1.0', '5.0', 100),
+('sqale_rating', 'Maintainability Rating', 'A-to-E rating based on the technical debt ratio', '2024-08-13', 'RATING', '1.0', '5.0', 100),
 ('vulnerabilities', 'Vulnerabilities', 'Vulnerabilities', '2024-08-13', 'INT', '0', '1', 100),
 ('security_review_rating', 'Security Review Rating', 'Security Review Rating', '2024-08-13', 'RATING', '1.0', '5.0', 100),
 ('security_rating', 'Security Rating', 'Security Rating', '2024-08-13', 'RATING', '1.0', '5.0', 100),

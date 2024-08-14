@@ -1,7 +1,10 @@
 package Game.DevEx.Service;
 
+import Game.DevEx.Entity.Metric;
+import Game.DevEx.Repository.MetricRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +31,13 @@ public class SonarCloudService {
     private String apiKey;
     @Value("${sonarcloud.api.pageSize}")
     private String pageSize;
+
+    private MetricRepository metricRepository;
+
+    @Autowired
+    public SonarCloudService(MetricRepository metricRepository) {
+        this.metricRepository = metricRepository;
+    }
 
     public JSONObject getSonarProjectIssues(String projectName) {
         String issueStatuses = "OPEN,CONFIRMED,ACCEPTED";
@@ -64,12 +74,95 @@ public class SonarCloudService {
         return null; // Return null or handle as necessary
     }
     public JSONObject getSonarProjectMetrics(String projectName){
+        Iterable<Metric> iterable = this.metricRepository.findAll();
+        StringBuilder sonarMetricsQueryString = new StringBuilder();
+        for (Metric metric : iterable) {
+            sonarMetricsQueryString.append(metric.getMetricKey()).append(",");
+        }
+        String url = String.format("%s/measures/component?component=%s&metricKeys=%s&additionalFields=%s", apiUrl, projectName, sonarMetricsQueryString, "metrics");
+        HttpHeaders headers = new HttpHeaders();
+        String auth = apiKey + ":"; // Token followed by an empty password
+        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.US_ASCII));
+        String authHeader = "Basic " + new String(encodedAuth);
+        headers.set("Authorization", authHeader);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+            return new JSONObject(response.getBody());
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            System.err.println("HTTP Status Code: " + e.getStatusCode());
+            System.err.println("HTTP Response Body: " + e.getResponseBodyAsString());
+        } catch (Exception e) {
+            System.err.println("An error occurred: " + e.getMessage());
+        }
         return null;
-
     }
-    public JSONObject getSonarProjectScore(String projectName){
+    public double getSonarProjectScore(String projectName) {
         JSONObject sonarProjectMetrics = getSonarProjectMetrics(projectName);
-        return null;
+        Iterable<Metric> iterable = this.metricRepository.findAll();
+        int totalWeight = 0;
+        int totalScore = 0;
+
+        for (Metric metric : iterable) {
+            String metricKey = metric.getMetricKey();
+            int weight = metric.getWeight();
+            String type = metric.getType();
+            String bestValue = metric.getBestValue();
+            String worstValue = metric.getWorstValue();
+
+            JSONArray measuresArray = sonarProjectMetrics.getJSONObject("component").getJSONArray("measures");
+            JSONObject metricJson = null;
+
+            for (int i = 0; i < measuresArray.length(); i++) {
+                JSONObject measure = measuresArray.getJSONObject(i);
+                if (measure.getString("metric").equals(metricKey)) {
+                    metricJson = measure;
+                    break;
+                }
+            }
+            System.out.println(metricJson.toString());
+
+            if (metricJson != null) {
+                String value = metricJson.getString("value");
+                double multiplier = calculateMultiplier(value, bestValue, worstValue, type);
+                System.out.println("Metric: " + metricKey + " Value: " + value + " Multiplier: " + multiplier);
+                totalWeight += weight;
+                totalScore += (int) (multiplier * weight);
+            }
+        }
+        System.out.println("Total Weight: " + totalWeight + " Total Score: " + totalScore);
+
+        return (double) totalScore / totalWeight;
+    }
+
+    private double calculateMultiplier(String value, String bestValue, String worstValue, String type) {
+        switch (type) {
+            case "RATING":
+                double rating = Double.parseDouble(value);
+                double bestRating = Double.parseDouble(bestValue);
+                double worstRating = Double.parseDouble(worstValue);
+                return (worstRating - rating) / (worstRating - bestRating);
+            case "WORK_DUR":
+                if(Integer.parseInt(value)>=Integer.parseInt(worstValue)){
+                    return 0.0;
+                } else {
+                    return 1.0;
+                }
+            case "INT":
+                if(Integer.parseInt(value)>=Integer.parseInt(worstValue)){
+                    return 0.0;
+                } else {
+                    return 1.0;
+                }
+            case "PERCENT":
+                double percent = Double.parseDouble(value);
+                double bestPercent = Double.parseDouble(bestValue);
+                double worstPercent = Double.parseDouble(worstValue);
+                return bestPercent - percent / (bestPercent - worstPercent);
+            default:
+                return 0;
+        }
     }
 
     public JSONObject analyzeSonarProject(String projectName){
