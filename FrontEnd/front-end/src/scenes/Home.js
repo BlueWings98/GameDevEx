@@ -7,6 +7,9 @@ const height = 835;
 const imageHeight = 1390;
 const imageWidth = 1417;
 const textPerPage = 50; // Maximum number of characters per page
+const surveyBatteryCost = 50;
+
+let batteryCharge = 100;
 
 class Home extends Phaser.Scene {
     constructor() {
@@ -29,6 +32,7 @@ class Home extends Phaser.Scene {
         this.goToReportsButton();
         this.openSurveyMenu();
         this.openInventoryMenu();
+        this.createBatteryIndicator();
     }
     createAndAddAnimations(characterMood) {
         const floorHeight = 500;
@@ -109,7 +113,13 @@ class Home extends Phaser.Scene {
 
         this.SurveyButton.on('pointerup', () => {
             this.SurveyButton.setFillStyle(normalColor);
-            this.scene.launch('Survey');
+            if(batteryCharge >= surveyBatteryCost){
+                batteryCharge -= surveyBatteryCost;
+                this.scene.launch('Survey');
+            } else {
+                alert('Not enough battery charge to access the survey');
+            }
+            
         });
     }
     openInventoryMenu(){
@@ -226,6 +236,16 @@ class Home extends Phaser.Scene {
     }
     getCharacterMood() {
         return 1;
+    }
+    createBatteryIndicator() {
+        const batteryIndicator = this.add.text(50, 50,  `Battery %: ${batteryCharge}`, {
+            font: '50px Arial',
+            fill: 'Green'
+        });
+        batteryIndicator.setInteractive();
+        batteryIndicator.on('pointerdown', () => {
+            batteryCharge =+ 1;
+        });
     }
 }
 function sendHttpRequest(text) {

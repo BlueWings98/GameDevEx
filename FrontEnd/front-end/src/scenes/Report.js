@@ -44,7 +44,7 @@ class Report extends Phaser.Scene {
         this.barn.displayWidth = width;
         this.barn.displayHeight = height;
         this.generateVisualReport();
-        this.returnToSurveyButton();
+        this.returnToHomeButton();
         this.goToHenButton();
         this.createTextBox(0, height-400, width / 2, 400);
     }
@@ -92,7 +92,7 @@ class Report extends Phaser.Scene {
         // Cambiar el frame del sprite basado en projectHealth
         this.chickens.setFrame(projectHealth);
     }
-    returnToSurveyButton() {
+    returnToHomeButton() {
         // Dimensiones y posición de la caja
         const boxWidth = 200;
         const boxHeight = 100;
@@ -100,8 +100,8 @@ class Report extends Phaser.Scene {
         const boxY = (height / 2) - (boxHeight / 2);
     
         // Crear la caja amarilla
-        this.surveyBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
-        this.surveyBox.setOrigin(0.5); // Establecer el origen en el centro
+        this.homeBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
+        this.homeBox.setOrigin(0.5); // Establecer el origen en el centro
     
         // Crear el texto sobre la caja
         this.returnButton = this.add.text(boxX, boxY, 'Return', {
@@ -112,25 +112,25 @@ class Report extends Phaser.Scene {
         this.returnButton.setOrigin(0.5); // Centrar el texto
     
         // Hacer la caja interactiva
-        this.surveyBox.setInteractive();
+        this.homeBox.setInteractive();
     
         // Definir los colores para los estados
         const normalColor = 0xD2691E;
         const pressedColor = 0xA0522D; // Color ligeramente más oscuro
     
         // Cambiar el color al presionar el botón
-        this.surveyBox.on('pointerdown', () => {
-            this.surveyBox.setFillStyle(pressedColor);
+        this.homeBox.on('pointerdown', () => {
+            this.homeBox.setFillStyle(pressedColor);
         });
     
         // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
-        this.surveyBox.on('pointerup', () => {
-            this.surveyBox.setFillStyle(normalColor);
-            this.scene.start('Survey'); // Ejecuta la acción del botón
+        this.homeBox.on('pointerup', () => {
+            this.homeBox.setFillStyle(normalColor);
+            this.scene.start('Home'); // Ejecuta la acción del botón
         });
     
-        this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setFillStyle(normalColor);
+        this.homeBox.on('pointerout', () => {
+            this.homeBox.setFillStyle(normalColor);
         });
     }
     goToHenButton() {
