@@ -28,6 +28,7 @@ class Home extends Phaser.Scene {
         this.goToRewardsButton();
         this.goToReportsButton();
         this.openSurveyMenu();
+        this.openInventoryMenu();
     }
     createAndAddAnimations(characterMood) {
         const floorHeight = 500;
@@ -111,9 +112,33 @@ class Home extends Phaser.Scene {
             this.scene.launch('Survey');
         });
     }
-    openInventory(){
+    openInventoryMenu(){
         const boxWidth = 200;
         const boxHeight = 100;
+
+        this.InventoryButton = this.add.rectangle(width / 2, height / 1.2, boxWidth, boxHeight, 0xCD7F32);
+        this.InventoryButton.setOrigin(0.5);
+
+        this.InventoryText = this.add.text(width / 2, height / 1.2, 'Bag', {
+            fill: '#FFD700',
+            fontSize: '50px',
+            fontStyle: 'bold'
+        });
+        this.InventoryText.setOrigin(0.5);
+
+        this.InventoryButton.setInteractive();
+
+        const normalColor = 0xCD7F32;
+        const pressedColor = 0xE1C16E;
+
+        this.InventoryButton.on('pointerdown', () => {
+            this.InventoryButton.setFillStyle(pressedColor);
+        });
+
+        this.InventoryButton.on('pointerup', () => {
+            this.InventoryButton.setFillStyle(normalColor);
+            this.scene.launch('Inventory');
+        });
 
     }
     goToRewardsButton() {
