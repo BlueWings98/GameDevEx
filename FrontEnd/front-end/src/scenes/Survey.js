@@ -9,8 +9,10 @@ const imageWidth = 1417;
 const textPerPage = 50; // Maximum number of characters per page
 let textObject1;
 let textObject2;
-let fullText = "This is a long text that will be displayed inside the orange textbox. It needs pagination if it doesn't fit entirely within the box.";
-let displayedText = "";
+let writtenText = "This is a long text that will be displayed inside the orange textbox. It needs pagination if it doesn't fit entirely within the box.";
+let displayedUserText = "";
+let displayedGeneratedText = "";
+let generatedText = "";
 let currentPage = 0;
 let totalPages = 0;
 
@@ -33,7 +35,8 @@ class Survey extends Phaser.Scene {
         this.barn.displayHeight = height;
         let characterMood = this.getCharacterMood();
         this.createAndAddAnimations(characterMood);
-        this.createTextBox(0, height-400, width / 2, 400);
+        this.createWritableTextBox(0, height - 400, width / 2, 400);
+        this.createUnWritableTextBox(0, height - 400, width / 2, 400);
         this.goToRewardsButton();
         this.goToReportsButton();
     }
@@ -73,69 +76,67 @@ class Survey extends Phaser.Scene {
         // Add sprites and play corresponding animation based on characterMood
         switch (characterMood) {
             case 0:
-                this.Alegre = this.add.sprite(width /4, height - floorHeight - 50, "Alegre");
+                this.Alegre = this.add.sprite(width/1.5, height - floorHeight - 50, "Alegre");
                 this.Alegre.setScale(0.3);
                 this.Alegre.play("AnimAlegre");
                 break;
             case 2:
-                this.Triste = this.add.sprite(width /4, height - floorHeight - 50, "Triste");
+                this.Triste = this.add.sprite(width/1.5, height - floorHeight - 50, "Triste");
                 this.Triste.setScale(0.3);
                 this.Triste.play("AnimTriste");
                 break;
             case 3:
-                this.Enojado = this.add.sprite(width /4, height - floorHeight - 50, "Enojado");
+                this.Enojado = this.add.sprite(width/1.5, height - floorHeight - 50, "Enojado");
                 this.Enojado.setScale(0.3);
                 this.Enojado.play("AnimEnojado");
                 break;
             default:
-                this.Neutral = this.add.sprite(width /4, height - floorHeight - 50, "Neutral");
+                this.Neutral = this.add.sprite(width/1.5, height - floorHeight - 50, "Neutral");
                 this.Neutral.setScale(0.3);
                 this.Neutral.play("AnimNeutral");
                 break;
         }
     }
 
-    createTextBox(x, y, width, height) {
+    createWritableTextBox(x, y, width, height) {
         const textBox1 = this.add.graphics();
-        const textBox2 = this.add.graphics();
         textBox1.fillStyle(0xeabe63, 1); // Orange color
-        textBox2.fillStyle(0xeabe63, 1); // Orange color
         textBox1.fillRect(x, y, width, height);
-        textBox2.fillRect(width, y, width, height);
-        // Crear un objeto de texto en la pantalla
-        textObject1 = this.add.text(x + 20, y + 20, fullText, {
+    
+        textObject1 = this.add.text(x + 20, y + 20, displayedUserText, {
             font: '50px Arial',
             fill: 'Black',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
         });
-        textObject2 = this.add.text(width + 20, y + 20, fullText, {
-            font: '50px Arial',
-            fill: 'Black',
-            wordWrap: { width: width - 20, useAdvancedWrap: true }
-        });
-        // Calculate total pages based on text length
-        totalPages = Math.ceil(fullText.length / textPerPage);
-        console.log(totalPages);
-        // Configurar el teclado para recibir entrada de texto
+    
         this.input.keyboard.on('keydown', function (event) {
-            // Si presionan la tecla "Backspace"
             if (event.key === 'Enter') {
-                sendHttpRequest(fullText);
-            } else if (event.key === 'Backspace' && fullText.length > 0) {
-                fullText = fullText.slice(0, -1);
+                generatedText = sendHttpRequest(writtenText);
+                writtenText = "";
+            } else if (event.key === 'Backspace' && writtenText.length > 0) {
+                writtenText = writtenText.slice(0, -1);
             } else if (event.key.length === 1) {
-                // Añadir el carácter a la cadena
-                fullText += event.key;
+                writtenText += event.key;
             } else if (event.key === 'ArrowRight' && currentPage < totalPages - 1) {
                 currentPage++;
             } else if (event.key === 'ArrowLeft' && currentPage > 0) {
                 currentPage--;
             }
-            // Actualizar el texto en pantalla
-            textObject1.setText(displayedText);
             updateText();
         });
 
+    }
+    createUnWritableTextBox(x, y, width, height) {
+        const textBox2 = this.add.graphics();
+        textBox2.fillStyle(0xeabe63, 1); // Orange color
+        textBox2.fillRect(width, y, width, height);
+    
+        textObject2 = this.add.text(width + 20, y + 20, displayedGeneratedText, {
+            font: '50px Arial',
+            fill: 'Black',
+            wordWrap: { width: width - 20, useAdvancedWrap: true }
+        });
+    
     }
     goToRewardsButton() {
         // Dimensiones y posición de la caja
@@ -222,26 +223,33 @@ class Survey extends Phaser.Scene {
 
 }
 function sendHttpRequest(text) {
-    fullText = "Esto es lo que devolveria el servidor";
+    return "Esto es lo que devolveria el servidor";
 }
 function updateText() {
-    // Divide el texto completo en líneas
-    const lines = fullText.split('\n');
+    // Divide el texto completo en líneas para el cuadro de texto escribible
+    const linesWritable = writtenText.split('\n');
+    const linesAvailableWritable = linesWritable.length;
+    const linesToShowWritable = Math.min(4, linesAvailableWritable);
 
-    // Calcula el número de líneas disponibles y el número máximo de líneas a mostrar
-    const linesAvailable = lines.length;
-    const linesToShow = Math.min(4, linesAvailable);
-
-    // Construye el texto a mostrar, uniendo las líneas necesarias con saltos de línea
-    let displayedText = '';
-    for (let i = 0; i < linesToShow; i++) {
-        displayedText += lines[i] + '\n';
+    displayedUserText = "";
+    for (let i = 0; i < linesToShowWritable; i++) {
+        displayedUserText += linesWritable[i] + '\n';
     }
+    displayedUserText = displayedUserText.trim();
+    textObject1.setText(displayedUserText);
 
-    // Elimina el último salto de línea si existe
-    displayedText = displayedText.trim();
+    // Divide el texto completo en líneas para el cuadro de texto no escribible
+    const linesUnWritable = generatedText.split('\n');
+    console.log(linesUnWritable);
+    const linesAvailableUnWritable = linesUnWritable.length;
+    const linesToShowUnWritable = Math.min(4, linesAvailableUnWritable);
+    console.log(linesToShowUnWritable);
 
-    // Establece el texto en el objeto de texto
-    textObject1.setText(displayedText);
+    displayedGeneratedText = "";
+    for (let i = 0; i < linesToShowUnWritable; i++) {
+        displayedGeneratedText += linesUnWritable[i] + '\n';
+    }
+    displayedGeneratedText = displayedGeneratedText.trim();
+    textObject2.setText(displayedGeneratedText);
 }
 export default Survey;
