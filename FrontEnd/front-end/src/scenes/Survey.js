@@ -21,6 +21,7 @@ class Survey extends Phaser.Scene {
         this.createWritableTextBox(0, height - 400, width / 2, 400);
         this.createUnWritableTextBox(0, height - 400, width / 2, 400);
         this.createExitButton();
+        updateText();
     }
 
     createWritableTextBox(x, y, width, height) {

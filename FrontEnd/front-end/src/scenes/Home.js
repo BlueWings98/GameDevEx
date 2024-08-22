@@ -7,7 +7,7 @@ const height = 835;
 const imageHeight = 1390;
 const imageWidth = 1417;
 const textPerPage = 50; // Maximum number of characters per page
-const surveyBatteryCost = 50;
+const surveyBatteryCost = 25;
 
 let batteryCharge = 100;
 
@@ -16,11 +16,18 @@ class Home extends Phaser.Scene {
         super({ key: 'Home' });
     }
     preload() {
+        //Background
         this.load.image('barn', `${backgroundDir}CampoVainilla.png`);
-        this.load.spritesheet("Alegre", `${spritesDir}A.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
-        this.load.spritesheet("Triste", `${spritesDir}T.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
-        this.load.spritesheet("Enojado", `${spritesDir}E.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
-        this.load.spritesheet("Neutral", `${spritesDir}N.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
+        //Character sprites
+        var characterSkin = this.getCharacterSkin();
+        this.load.spritesheet("Alegre", `${spritesDir}/${characterSkin}/A.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
+        this.load.spritesheet("Triste", `${spritesDir}/${characterSkin}/T.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
+        this.load.spritesheet("Enojado", `${spritesDir}/${characterSkin}/E.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
+        this.load.spritesheet("Neutral", `${spritesDir}/${characterSkin}/N.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
+        //Battery indicator
+        this.load.spritesheet('battery', '../assets/sprites/battery/Batteries.png', { frameWidth: imageWidth, frameHeight: imageHeight });
+
+
     }
     create(){
         this.barn = this.add.image(width / 2, height / 2, 'barn');
@@ -237,6 +244,9 @@ class Home extends Phaser.Scene {
     getCharacterMood() {
         return 1;
     }
+    getCharacterSkin(){
+        return "Green";
+    }
     createBatteryIndicator() {
         const batteryIndicator = this.add.text(50, 50,  `Battery %: ${batteryCharge}`, {
             font: '50px Arial',
@@ -246,6 +256,25 @@ class Home extends Phaser.Scene {
         batteryIndicator.on('pointerdown', () => {
             batteryCharge =+ 1;
         });
+        this.battery = this.add.sprite(420, 60, 'battery');
+        this.battery.displayHeight = 130;
+        this.battery.displayWidth = 130;
+        this.updateBatteryIndicator();
+
+    }
+    updateBatteryIndicator() {
+        // Clamp the battery charge between 0 and 100
+        let batterySprite = Phaser.Math.Clamp(batteryCharge, 0, 100);
+        
+        // Calculate the corresponding frame (0 to 4)
+        batterySprite = Phaser.Math.FloorTo(batterySprite / 25);
+        
+        // Invert the frame order
+        const totalFrames = 5; // Assuming there are 5 frames (0 to 4)
+        const invertedFrame = totalFrames - 1 - batterySprite;
+        
+        // Set the frame to the battery sprite
+        this.battery.setFrame(invertedFrame);
     }
 }
 function sendHttpRequest(text) {

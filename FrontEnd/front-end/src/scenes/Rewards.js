@@ -36,7 +36,7 @@ class Rewards extends Phaser.Scene {
         super({key :'Rewards'});
     }
     preload() {
-        this.load.image('saucer', `${backgroundDir}GoldSaucer.png`);
+        this.load.image('saucer', `${backgroundDir}Casino.png`);
     }
     create() {
         this.saucer = this.add.image(width / 2, height / 2, 'saucer');
