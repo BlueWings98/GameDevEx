@@ -1,11 +1,14 @@
 import Phaser from "phaser";
 
 const backgroundDir = '../assets/background/';
+const itemsDir = '../assets/sprites/items/';
+const pullsDir = '../assets/sprites/pulls/';
 const width = 1690;
 const height = 835;
 const rewards = [
     {
-        GameItemId: "1",
+        GameItemId: "0",
+        Name : "Oran",
         Sprite: "Oran.png",
         Description: "Dulce, especial para jalea.",
         Categoria: "Comida",
@@ -13,7 +16,8 @@ const rewards = [
         IsUnique: false
     },
     {
-        GameItemId: "2",
+        GameItemId: "1",
+        Name : "Zidra",
         Sprite: "Zidra.png",
         Description: "Ácida, va bien con el arroz.",
         Categoria: "Comida",
@@ -21,7 +25,8 @@ const rewards = [
         IsUnique: false
     },
     {
-        GameItemId: "3",
+        GameItemId: "2",
+        Name : "Ziruela",
         Sprite: "Ziruela.png",
         Description: "Deliciosa fruta verde con semillas jugosas.",
         Categoria: "Comida",
@@ -30,6 +35,7 @@ const rewards = [
     }
 ];
 var inventory = [];
+var coinCounter = 0;
 
 class Rewards extends Phaser.Scene {
     constructor() {
@@ -37,54 +43,79 @@ class Rewards extends Phaser.Scene {
     }
     preload() {
         this.load.image('saucer', `${backgroundDir}Casino.png`);
+        this.load.image('coins', `${itemsDir}Coin.png`);
+        this.load.image('pull1', `${pullsDir}Pull1.png`);
+        this.load.image('pull10', `${pullsDir}Pull10.png`);
+
+        //Preload the rewards
+        rewards.forEach((reward, index) => {
+            this.load.image('reward' + index, `${itemsDir}${reward.Sprite}`);
+            console.log("Reward loaded: ", reward, " ", `${itemsDir}${reward.Sprite}`);
+        });
     }
     create() {
         this.saucer = this.add.image(width / 2, height / 2, 'saucer');
         this.saucer.displayWidth = width;
         this.saucer.displayHeight = height;
+        this.coins = this.add.image(100, 100, 'coins');
+        this.coins.displayWidth = 200;
+        this.coins.displayHeight = 200;
+        getCoins();
+        this.coinsText = this.add.text(170, 80,"X " + coinCounter, {
+            fill: '#FFD700',
+            fontSize: '70px',
+            fontStyle: 'bold'
+        });
         this.createPullsButton();
         this.returnToHomeButton();
     }
     createPullsButton() {
-        // Dimensiones y posición de la caja
-        const boxWidth = 200;
-        const boxHeight = 100;
-        const boxX = (width / 2) - (boxWidth / 2);
-        const boxY = (height / 2) - (boxHeight / 2);
-
-        // Crear la caja naranja
-        this.pullsBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xFFA500);
-        this.pullsBox.setOrigin(0); // Establecer el origen en la esquina superior izquierda
-
-        // Crear el texto sobre la caja
-        this.pullsButton = this.add.text(boxX + boxWidth / 2, boxY + boxHeight / 2, 'Pull', {
-            fill: '#FFD700',
-            fontSize: '50px',
-            fontStyle: 'bold'
+        // Cargar las imágenes de los botones
+        this.pull1Button = this.add.image(width / 2 - 130, height-170, 'pull1').setInteractive();
+        //this.pull10Button = this.add.image(width / 2 + 130, height-170, 'pull10').setInteractive();
+    
+        // Escalar las imágenes si es necesario
+        this.pull1Button.setScale(0.2); // Ajusta la escala según sea necesario
+        //this.pull10Button.setScale(0.2); // Ajusta la escala según sea necesario
+    
+        // Hacer los botones interactivos y definir las acciones
+        this.pull1Button.on('pointerdown', () => {
+            this.pull1Button.setTint(0xFF8C00); // Cambia el color cuando se presiona
         });
-        this.pullsButton.setOrigin(0.5); // Centrar el texto
-
-        // Hacer la caja interactiva
-        this.pullsBox.setInteractive();
-
-        // Definir los colores para los estados
-        const normalColor = 0xFFA500;
-        const pressedColor = 0xFF8C00; // Color ligeramente más oscuro
-
-        // Cambiar el color al presionar el botón
-        this.pullsBox.on('pointerdown', () => {
-            this.pullsBox.setFillStyle(pressedColor);
+    
+        this.pull1Button.on('pointerup', () => {
+            this.pull1Button.clearTint(); // Restaura el color original
+            if(coinCounter >= 1){
+                this.generateReward(1);
+                this.coinsText.setText("X " + coinCounter);
+                this.pull1Button.disableInteractive();
+            } else {
+                alert("Not enough coins to pull.");
+            }
+             // Ejecuta la acción del botón para 1 pull
         });
-
-        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
-        this.pullsBox.on('pointerup', () => {
-            this.pullsBox.setFillStyle(normalColor);
-            generateReward(); // Ejecuta la acción del botón
+    
+        this.pull1Button.on('pointerout', () => {
+            this.pull1Button.clearTint(); // Restaura el color si el cursor se mueve fuera
         });
-
-        this.pullsBox.on('pointerout', () => {
-            this.pullsBox.setFillStyle(normalColor);
+    
+        /*this.pull10Button.on('pointerdown', () => {
+            this.pull10Button.setTint(0xFF8C00); // Cambia el color cuando se presiona
         });
+    
+        this.pull10Button.on('pointerup', () => {
+            this.pull10Button.clearTint(); // Restaura el color original
+            if(coinCounter >= 10){
+                this.generateReward(11); // Ejecuta la acción del botón para 10+1 pulls
+                this.coinsText.setText("X " + coinCounter);
+            } else {
+                alert("Not enough coins to pull.");
+            }
+        });
+    
+        this.pull10Button.on('pointerout', () => {
+            this.pull10Button.clearTint(); // Restaura el color si el cursor se mueve fuera
+        });*/
     }
 
 
@@ -129,18 +160,74 @@ class Rewards extends Phaser.Scene {
             this.homeBox.setFillStyle(normalColor);
         });
     }
+
+    generateReward(coinsToPull) {
+        const reward = sendHttpRequest(coinsToPull);
+        
+        for (let i = 0; i < reward.length; i++) {
+            const imageKey = 'reward' + reward[i].GameItemId; // Usa un id único o el índice cargado
+    
+            console.log("Image key: " +imageKey);
+            // Añadir la imagen precargada a la escena
+            this.displayedReward = this.add.image(width / 2, height / 2, imageKey);
+            this.displayedReward.displayWidth = 200;
+            this.displayedReward.displayHeight = 200;
+            console.log(this.displayedReward);
+    
+            // Añadir textos
+            this.rewardText1 = this.add.text(width / 2, height / 2 - 100, reward[i].Name, {
+                fill: '#FFD700',
+                fontSize: '50px',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+    
+            this.rewardText2 = this.add.text(width / 2, height / 2 - 50, reward[i].Rareza, {
+                fill: '#FFD700',
+                fontSize: '50px',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+    
+            this.rewardText3 = this.add.text(width / 2, height / 2, reward[i].Description, {
+                fill: '#FFD700',
+                fontSize: '50px',
+                fontStyle: 'bold'
+            }).setOrigin(0.5);
+    
+            // Configurar el botón interactivo
+            this.displayedReward.setInteractive();
+            this.displayedReward.on('pointerdown', () => {
+                this.displayedReward.destroy();
+                this.rewardText1.destroy();
+                this.rewardText2.destroy();
+                this.rewardText3.destroy();
+                this.pull1Button.setInteractive();
+                //this.pull10Button.setInteractive();
+            });
+    
+            inventory.push(reward[i]);
+            console.log("Reward added to inventory: ", reward[i]);
+        }
+    
+        console.log("Current inventory: ", inventory);
+    }
     
 }
-function generateReward() {
-    const reward = sendHttpRequest();
-    inventory.push(reward);
-    console.log("Reward added to inventory: ", reward);
-    console.log("Current inventory: ", inventory);
+function getCoins(){
+    coinCounter = 10;
 }
-function sendHttpRequest() {
-    const randomIndex = Math.floor(Math.random() * rewards.length);
+function sendHttpRequest(coinsToPull) {
+    const rewardsArray = [];
 
-    // Devolvemos la recompensa seleccionada aleatoriamente
-    return rewards[randomIndex];
+    for (let i = 0; i < coinsToPull; i++) {
+        const randomIndex = Math.floor(Math.random() * rewards.length);
+        rewardsArray.push(rewards[randomIndex]);
+    }
+    coinCounter -= coinsToPull;
+    if(coinsToPull >= 10){
+        coinCounter += 1;
+    }
+
+    // Devolvemos un array con la cantidad especificada de recompensas aleatorias
+    return rewardsArray;
 }
 export default Rewards;
