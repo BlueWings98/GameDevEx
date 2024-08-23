@@ -8,7 +8,7 @@ const height = 835;
 const rewards = [
     {
         GameItemId: "0",
-        Name : "Oran",
+        Name: "Oran",
         Sprite: "Oran.png",
         Description: "Dulce, especial para jalea.",
         Categoria: "Comida",
@@ -17,7 +17,7 @@ const rewards = [
     },
     {
         GameItemId: "1",
-        Name : "Zidra",
+        Name: "Zidra",
         Sprite: "Zidra.png",
         Description: "Ácida, va bien con el arroz.",
         Categoria: "Comida",
@@ -26,12 +26,57 @@ const rewards = [
     },
     {
         GameItemId: "2",
-        Name : "Ziruela",
+        Name: "Ziruela",
         Sprite: "Ziruela.png",
         Description: "Deliciosa fruta verde con semillas jugosas.",
         Categoria: "Comida",
         Rareza: "Común",
         IsUnique: false
+    },
+    {
+        GameItemId: "3",
+        Name: "Skin Azul",
+        Sprite: "SkinAzul.png",
+        Description: "Una skin azul para tu personaje.",
+        Categoria: "Skin",
+        Rareza: "Raro",
+        IsUnique: true
+    },
+    {
+        GameItemId: "4",
+        Name: "Skin Rosada",
+        Sprite: "SkinRosada.png",
+        Description: "Una skin rosada para tu personaje.",
+        Categoria: "Skin",
+        Rareza: "Raro",
+        IsUnique: true
+    },
+    {
+        GameItemId: "5",
+        Name: "Skin Verde",
+        Sprite: "SkinVerde.png",
+        Description: "Una skin verde para tu personaje.",
+        Categoria: "Skin",
+        Rareza: "Raro",
+        IsUnique: true
+    },
+    {
+        GameItemId: "6",
+        Name: "Minijuego Snake",
+        Sprite: "MinijuegoSnake.png",
+        Description: "Desbloquea el minijuego Snake.",
+        Categoria: "Minijuego",
+        Rareza: "Epico",
+        IsUnique: true
+    },
+    {
+        GameItemId: "7",
+        Name: "Gallo de Diamante",
+        Sprite: "GalloDiamante.png",
+        Description: "El premio mas gordo de todos. Lo lograste.",
+        Categoria: "Jackpot",
+        Rareza: "Legendario",
+        IsUnique: true
     }
 ];
 var inventory = [];
@@ -170,13 +215,13 @@ class Rewards extends Phaser.Scene {
             console.log("Image key: " +imageKey);
             // Añadir la imagen precargada a la escena
             this.displayedReward = this.add.image(width / 2, height / 2, imageKey);
-            this.displayedReward.displayWidth = 200;
-            this.displayedReward.displayHeight = 200;
+            this.displayedReward.displayWidth = 300;
+            this.displayedReward.displayHeight = 300;
             console.log(this.displayedReward);
     
             // Añadir textos
             this.rewardText1 = this.add.text(width / 2, height / 2 - 100, reward[i].Name, {
-                fill: '#FFD700',
+                fill: '#FFFFFF',
                 fontSize: '50px',
                 fontStyle: 'bold'
             }).setOrigin(0.5);

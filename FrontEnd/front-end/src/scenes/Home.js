@@ -248,7 +248,10 @@ class Home extends Phaser.Scene {
         return "Green";
     }
     createBatteryIndicator() {
-        const batteryIndicator = this.add.text(50, 50,  `Battery %: ${batteryCharge}`, {
+        this.battery = this.add.sprite(150, 150, 'battery');
+        this.battery.displayHeight = 400;
+        this.battery.displayWidth = 400;
+        const batteryIndicator = this.add.text(95, 140,  `%${batteryCharge}`, {
             font: '50px Arial',
             fill: 'Green'
         });
@@ -256,13 +259,10 @@ class Home extends Phaser.Scene {
         batteryIndicator.on('pointerdown', () => {
             batteryCharge =+ 1;
         });
-        this.battery = this.add.sprite(420, 60, 'battery');
-        this.battery.displayHeight = 130;
-        this.battery.displayWidth = 130;
-        this.updateBatteryIndicator();
+        this.updateBatteryIndicator(batteryIndicator);
 
     }
-    updateBatteryIndicator() {
+    updateBatteryIndicator(batteryIndicator) {
         // Clamp the battery charge between 0 and 100
         let batterySprite = Phaser.Math.Clamp(batteryCharge, 0, 100);
         
@@ -275,6 +275,7 @@ class Home extends Phaser.Scene {
         
         // Set the frame to the battery sprite
         this.battery.setFrame(invertedFrame);
+        batteryIndicator.setText(`%${batteryCharge}`);
     }
 }
 function sendHttpRequest(text) {
