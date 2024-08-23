@@ -46,6 +46,7 @@ class Report extends Phaser.Scene {
         this.generateVisualReport();
         this.returnToHomeButton();
         this.goToHenButton();
+        this.goToTiberonConfigButton();
         this.createTextBox(0, height-400, width / 2, 400);
     }
     createTextBox(x, y, width, height) {
@@ -131,6 +132,47 @@ class Report extends Phaser.Scene {
     
         this.homeBox.on('pointerout', () => {
             this.homeBox.setFillStyle(normalColor);
+        });
+    }
+    goToTiberonConfigButton() {
+        // Dimensiones y posición de la caja
+        const boxWidth = 200;
+        const boxHeight = 100;
+        const boxX =  width - boxWidth;
+        const boxY = (height / 2) - (boxHeight / 2) - 200;
+    
+        // Crear la caja amarilla
+        this.tiberonBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
+        this.tiberonBox.setOrigin(0.5); // Establecer el origen en el centro
+    
+        // Crear el texto sobre la caja
+        this.tiberonButton = this.add.text(boxX, boxY, 'Config', {
+            fill: '#FFD700',
+            fontSize: '50px',
+            fontStyle: 'bold'
+        });
+        this.tiberonButton.setOrigin(0.5); // Centrar el texto
+    
+        // Hacer la caja interactiva
+        this.tiberonBox.setInteractive();
+    
+        // Definir los colores para los estados
+        const normalColor = 0xD2691E;
+        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
+    
+        // Cambiar el color al presionar el botón
+        this.tiberonBox.on('pointerdown', () => {
+            this.tiberonBox.setFillStyle(pressedColor);
+        });
+    
+        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
+        this.tiberonBox.on('pointerup', () => {
+            this.tiberonBox.setFillStyle(normalColor);
+            this.scene.start('TiberonConfig'); // Ejecuta la acción del botón
+        });
+    
+        this.tiberonBox.on('pointerout', () => {
+            this.tiberonBox.setFillStyle(normalColor);
         });
     }
     goToHenButton() {
