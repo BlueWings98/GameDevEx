@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Builder
+@Table(name = "playerinventory")
 public class PlayerInventory {
 
     @EmbeddedId
