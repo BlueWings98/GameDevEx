@@ -12,8 +12,8 @@ const rewards = [
         Name: "Oran",
         Sprite: "Oran.png",
         Description: "Dulce, especial para jalea.",
-        Categoria: "Comida",
-        Rareza: "Común",
+        Category: "Comida",
+        Rarity: "Común",
         IsUnique: false
     },
     {
@@ -21,8 +21,8 @@ const rewards = [
         Name: "Zidra",
         Sprite: "Zidra.png",
         Description: "Ácida, va bien con el arroz.",
-        Categoria: "Comida",
-        Rareza: "Común",
+        Category: "Comida",
+        Rarity: "Común",
         IsUnique: false
     },
     {
@@ -30,8 +30,8 @@ const rewards = [
         Name: "Ziruela",
         Sprite: "Ziruela.png",
         Description: "Deliciosa fruta verde con semillas jugosas.",
-        Categoria: "Comida",
-        Rareza: "Común",
+        Category: "Comida",
+        Rarity: "Común",
         IsUnique: false
     },
     {
@@ -39,8 +39,8 @@ const rewards = [
         Name: "Skin Azul",
         Sprite: "SkinAzul.png",
         Description: "Una skin azul para tu personaje.",
-        Categoria: "Skin",
-        Rareza: "Raro",
+        Category: "Skin",
+        Rarity: "Raro",
         IsUnique: true
     },
     {
@@ -48,8 +48,8 @@ const rewards = [
         Name: "Skin Rosada",
         Sprite: "SkinRosada.png",
         Description: "Una skin rosada para tu personaje.",
-        Categoria: "Skin",
-        Rareza: "Raro",
+        Category: "Skin",
+        Rarity: "Raro",
         IsUnique: true
     },
     {
@@ -57,8 +57,8 @@ const rewards = [
         Name: "Skin Verde",
         Sprite: "SkinVerde.png",
         Description: "Una skin verde para tu personaje.",
-        Categoria: "Skin",
-        Rareza: "Raro",
+        Category: "Skin",
+        Rarity: "Raro",
         IsUnique: true
     },
     {
@@ -66,8 +66,8 @@ const rewards = [
         Name: "Minijuego Snake",
         Sprite: "MinijuegoSnake.png",
         Description: "Desbloquea el minijuego Snake.",
-        Categoria: "Minijuego",
-        Rareza: "Epico",
+        Category: "Minijuego",
+        Rarity: "Epico",
         IsUnique: true
     },
     {
@@ -75,8 +75,8 @@ const rewards = [
         Name: "Gallo de Diamante",
         Sprite: "GalloDiamante.png",
         Description: "El premio mas gordo de todos. Lo lograste.",
-        Categoria: "Jackpot",
-        Rareza: "Legendario",
+        Category: "Jackpot",
+        Rarity: "Legendario",
         IsUnique: true
     }
 ];
@@ -157,8 +157,8 @@ class Inventory extends Phaser.Scene {
     
     triggerItemEvent(item) {
         console.log(item);
-        console.log("Item clicked: ", item.Name, " ", item.Categoria);
-        switch (item.Categoria) {
+        console.log("Item clicked: ", item.Name, " ", item.Category);
+        switch (item.Category) {
             case 'Comida':
                 alert("Comida seleccionada, evento específico para comida.");
                 // Aquí podrías añadir la lógica específica para la categoría 'Comida'
@@ -177,7 +177,7 @@ class Inventory extends Phaser.Scene {
                 break;
             // Añadir más categorías según sea necesario
             default:
-                alert("Evento genérico para la categoría: " + item.Categoria);
+                alert("Evento genérico para la categoría: " + item.Category);
         }
     }
     createExitButton() {
@@ -200,8 +200,8 @@ function getInventoryByHttp() {
             Name: "Oran",
             Sprite: "Oran.png",
             Description: "Dulce, especial para jalea.",
-            Categoria: "Comida",
-            Rareza: "Común",
+            Category: "Comida",
+            Rarity: "Común",
             IsUnique: false,
             Quantity: 1
         },
@@ -210,8 +210,8 @@ function getInventoryByHttp() {
             Name: "Zidra",
             Sprite: "Zidra.png",
             Description: "Ácida, va bien con el arroz.",
-            Categoria: "Comida",
-            Rareza: "Común",
+            Category: "Comida",
+            Rarity: "Común",
             IsUnique: false,
             Quantity: 1
         },
@@ -220,8 +220,8 @@ function getInventoryByHttp() {
             Name: "Ziruela",
             Sprite: "Ziruela.png",
             Description: "Deliciosa fruta verde con semillas jugosas.",
-            Categoria: "Comida",
-            Rareza: "Común",
+            Category: "Comida",
+            Rarity: "Común",
             IsUnique: false,
             Quantity: 1
         },
@@ -230,8 +230,8 @@ function getInventoryByHttp() {
             Name: "Skin Azul",
             Sprite: "SkinAzul.png",
             Description: "Una skin azul para tu personaje.",
-            Categoria: "Skin",
-            Rareza: "Raro",
+            Category: "Skin",
+            Rarity: "Raro",
             IsUnique: true,
             Quantity: 1
         },
@@ -240,8 +240,8 @@ function getInventoryByHttp() {
             Name: "Skin Rosada",
             Sprite: "SkinRosada.png",
             Description: "Una skin rosada para tu personaje.",
-            Categoria: "Skin",
-            Rareza: "Raro",
+            Category: "Skin",
+            Rarity: "Raro",
             IsUnique: true,
             Quantity: 1
         },
@@ -250,8 +250,8 @@ function getInventoryByHttp() {
             Name: "Skin Verde",
             Sprite: "SkinVerde.png",
             Description: "Una skin verde para tu personaje.",
-            Categoria: "Skin",
-            Rareza: "Raro",
+            Category: "Skin",
+            Rarity: "Raro",
             IsUnique: true,
             Quantity: 1
         },
@@ -260,8 +260,8 @@ function getInventoryByHttp() {
             Name: "Minijuego Snake",
             Sprite: "MinijuegoSnake.png",
             Description: "Desbloquea el minijuego Snake.",
-            Categoria: "Minijuego",
-            Rareza: "Epico",
+            Category: "Minijuego",
+            Rarity: "Epico",
             IsUnique: true,
             Quantity: 1
         },
@@ -270,8 +270,8 @@ function getInventoryByHttp() {
             Name: "Gallo de Diamante",
             Sprite: "GalloDiamante.png",
             Description: "El premio mas gordo de todos. Lo lograste.",
-            Categoria: "Jackpot",
-            Rareza: "Legendario",
+            Category: "Jackpot",
+            Rarity: "Legendario",
             IsUnique: true,
             Quantity: 1
         }
