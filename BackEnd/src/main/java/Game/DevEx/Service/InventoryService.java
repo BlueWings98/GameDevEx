@@ -1,5 +1,7 @@
 package Game.DevEx.Service;
 
+import Game.DevEx.Entity.PlayerInventory;
+import Game.DevEx.Entity.PlayerInventoryId;
 import Game.DevEx.Repository.PlayerInventoryRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,4 +39,46 @@ public class InventoryService {
             return new JSONObject();
         }
     }
+    public boolean useItem (int userId, int gameItemId, int quantity) {
+        // Get the desired object
+        PlayerInventory gameObjectEntry = playerInventoryRepository.findById(new PlayerInventoryId(userId, gameItemId)).orElse(null);
+
+        // Check if the object exists and if the quantity is enough. It should never be negative.
+        if (gameObjectEntry != null && gameObjectEntry.getQuantity() >= quantity && quantity >= 0) {
+            // Update the quantity
+            gameObjectEntry.setQuantity(gameObjectEntry.getQuantity() - quantity);
+            playerInventoryRepository.save(gameObjectEntry);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public boolean addItem(int userId, int gameItemId, int quantity) {
+        // Ensure the quantity is positive
+        if (quantity < 0) {
+            return false;
+        }
+
+        // Create the ID for the PlayerInventory
+        PlayerInventoryId id = new PlayerInventoryId(userId, gameItemId);
+
+        // Retrieve the existing entry, if it exists
+        PlayerInventory gameObjectEntry = playerInventoryRepository.findById(id).orElse(null);
+
+        if (gameObjectEntry != null) {
+            // Update the quantity of the existing entry
+            gameObjectEntry.setQuantity(gameObjectEntry.getQuantity() + quantity);
+        } else {
+            // Create a new entry if it does not exist
+            gameObjectEntry = new PlayerInventory();
+            gameObjectEntry.setId(id);
+            gameObjectEntry.setQuantity(quantity);
+        }
+
+        // Save the updated or newly created entry
+        playerInventoryRepository.save(gameObjectEntry);
+
+        return true;
+    }
+
 }
