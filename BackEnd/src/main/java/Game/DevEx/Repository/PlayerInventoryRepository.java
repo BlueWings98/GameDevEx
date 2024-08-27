@@ -1,7 +1,7 @@
 package Game.DevEx.Repository;
 
 import Game.DevEx.Entity.PlayerInventory;
-import Game.DevEx.Entity.PlayerInventoryId;
+import Game.DevEx.Embedded.PlayerInventoryId;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

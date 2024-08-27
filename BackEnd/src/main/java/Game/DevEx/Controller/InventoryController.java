@@ -39,7 +39,6 @@ public class InventoryController {
     }
     @PutMapping("/add-item")
     public ResponseEntity<String> addItem(@RequestBody UseItemRequestDto request) {
-        System.out.println(" " + request.getUserID() + " " +  request.getItemID() + " "  +request.getQuantity());
         boolean success = inventoryService.addItem(request.getUserID(), request.getItemID(), request.getQuantity());
         if (success) {
             return ResponseEntity.ok("Item added successfully.");

@@ -1,7 +1,7 @@
 package Game.DevEx.Service;
 
 import Game.DevEx.Entity.PlayerInventory;
-import Game.DevEx.Entity.PlayerInventoryId;
+import Game.DevEx.Embedded.PlayerInventoryId;
 import Game.DevEx.Repository.PlayerInventoryRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +79,10 @@ public class InventoryService {
         playerInventoryRepository.save(gameObjectEntry);
 
         return true;
+    }
+    public boolean hasItem(int userId, int gameItemId) {
+        // Check if the item exists in the inventory
+        return playerInventoryRepository.existsById(new PlayerInventoryId(userId, gameItemId));
     }
 
 }

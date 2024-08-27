@@ -1,19 +1,14 @@
-package Game.DevEx.Entity;
+package Game.DevEx.Embedded;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Entity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
-@Data
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Getter
+@Setter
 @Embeddable
 public class PlayerInventoryId implements Serializable {
 

@@ -1,5 +1,6 @@
 package Game.DevEx.Entity;
 
+import Game.DevEx.Embedded.PlayerInventoryId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

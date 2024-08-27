@@ -18,7 +18,7 @@ public class GameItemController {
 
     @GetMapping
     public String getAllGameItems() {
-        return gameItemService.getAllGameItems().toString();
+        return gameItemService.getAllGameItems();
     }
 
 }

@@ -39,4 +39,7 @@ public class GameItemService {
 
         return jsonArray.toString();
     }
+    public GameItem getGameItemById(int gameItemId) {
+        return gameItemRepository.findById(gameItemId).orElse(null);
+    }
 }
