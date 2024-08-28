@@ -5,10 +5,7 @@ import Game.DevEx.Service.InventoryService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.Console;
 
@@ -23,9 +20,7 @@ public class InventoryController {
 
 
     @GetMapping("/inventory")
-    public String getUserInventory(@RequestBody String userID) {
-        JSONObject response = new JSONObject(userID);
-        userID = response.getString("userID");
+    public String getUserInventory(@RequestParam("userID") String userID) {
         return inventoryService.getGameItemsAsJson(Integer.parseInt(userID)).toString();
     }
     @PutMapping("/use-item")

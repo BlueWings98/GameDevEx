@@ -5,81 +5,9 @@ const width = 1690;
 const height = 835;
 const itemsDir = '../assets/sprites/items/';
 const backgroundDir = '../assets/background/';
+const backendUrl = 'http://localhost:8080/';
 
-const rewards = [
-    {
-        GameItemId: "0",
-        Name: "Oran",
-        Sprite: "Oran.png",
-        Description: "Dulce, especial para jalea.",
-        Category: "Comida",
-        Rarity: "Común",
-        IsUnique: false
-    },
-    {
-        GameItemId: "1",
-        Name: "Zidra",
-        Sprite: "Zidra.png",
-        Description: "Ácida, va bien con el arroz.",
-        Category: "Comida",
-        Rarity: "Común",
-        IsUnique: false
-    },
-    {
-        GameItemId: "2",
-        Name: "Ziruela",
-        Sprite: "Ziruela.png",
-        Description: "Deliciosa fruta verde con semillas jugosas.",
-        Category: "Comida",
-        Rarity: "Común",
-        IsUnique: false
-    },
-    {
-        GameItemId: "3",
-        Name: "Skin Azul",
-        Sprite: "SkinAzul.png",
-        Description: "Una skin azul para tu personaje.",
-        Category: "Skin",
-        Rarity: "Raro",
-        IsUnique: true
-    },
-    {
-        GameItemId: "4",
-        Name: "Skin Rosada",
-        Sprite: "SkinRosada.png",
-        Description: "Una skin rosada para tu personaje.",
-        Category: "Skin",
-        Rarity: "Raro",
-        IsUnique: true
-    },
-    {
-        GameItemId: "5",
-        Name: "Skin Verde",
-        Sprite: "SkinVerde.png",
-        Description: "Una skin verde para tu personaje.",
-        Category: "Skin",
-        Rarity: "Raro",
-        IsUnique: true
-    },
-    {
-        GameItemId: "6",
-        Name: "Minijuego Snake",
-        Sprite: "MinijuegoSnake.png",
-        Description: "Desbloquea el minijuego Snake.",
-        Category: "Minijuego",
-        Rarity: "Epico",
-        IsUnique: true
-    },
-    {
-        GameItemId: "7",
-        Name: "Gallo de Diamante",
-        Sprite: "GalloDiamante.png",
-        Description: "El premio mas gordo de todos. Lo lograste.",
-        Category: "Jackpot",
-        Rarity: "Legendario",
-        IsUnique: true
-    }
-];
+const rewards = [];
 
 class Inventory extends Phaser.Scene {
     constructor() {
@@ -91,74 +19,85 @@ class Inventory extends Phaser.Scene {
 
     }
     preloadEveryReward() {
-        rewards.forEach((reward, index) => {
-            this.load.image('reward' + index, `${itemsDir}${reward.Sprite}`);
-            console.log("Reward loaded: ", reward, " ", `${itemsDir}${reward.Sprite}`);
-        });
+        try {
+            let everyPossibleReward = getEveryPossibleRewardLocal();
+            everyPossibleReward.forEach((reward, index) => {
+                this.load.image('reward' + index, `${itemsDir}${reward.sprite}`);
+                console.log("Reward loaded: ", reward, " ", `${itemsDir}${reward.sprite}`);
+            });
+        } catch (error) {
+            console.error('Error loading rewards:', error);
+        }
     }
+    
 
     create() {
         this.background = this.add.image(width / 2, height / 2, 'background');
         this.background.displayWidth = width;
         this.background.displayHeight = height;
         this.createExitButton();
-        this.displayInventory();
+        this.displayInventory(1);
     }
-    listAllItems() {
-        let inventory = getInventoryByHttp();
+    listAllItems(userID) {
+        let inventory = getInventoryByHttp(userID);
         let items = inventory.listItems();
         items.forEach(item => {
             console.log(item);
         });
     }
-    displayInventory() {
+    async displayInventory(userID) {
         const startX = 50;
         const startY = 100;
         const spacingX = 500; // Espacio horizontal entre columnas
         const spacingY = 150; // Espacio vertical entre filas
     
-        let inventory = getInventoryByHttp();
-        console.log("Quantity of Items: " + inventory.items.length);
-    
-        inventory.items.forEach((item, index) => {
-            const column = Math.floor(index / 5); // Determina la columna
-            const row = index % 5; // Determina la fila dentro de la columna
-    
-            const itemX = startX + column * spacingX;
-            const itemY = startY + row * spacingY;
-    
-            // Mostrar la imagen del objeto
-            const itemSprite = this.add.image(itemX, itemY, 'reward' + item.GameItemId);
-            itemSprite.displayWidth = 100;
-            itemSprite.displayHeight = 100;
-    
-            // Mostrar el nombre del objeto
-            const itemName = this.add.text(itemX + 120, itemY - 40, item.Name, {
-                fill: '#FFFFFF',
-                fontSize: '30px',
-                fontStyle: 'bold'
+        try {
+            let inventory = await getInventoryByHttp(userID);
+            inventory = inventory.listItems();
+        
+            inventory.forEach((item, index) => {
+                const column = Math.floor(index / 5); // Determina la columna
+                const row = index % 5; // Determina la fila dentro de la columna
+        
+                const itemX = startX + column * spacingX;
+                const itemY = startY + row * spacingY;
+        
+                // Mostrar la imagen del objeto
+                const itemSprite = this.add.image(itemX, itemY, 'reward' + item.gameItemId);
+                itemSprite.displayWidth = 100;
+                itemSprite.displayHeight = 100;
+        
+                // Mostrar el nombre del objeto
+                const itemName = this.add.text(itemX + 120, itemY - 40, item.name, {
+                    fill: '#FFFFFF',
+                    fontSize: '30px',
+                    fontStyle: 'bold'
+                });
+        
+                // Mostrar la cantidad o "U" si es único
+                const itemQuantity = item.isUnique ? 'U' : item.quantity;
+                const itemQuantityText = this.add.text(itemX + 120, itemY + 10, `Cantidad: ${itemQuantity}`, {
+                    fill: '#000000',
+                    fontSize: '25px',
+                    fontStyle: 'bold'
+                });
+        
+                // Añadir interactividad
+                itemSprite.setInteractive();
+                itemSprite.on('pointerdown', () => {
+                    this.triggerItemEvent(item);
+                });
             });
-    
-            // Mostrar la cantidad o "U" si es único
-            const itemQuantity = item.IsUnique ? 'U' : item.Quantity;
-            const itemQuantityText = this.add.text(itemX + 120, itemY + 10, `Cantidad: ${itemQuantity}`, {
-                fill: '#000000',
-                fontSize: '25px',
-                fontStyle: 'bold'
-            });
-    
-            // Añadir interactividad
-            itemSprite.setInteractive();
-            itemSprite.on('pointerdown', () => {
-                this.triggerItemEvent(item);
-            });
-        });
+        } catch (error) {
+            console.error('Error getting the user inventory:', error);
+        }
+
     }
     
     triggerItemEvent(item) {
         console.log(item);
-        console.log("Item clicked: ", item.Name, " ", item.Category);
-        switch (item.Category) {
+        console.log("Item clicked: ", item.name, " ", item.category);
+        switch (item.category) {
             case 'Comida':
                 alert("Comida seleccionada, evento específico para comida.");
                 // Aquí podrías añadir la lógica específica para la categoría 'Comida'
@@ -177,7 +116,7 @@ class Inventory extends Phaser.Scene {
                 break;
             // Añadir más categorías según sea necesario
             default:
-                alert("Evento genérico para la categoría: " + item.Category);
+                alert("Evento genérico para la categoría: " + item.category);
         }
     }
     createExitButton() {
@@ -191,94 +130,142 @@ class Inventory extends Phaser.Scene {
         });
     }
 }
-function getInventoryByHttp() {
-    let inventory = new InventoryEntity(1);
-    // Send HTTP request to get inventory
-    inventory.addItem([
-        {
-            GameItemId: "0",
-            Name: "Oran",
-            Sprite: "Oran.png",
-            Description: "Dulce, especial para jalea.",
-            Category: "Comida",
-            Rarity: "Común",
-            IsUnique: false,
-            Quantity: 1
-        },
-        {
-            GameItemId: "1",
-            Name: "Zidra",
-            Sprite: "Zidra.png",
-            Description: "Ácida, va bien con el arroz.",
-            Category: "Comida",
-            Rarity: "Común",
-            IsUnique: false,
-            Quantity: 1
-        },
-        {
-            GameItemId: "2",
-            Name: "Ziruela",
-            Sprite: "Ziruela.png",
-            Description: "Deliciosa fruta verde con semillas jugosas.",
-            Category: "Comida",
-            Rarity: "Común",
-            IsUnique: false,
-            Quantity: 1
-        },
-        {
-            GameItemId: "3",
-            Name: "Skin Azul",
-            Sprite: "SkinAzul.png",
-            Description: "Una skin azul para tu personaje.",
-            Category: "Skin",
-            Rarity: "Raro",
-            IsUnique: true,
-            Quantity: 1
-        },
-        {
-            GameItemId: "4",
-            Name: "Skin Rosada",
-            Sprite: "SkinRosada.png",
-            Description: "Una skin rosada para tu personaje.",
-            Category: "Skin",
-            Rarity: "Raro",
-            IsUnique: true,
-            Quantity: 1
-        },
-        {
-            GameItemId: "5",
-            Name: "Skin Verde",
-            Sprite: "SkinVerde.png",
-            Description: "Una skin verde para tu personaje.",
-            Category: "Skin",
-            Rarity: "Raro",
-            IsUnique: true,
-            Quantity: 1
-        },
-        {
-            GameItemId: "6",
-            Name: "Minijuego Snake",
-            Sprite: "MinijuegoSnake.png",
-            Description: "Desbloquea el minijuego Snake.",
-            Category: "Minijuego",
-            Rarity: "Epico",
-            IsUnique: true,
-            Quantity: 1
-        },
-        {
-            GameItemId: "7",
-            Name: "Gallo de Diamante",
-            Sprite: "GalloDiamante.png",
-            Description: "El premio mas gordo de todos. Lo lograste.",
-            Category: "Jackpot",
-            Rarity: "Legendario",
-            IsUnique: true,
-            Quantity: 1
-        }
-    ]);
+async function getEveryPossibleRewardHttp() {
+    try {
+        const response = await fetch(`${backendUrl}gameitem`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-    console.log("Inventory: ", inventory.items.length);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const rewards = await response.json();
+        return rewards;
+    } catch (error) {
+        console.error('Error fetching Possible Items: ', error);
+    }
+}
+function getEveryPossibleRewardLocal(){
+    return [
+        {
+            "gameItemId": 0,
+            "name": "Oran",
+            "isUnique": false,
+            "sprite": "Oran.png",
+            "description": "Dulce, especial para jalea.",
+            "category": "Comida",
+            "rarity": "Común"
+        },
+        {
+            "gameItemId": 1,
+            "name": "Zidra",
+            "isUnique": false,
+            "sprite": "Zidra.png",
+            "description": "Ácida, va bien con el arroz.",
+            "category": "Comida",
+            "rarity": "Común"
+        },
+        {
+            "gameItemId": 2,
+            "name": "Ziruela",
+            "isUnique": false,
+            "sprite": "Ziruela.png",
+            "description": "Deliciosa fruta verde con semillas jugosas.",
+            "category": "Comida",
+            "rarity": "Común"
+        },
+        {
+            "gameItemId": 3,
+            "name": "Skin Azul",
+            "isUnique": true,
+            "sprite": "SkinAzul.png",
+            "description": "Una skin azul para tu personaje.",
+            "category": "Skin",
+            "rarity": "Raro"
+        },
+        {
+            "gameItemId": 4,
+            "name": "Skin Rosada",
+            "isUnique": true,
+            "sprite": "SkinRosada.png",
+            "description": "Una skin rosada para tu personaje.",
+            "category": "Skin",
+            "rarity": "Raro"
+        },
+        {
+            "gameItemId": 5,
+            "name": "Skin Verde",
+            "isUnique": true,
+            "sprite": "SkinVerde.png",
+            "description": "Una skin verde para tu personaje.",
+            "category": "Skin",
+            "rarity": "Raro"
+        },
+        {
+            "gameItemId": 6,
+            "name": "Minijuego Snake",
+            "isUnique": true,
+            "sprite": "MinijuegoSnake.png",
+            "description": "Desbloquea el minijuego Snake.",
+            "category": "Minijuego",
+            "rarity": "Epico"
+        },
+        {
+            "gameItemId": 7,
+            "name": "Gallo de Diamante",
+            "isUnique": true,
+            "sprite": "GalloDiamante.png",
+            "description": "El premio mas gordo de todos. Lo lograste.",
+            "category": "Jackpot",
+            "rarity": "Legendario"
+        },
+        {
+            "gameItemId": 8,
+            "name": "Coin",
+            "isUnique": false,
+            "sprite": "Coin.png",
+            "description": "Monedas, se convierten en otras recompenzas.",
+            "category": "Dinero",
+            "rarity": "Común"
+        }
+    ]
+}
+async function getInventoryByHttp(userID) {
+    let inventory = new InventoryEntity(userID);
+
+    try {
+        // Send HTTP GET request with userID in the query string
+        const response = await fetch(`${backendUrl}inventory?userID=${userID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const everyPossibleReward = await getEveryPossibleRewardHttp();
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const items = await response.json();
+
+        console.log("Items: ", items);
+        // Add the items to the inventory
+        inventory.addItem(items, everyPossibleReward);
+
+        console.log("Inventory: ", inventory.items.length);
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+
     return inventory;
 }
+
+
 
 export default Inventory;

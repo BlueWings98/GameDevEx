@@ -1,44 +1,48 @@
 class InventoryEntity {
     constructor(userID) {
         this.userID = userID; // ID of the user to whom the inventory belongs
-        this.items = []; // Array to hold GameItem instances
+        this.items = new Map(); // Use a Map to hold GameItem instances with their quantities
     }
 
-    addItem(gameItems) {
-        // Si solo se pasa un objeto y no un arreglo, convertirlo en un arreglo de un solo elemento
+    addItem(gameItems, everyPossibleReward) {
         console.log("Received GameItems before adding the items: ", gameItems);
-        if (!Array.isArray(gameItems)) {
-            gameItems = [gameItems];
-        }
-    
-        gameItems.forEach(gameItem => {
-            if (gameItem.IsUnique) {
-                // Verificar si el elemento único ya está en el inventario
-                const exists = this.items.some(item => item.GameItemId === gameItem.GameItemId);
-                if (!exists) {
-                    this.items.push(gameItem);
+
+        // Create a map for faster lookups
+        const rewardMap = new Map(everyPossibleReward.map(reward => [reward.gameItemId, reward]));
+
+        Object.keys(gameItems).forEach(key => {
+            const count = gameItems[key];
+            const reward = rewardMap.get(parseInt(key)); // O(1) lookup
+
+            if (reward) {
+                if (reward.isUnique) {
+                    if (!this.items.has(reward.gameItemId)) {
+                        this.items.set(reward.gameItemId, { ...reward, quantity: 1 });
+                    } else {
+                        console.log(`Item with ID ${reward.gameItemId} is unique and already exists in the inventory.`);
+                    }
                 } else {
-                    console.log(`Item with ID ${gameItem.GameItemId} is unique and already exists in the inventory.`);
-                }
-            } else {
-                // Para los elementos no únicos, sumamos la cantidad si ya existe en el inventario
-                const existingItem = this.items.find(item => item.GameItemId === gameItem.GameItemId);
-                if (existingItem) {
-                    existingItem.Quantity += gameItem.Quantity;
-                } else {
-                    this.items.push(gameItem);
+                    if (this.items.has(reward.gameItemId)) {
+                        const existingItem = this.items.get(reward.gameItemId);
+                        existingItem.quantity += count; // Update the quantity
+                    } else {
+                        this.items.set(reward.gameItemId, { ...reward, quantity: count });
+                    }
                 }
             }
         });
-        console.log("Inventory after adding the items: ", this.items.length);
+
+        console.log("Inventory after adding the items: ", this.listItems());
     }
-    
+
     removeItem(gameItemId) {
-        this.items = this.items.filter(item => item.GameItemId !== gameItemId);
+        this.items.delete(gameItemId);
     }
 
     listItems() {
-        return this.items;
+        // Convert the Map to an array of items
+        return Array.from(this.items.values());
     }
 }
+
 export default InventoryEntity;
