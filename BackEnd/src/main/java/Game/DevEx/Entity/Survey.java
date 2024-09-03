@@ -22,6 +22,8 @@ public class Survey {
     private int UserID;
     @Column(name = "userresponse")
     private String UserResponse;
+    @Column(name = "gptresponse")
+    private String GPTResponse;
     @Column(name = "dxfactorname")
     private String DXFactorName;
     @Column(name = "dxfactorid")

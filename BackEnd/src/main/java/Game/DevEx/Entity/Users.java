@@ -29,5 +29,7 @@ public class Users {
     private String Email;
     @Column(name = "password")
     private String Password;
+    @Column(name = "projectid")
+    private int ProjectID;
 
 }

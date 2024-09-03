@@ -16,17 +16,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @Table(name = "gameitem")
 public class GameItem {
-
-    /*
-            GameItemId: "6",
-            Name: "Minijuego Snake",
-            Sprite: "MinijuegoSnake.png",
-            Description: "Desbloquea el minijuego Snake.",
-            Category: "Minijuego",
-            Rarity: "Epico",
-            IsUnique: true,
-            Quantity: 1
-     */
     @Id
     @Column(name = "gameitemid")
     private int GameItemId;
@@ -43,4 +32,14 @@ public class GameItem {
     @Column(name = "isunique")
     private boolean IsUnique;
 
+    /*
+            GameItemId: "6",
+            Name: "Minijuego Snake",
+            Sprite: "MinijuegoSnake.png",
+            Description: "Desbloquea el minijuego Snake.",
+            Category: "Minijuego",
+            Rarity: "Epico",
+            IsUnique: true,
+            Quantity: 1
+     */
 }

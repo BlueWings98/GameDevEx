@@ -4,6 +4,7 @@ const width = 1690;
 const height = 835;
 const imageHeight = 1887;
 const imageWidth = 1889;
+const backendUrl = 'http://localhost:8080/';
 
 let projectId = 0;
 
@@ -123,8 +124,8 @@ class Hen extends Phaser.Scene {
     }
 }
 
-function getProjectStatuses(projectId) {
-    let response = httpRequest(projectId);
+function getProjectStatuses() {
+    let response = httpRequest();
     statuses.acompanantesStatus = response.companionStatus;
     statuses.cercaStatus = response.fenceStatus;
     statuses.fondoStatus = response.backgroundStatus;
@@ -138,8 +139,34 @@ function* getStatusIterator() {
     }
 }
 
-function httpRequest(projectId) {
-    // Simulación de una respuesta de solicitud HTTP
+async function getProjectsByHttp() {
+        // Definir el arreglo de características basado en los datos SQL proporcionados
+        let projects = [];
+        try {
+            // Send HTTP GET request with userID in the query string
+            const response = await fetch(`${backendUrl}project/all`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+    
+            projects = await response.json();
+    
+            console.log("Projects: ", projects);
+            // Add the items to the inventory
+        } catch (error) {
+            console.error('Error fetching inventory:', error);
+        }
+    
+        return projects;
+
+}
+function calculateStatuses(){
     return {
         companionStatus: 0,
         fenceStatus: 1,
