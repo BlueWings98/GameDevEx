@@ -3,82 +3,10 @@ import Phaser from "phaser";
 const backgroundDir = '../assets/background/';
 const itemsDir = '../assets/sprites/items/';
 const pullsDir = '../assets/sprites/pulls/';
+const backendUrl = 'http://localhost:8080/';
 const width = 1690;
 const height = 835;
-const rewards = [
-    {
-        GameItemId: "0",
-        Name: "Oran",
-        Sprite: "Oran.png",
-        Description: "Dulce, especial para jalea.",
-        Category: "Comida",
-        Rarity: "Común",
-        IsUnique: false
-    },
-    {
-        GameItemId: "1",
-        Name: "Zidra",
-        Sprite: "Zidra.png",
-        Description: "Ácida, va bien con el arroz.",
-        Category: "Comida",
-        Rarity: "Común",
-        IsUnique: false
-    },
-    {
-        GameItemId: "2",
-        Name: "Ziruela",
-        Sprite: "Ziruela.png",
-        Description: "Deliciosa fruta verde con semillas jugosas.",
-        Category: "Comida",
-        Rarity: "Común",
-        IsUnique: false
-    },
-    {
-        GameItemId: "3",
-        Name: "Skin Azul",
-        Sprite: "SkinAzul.png",
-        Description: "Una skin azul para tu personaje.",
-        Category: "Skin",
-        Rarity: "Raro",
-        IsUnique: true
-    },
-    {
-        GameItemId: "4",
-        Name: "Skin Rosada",
-        Sprite: "SkinRosada.png",
-        Description: "Una skin rosada para tu personaje.",
-        Category: "Skin",
-        Rarity: "Raro",
-        IsUnique: true
-    },
-    {
-        GameItemId: "5",
-        Name: "Skin Verde",
-        Sprite: "SkinVerde.png",
-        Description: "Una skin verde para tu personaje.",
-        Category: "Skin",
-        Rarity: "Raro",
-        IsUnique: true
-    },
-    {
-        GameItemId: "6",
-        Name: "Minijuego Snake",
-        Sprite: "MinijuegoSnake.png",
-        Description: "Desbloquea el minijuego Snake.",
-        Category: "Minijuego",
-        Rarity: "Epico",
-        IsUnique: true
-    },
-    {
-        GameItemId: "7",
-        Name: "Gallo de Diamante",
-        Sprite: "GalloDiamante.png",
-        Description: "El premio mas gordo de todos. Lo lograste.",
-        Category: "Jackpot",
-        Rarity: "Legendario",
-        IsUnique: true
-    }
-];
+
 var inventory = [];
 var coinCounter = 0;
 
@@ -90,12 +18,13 @@ class Rewards extends Phaser.Scene {
         this.load.image('saucer', `${backgroundDir}Casino.png`);
         this.load.image('coins', `${itemsDir}Coin.png`);
         this.load.image('pull1', `${pullsDir}Pull1.png`);
-        this.load.image('pull10', `${pullsDir}Pull10.png`);
+        //this.load.image('pull10', `${pullsDir}Pull10.png`);
 
         //Preload the rewards
+        const rewards = getEveryPossibleRewardLocal();
         rewards.forEach((reward, index) => {
-            this.load.image('reward' + index, `${itemsDir}${reward.Sprite}`);
-            console.log("Reward loaded: ", reward, " ", `${itemsDir}${reward.Sprite}`);
+            this.load.image('reward' + index, `${itemsDir}${reward.sprite}`);
+            console.log("Reward loaded: ", reward, " ", `${itemsDir}${reward.sprite}`);
         });
     }
     create() {
@@ -105,7 +34,7 @@ class Rewards extends Phaser.Scene {
         this.coins = this.add.image(100, 100, 'coins');
         this.coins.displayWidth = 200;
         this.coins.displayHeight = 200;
-        getCoins();
+        getCoins(1);
         this.coinsText = this.add.text(170, 80,"X " + coinCounter, {
             fill: '#FFD700',
             fontSize: '70px',
@@ -162,6 +91,7 @@ class Rewards extends Phaser.Scene {
             this.pull10Button.clearTint(); // Restaura el color si el cursor se mueve fuera
         });*/
     }
+    
 
 
     returnToHomeButton() {
@@ -206,11 +136,16 @@ class Rewards extends Phaser.Scene {
         });
     }
 
-    generateReward(coinsToPull) {
-        const reward = sendHttpRequest(coinsToPull);
+    async generateReward(coinsToPull) {
+        let userID = 1;
+        const dropTableId = 1;
+        const reward = pullByHttpRequest(userID, dropTableId ,coinsToPull);
+        let result = await reward;
+        console.log("result: ", result);
+        getCoins(1); //Update the coin counter.
         
-        for (let i = 0; i < reward.length; i++) {
-            const imageKey = 'reward' + reward[i].GameItemId; // Usa un id único o el índice cargado
+        for (let i = 0; i < result.length; i++) {
+            const imageKey = 'reward' + result[i].gameItemId; // Usa un id único o el índice cargado
     
             console.log("Image key: " +imageKey);
             // Añadir la imagen precargada a la escena
@@ -220,19 +155,19 @@ class Rewards extends Phaser.Scene {
             console.log(this.displayedReward);
     
             // Añadir textos
-            this.rewardText1 = this.add.text(width / 2, height / 2 - 100, reward[i].Name, {
+            this.rewardText1 = this.add.text(width / 2, height / 2 - 100, result[i].name, {
                 fill: '#FFFFFF',
                 fontSize: '50px',
                 fontStyle: 'bold'
             }).setOrigin(0.5);
     
-            this.rewardText2 = this.add.text(width / 2, height / 2 - 50, reward[i].Rareza, {
+            this.rewardText2 = this.add.text(width / 2, height / 2 - 50, result[i].rarity, {
                 fill: '#FFD700',
                 fontSize: '50px',
                 fontStyle: 'bold'
             }).setOrigin(0.5);
     
-            this.rewardText3 = this.add.text(width / 2, height / 2, reward[i].Description, {
+            this.rewardText3 = this.add.text(width / 2, height / 2, result[i].description, {
                 fill: '#FFD700',
                 fontSize: '50px',
                 fontStyle: 'bold'
@@ -249,30 +184,145 @@ class Rewards extends Phaser.Scene {
                 //this.pull10Button.setInteractive();
             });
     
-            inventory.push(reward[i]);
-            console.log("Reward added to inventory: ", reward[i]);
+            inventory.push(result[i]);
+            console.log("Reward added to inventory: ", result[i]);
         }
     
         console.log("Current inventory: ", inventory);
     }
     
 }
-function getCoins(){
-    coinCounter = 10;
+async function getCoins(userID){
+    try {
+        const response = await fetch(`${backendUrl}inventory?userID=${userID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Error getting the user inventory.');
+        }
+        const items = await response.json();
+        coinCounter = items["8"];
+        console.log("Coins: ", items["8"]);
+    } catch (error) {
+        throw new Error('Error getting the coins.');
+    }
 }
-function sendHttpRequest(coinsToPull) {
+function getEveryPossibleRewardLocal(){
+    return [
+        {
+            "gameItemId": 0,
+            "name": "Oran",
+            "isUnique": false,
+            "sprite": "Oran.png",
+            "description": "Dulce, especial para jalea.",
+            "category": "Comida",
+            "rarity": "Común"
+        },
+        {
+            "gameItemId": 1,
+            "name": "Zidra",
+            "isUnique": false,
+            "sprite": "Zidra.png",
+            "description": "Ácida, va bien con el arroz.",
+            "category": "Comida",
+            "rarity": "Común"
+        },
+        {
+            "gameItemId": 2,
+            "name": "Ziruela",
+            "isUnique": false,
+            "sprite": "Ziruela.png",
+            "description": "Deliciosa fruta verde con semillas jugosas.",
+            "category": "Comida",
+            "rarity": "Común"
+        },
+        {
+            "gameItemId": 3,
+            "name": "Skin Azul",
+            "isUnique": true,
+            "sprite": "SkinAzul.png",
+            "description": "Una skin azul para tu personaje.",
+            "category": "Skin",
+            "rarity": "Raro"
+        },
+        {
+            "gameItemId": 4,
+            "name": "Skin Rosada",
+            "isUnique": true,
+            "sprite": "SkinRosada.png",
+            "description": "Una skin rosada para tu personaje.",
+            "category": "Skin",
+            "rarity": "Raro"
+        },
+        {
+            "gameItemId": 5,
+            "name": "Skin Verde",
+            "isUnique": true,
+            "sprite": "SkinVerde.png",
+            "description": "Una skin verde para tu personaje.",
+            "category": "Skin",
+            "rarity": "Raro"
+        },
+        {
+            "gameItemId": 6,
+            "name": "Minijuego Snake",
+            "isUnique": true,
+            "sprite": "MinijuegoSnake.png",
+            "description": "Desbloquea el minijuego Snake.",
+            "category": "Minijuego",
+            "rarity": "Epico"
+        },
+        {
+            "gameItemId": 7,
+            "name": "Gallo de Diamante",
+            "isUnique": true,
+            "sprite": "GalloDiamante.png",
+            "description": "El premio mas gordo de todos. Lo lograste.",
+            "category": "Jackpot",
+            "rarity": "Legendario"
+        },
+        {
+            "gameItemId": 8,
+            "name": "Coin",
+            "isUnique": false,
+            "sprite": "Coin.png",
+            "description": "Monedas, se convierten en otras recompenzas.",
+            "category": "Dinero",
+            "rarity": "Común"
+        }
+    ]
+}
+async function pullByHttpRequest(userID, dropTableId, numberOfPulls) {
     const rewardsArray = [];
+    try {
+        const response = await fetch(`${backendUrl}pull`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userID: userID,
+                dropTableId: dropTableId,
+                numberOfPulls: numberOfPulls
+            })
+        });
 
-    for (let i = 0; i < coinsToPull; i++) {
-        const randomIndex = Math.floor(Math.random() * rewards.length);
-        rewardsArray.push(rewards[randomIndex]);
-    }
-    coinCounter -= coinsToPull;
-    if(coinsToPull >= 10){
-        coinCounter += 1;
+        if (!response.ok) {
+            throw new Error('Error getting the rewards.');
+        }
+
+        const rewards = await response.json();
+        console.log("Rewards in pull by http: ", rewards);
+        rewardsArray.push(...rewards);
+    } catch (error) {
+        console.error('Request failed', error);
     }
 
-    // Devolvemos un array con la cantidad especificada de recompensas aleatorias
+    // Return the array with the retrieved rewards
     return rewardsArray;
 }
+
 export default Rewards;

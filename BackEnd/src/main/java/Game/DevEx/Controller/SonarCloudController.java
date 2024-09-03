@@ -41,4 +41,10 @@ public class SonarCloudController {
         //Final Tiberon Score
         return sonarCloudService.getSonarProjectScore(projectNameValue);
     }
+    @GetMapping("/sonarcloud/metrics/report")
+    public String getSonarProjectMetricsReport() {
+        JSONObject temp = sonarCloudService.getMetricReport();
+        return temp.toString();
+    }
+
 }

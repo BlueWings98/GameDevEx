@@ -136,6 +136,23 @@ public class SonarCloudService {
         return (double) totalScore / totalWeight;
     }
 
+    public JSONObject getMetricReport() {
+        Iterable<Metric> iterable = this.metricRepository.findAll();
+        JSONArray metricsArray = new JSONArray();
+        for (Metric metric : iterable) {
+            JSONObject metricJson = new JSONObject();
+            metricJson.put("metricKey", metric.getMetricKey());
+            metricJson.put("name", metric.getName());
+            metricJson.put("description", metric.getDescription());
+            metricJson.put("weight", metric.getWeight());
+            metricJson.put("type", metric.getType());
+            metricsArray.put(metricJson);
+        }
+        JSONObject resultJson = new JSONObject();
+        resultJson.put("metrics", metricsArray);
+        return resultJson;
+    }
+
     private double calculateMultiplier(String value, String bestValue, String worstValue, String type) {
         switch (type) {
             case "RATING":
