@@ -4,7 +4,12 @@ const width = 1690;
 const height = 835;
 const imageHeight = 1887;
 const imageWidth = 1889;
+const startingX = 580;
+const startingY = 410;
+const spacingX = 220; // Horizontal spacing between images
+const spacingY = 220; // Vertical spacing between rows
 const backendUrl = 'http://localhost:8080/';
+const spritesDir = '../assets/sprites/';
 
 let projectId = 0;
 
@@ -28,10 +33,10 @@ class Hen extends Phaser.Scene {
         const henDir = '../assets/background/Gallinero/';
 
         // Cargar spritesheet para las gallinas
-        this.load.spritesheet("chickens", `${spritesDir}/chickens/Chickens.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
+        this.load.spritesheet("chickens", `${spritesDir}chickens/Chickens.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
 
         // Obtener los estados del proyecto (esto puede ser asíncrono en un caso real)
-        getProjectStatuses(1);
+        getProjectStatuses();
 
         // Pre-cargar las imágenes para las categorías modulares basadas en su estado
         this.preloadScene(modularCategories, henDir);
@@ -46,7 +51,45 @@ class Hen extends Phaser.Scene {
         this.createImage('Acompanantes', width, height);
         this.createImage('Placa', width, height);
         this.createImage('Huevos', width, height);
+        this.createProjectChikens();
+        this.createCompanyName();
         this.returnToSurveyButton();
+    }
+
+    createProjectChikens() {
+        const projects = getProjectsByHttp();
+        projects.then(projects => {
+            console.log("Projects: ", projects);
+    
+            projects.forEach((project, index) => {
+                const column = index % 3; // Column number (0, 1, or 2)
+                const row = Math.floor(index / 3); // Row number (0 or 1)
+    
+                const itemX = startingX + (column * spacingX);
+                const itemY = startingY + (row * spacingY);
+    
+                // Crear la imagen del proyecto (gallina)
+                const chicken = this.add.sprite(itemX, itemY, 'chickens');
+                chicken.setScale(0.09);
+                let projectHealth = calculateProjectHealth();
+                projectHealth = Phaser.Math.Clamp(projectHealth, 0, 4);
+                chicken.setFrame(projectHealth);
+    
+                // Mostrar el nombre del proyecto debajo de la imagen
+                this.add.text(itemX-60, itemY + 75, project.projectName, {
+                    fill: '#000000',
+                    fontSize: '20px',
+                    fontStyle: 'bold'
+                });
+            });
+        });
+    }
+    createCompanyName(){
+        this.add.text(570, 280, 'DevEx Corp', {
+            fill: '#000000',
+            fontSize: '40px',
+            fontStyle: 'bold'
+        });
     }
 
     preloadScene(modularCategories, henDir) {
@@ -125,7 +168,7 @@ class Hen extends Phaser.Scene {
 }
 
 function getProjectStatuses() {
-    let response = httpRequest();
+    let response = calculateStatuses();
     statuses.acompanantesStatus = response.companionStatus;
     statuses.cercaStatus = response.fenceStatus;
     statuses.fondoStatus = response.backgroundStatus;
@@ -175,6 +218,9 @@ function calculateStatuses(){
         eggsStatus: 1,
         plateStatus: 2
     };
+}
+function calculateProjectHealth(){
+    return 2;
 }
 
 export default Hen;
