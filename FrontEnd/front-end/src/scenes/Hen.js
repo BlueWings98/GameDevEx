@@ -53,38 +53,44 @@ class Hen extends Phaser.Scene {
         this.createImage('Huevos', width, height);
         this.createProjectChikens();
         this.createCompanyName();
-        this.returnToSurveyButton();
+        this.returnToHomeButton();
     }
 
     createProjectChikens() {
         const projects = getProjectsByHttp();
         projects.then(projects => {
             console.log("Projects: ", projects);
-    
+
             projects.forEach((project, index) => {
                 const column = index % 3; // Column number (0, 1, or 2)
                 const row = Math.floor(index / 3); // Row number (0 or 1)
-    
+
                 const itemX = startingX + (column * spacingX);
                 const itemY = startingY + (row * spacingY);
-    
+
                 // Crear la imagen del proyecto (gallina)
                 const chicken = this.add.sprite(itemX, itemY, 'chickens');
                 chicken.setScale(0.09);
                 let projectHealth = calculateProjectHealth();
                 projectHealth = Phaser.Math.Clamp(projectHealth, 0, 4);
                 chicken.setFrame(projectHealth);
-    
+
                 // Mostrar el nombre del proyecto debajo de la imagen
-                this.add.text(itemX-60, itemY + 75, project.projectName, {
+                this.add.text(itemX - 60, itemY + 75, project.projectName, {
                     fill: '#000000',
                     fontSize: '20px',
                     fontStyle: 'bold'
                 });
+                // Make the chicken image interactive
+                chicken.setInteractive();
+                chicken.on('pointerdown', () => {
+                    // Switch to the ReportScene and pass the projectID
+                    this.scene.start('Report', { projectID: project.projectID, projectName: project.projectName });
+                });
             });
         });
     }
-    createCompanyName(){
+    createCompanyName() {
         this.add.text(570, 280, 'DevEx Corp', {
             fill: '#000000',
             fontSize: '40px',
@@ -98,7 +104,7 @@ class Hen extends Phaser.Scene {
             // Accedemos al valor correspondiente en el objeto statuses
             let status = statusIterator.next().value;
             let statusPath;
-    
+
             switch (status) {
                 case 0:
                     statusPath = 'Bueno.png';
@@ -113,7 +119,7 @@ class Hen extends Phaser.Scene {
                     statusPath = 'Neutro.png';
                     break;
             }
-    
+
             console.log(`${categoryName}`, `${henDir}${categoryName}/${statusPath}`);
             this.load.image(`${categoryName}`, `${henDir}${categoryName}/${statusPath}`);
         });
@@ -124,17 +130,17 @@ class Hen extends Phaser.Scene {
         image.displayWidth = width;
         image.displayHeight = height;
     }
-    returnToSurveyButton() {
+    returnToHomeButton() {
         // Dimensiones y posición de la caja
         const boxWidth = 200;
         const boxHeight = 100;
-        const boxX =  width - boxWidth;
+        const boxX = width - boxWidth;
         const boxY = (height / 2) - (boxHeight / 2);
-    
+
         // Crear la caja amarilla
         this.surveyBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
         this.surveyBox.setOrigin(0.5); // Establecer el origen en el centro
-    
+
         // Crear el texto sobre la caja
         this.returnButton = this.add.text(boxX, boxY, 'Return', {
             fill: '#FFD700',
@@ -142,25 +148,25 @@ class Hen extends Phaser.Scene {
             fontStyle: 'bold'
         });
         this.returnButton.setOrigin(0.5); // Centrar el texto
-    
+
         // Hacer la caja interactiva
         this.surveyBox.setInteractive();
-    
+
         // Definir los colores para los estados
         const normalColor = 0xD2691E;
         const pressedColor = 0xA0522D; // Color ligeramente más oscuro
-    
+
         // Cambiar el color al presionar el botón
         this.surveyBox.on('pointerdown', () => {
             this.surveyBox.setFillStyle(pressedColor);
         });
-    
+
         // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
         this.surveyBox.on('pointerup', () => {
             this.surveyBox.setFillStyle(normalColor);
-            this.scene.start('Report'); // Ejecuta la acción del botón
+            this.scene.start('Home'); // Ejecuta la acción del botón
         });
-    
+
         this.surveyBox.on('pointerout', () => {
             this.surveyBox.setFillStyle(normalColor);
         });
@@ -183,33 +189,33 @@ function* getStatusIterator() {
 }
 
 async function getProjectsByHttp() {
-        // Definir el arreglo de características basado en los datos SQL proporcionados
-        let projects = [];
-        try {
-            // Send HTTP GET request with userID in the query string
-            const response = await fetch(`${backendUrl}project/all`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-    
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+    // Definir el arreglo de características basado en los datos SQL proporcionados
+    let projects = [];
+    try {
+        // Send HTTP GET request with userID in the query string
+        const response = await fetch(`${backendUrl}project/all`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
             }
-    
-            projects = await response.json();
-    
-            console.log("Projects: ", projects);
-            // Add the items to the inventory
-        } catch (error) {
-            console.error('Error fetching inventory:', error);
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
-    
-        return projects;
+
+        projects = await response.json();
+
+        console.log("Projects: ", projects);
+        // Add the items to the inventory
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+
+    return projects;
 
 }
-function calculateStatuses(){
+function calculateStatuses() {
     return {
         companionStatus: 0,
         fenceStatus: 1,
@@ -219,7 +225,7 @@ function calculateStatuses(){
         plateStatus: 2
     };
 }
-function calculateProjectHealth(){
+function calculateProjectHealth() {
     return 2;
 }
 

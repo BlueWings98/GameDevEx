@@ -10,7 +10,7 @@ let textObject2;
 let textObject3;
 let projectHealth = 2;
 const textPerPage = 50; // Maximum number of characters per page
-let companyName = "Provexpress SAS";
+let projectName = "Provexpress SAS";
 let desarrolloLanzamiento = 80;
 let administracionProducto = 80;
 let colaboracionCultura = 80;
@@ -20,6 +20,7 @@ let problemasCriticos = 3;
 let minutosDeudaTecnica = 1890;
 let consecuenciaMasProbable = "brain-overload";
 let valoracion = 50;
+let projectId = 0;
 const tiberonReport = `Code Smells Totales: ${codeSmells}
 Problemas altos o críticos: ${problemasCriticos}
 Minutos humanos de deuda tecnica: ${minutosDeudaTecnica}
@@ -35,17 +36,21 @@ class Report extends Phaser.Scene {
     constructor() {
         super({ key: 'Report' });
     }
+    init(data){
+        this.projectId = data.projectID;
+        this.projectName = data.projectName;
+        console.log("Project ID: ", this.projectId);
+    }
     preload() {
         this.load.image('barn', `${backgroundDir}CampoVainlla.png`);
-        this.load.spritesheet("chickens", `${spritesDir}/chickens/Chickens.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
+        this.load.spritesheet("chickens", `${spritesDir}chickens/Chickens.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
     }
     create() {
         this.barn = this.add.image(width / 2, height / 2, 'barn');
         this.barn.displayWidth = width;
         this.barn.displayHeight = height;
         this.generateVisualReport();
-        this.returnToHomeButton();
-        this.goToHenButton();
+        this.returnToHenButton();
         this.goToTiberonConfigButton();
         this.createTextBox(0, height-400, width / 2, 400);
     }
@@ -70,7 +75,7 @@ class Report extends Phaser.Scene {
             fill: 'Black',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
         });
-        textObject3 = this.add.text(this.chickens.x- 200, this.chickens.y- 330, companyName, {
+        textObject3 = this.add.text(this.chickens.x- 200, this.chickens.y- 330, projectName, {
             font: '50px Arial',
             fill: 'Black',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
@@ -92,47 +97,6 @@ class Report extends Phaser.Scene {
 
         // Cambiar el frame del sprite basado en projectHealth
         this.chickens.setFrame(projectHealth);
-    }
-    returnToHomeButton() {
-        // Dimensiones y posición de la caja
-        const boxWidth = 200;
-        const boxHeight = 100;
-        const boxX =  width - boxWidth;
-        const boxY = (height / 2) - (boxHeight / 2);
-    
-        // Crear la caja amarilla
-        this.homeBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
-        this.homeBox.setOrigin(0.5); // Establecer el origen en el centro
-    
-        // Crear el texto sobre la caja
-        this.returnButton = this.add.text(boxX, boxY, 'Return', {
-            fill: '#FFD700',
-            fontSize: '50px',
-            fontStyle: 'bold'
-        });
-        this.returnButton.setOrigin(0.5); // Centrar el texto
-    
-        // Hacer la caja interactiva
-        this.homeBox.setInteractive();
-    
-        // Definir los colores para los estados
-        const normalColor = 0xD2691E;
-        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
-    
-        // Cambiar el color al presionar el botón
-        this.homeBox.on('pointerdown', () => {
-            this.homeBox.setFillStyle(pressedColor);
-        });
-    
-        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
-        this.homeBox.on('pointerup', () => {
-            this.homeBox.setFillStyle(normalColor);
-            this.scene.start('Home'); // Ejecuta la acción del botón
-        });
-    
-        this.homeBox.on('pointerout', () => {
-            this.homeBox.setFillStyle(normalColor);
-        });
     }
     goToTiberonConfigButton() {
         // Dimensiones y posición de la caja
@@ -175,7 +139,7 @@ class Report extends Phaser.Scene {
             this.tiberonBox.setFillStyle(normalColor);
         });
     }
-    goToHenButton() {
+    returnToHenButton() {
         // Dimensiones y posición de la caja
         const boxWidth = 200;
         const boxHeight = 100;

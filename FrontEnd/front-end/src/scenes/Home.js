@@ -36,7 +36,7 @@ class Home extends Phaser.Scene {
         let characterMood = this.getCharacterMood();
         this.createAndAddAnimations(characterMood);
         this.goToRewardsButton();
-        this.goToReportsButton();
+        this.goToHenButton();
         this.openSurveyMenu();
         this.openInventoryMenu();
         this.createBatteryIndicator();
@@ -200,7 +200,7 @@ class Home extends Phaser.Scene {
             this.surveyBox.setFillStyle(normalColor);
         });
     }
-    goToReportsButton() {
+    goToHenButton() {
         // Dimensiones y posición de la caja
         const boxWidth = 200;
         const boxHeight = 100;
@@ -212,7 +212,7 @@ class Home extends Phaser.Scene {
         this.surveyBox.setOrigin(0.5); // Establecer el origen en el centro
 
         // Crear el texto sobre la caja
-        this.returnButton = this.add.text(boxX, boxY, 'Reports', {
+        this.returnButton = this.add.text(boxX, boxY, 'Hen', {
             fill: '#FFD700',
             fontSize: '50px',
             fontStyle: 'bold'
@@ -234,7 +234,7 @@ class Home extends Phaser.Scene {
         // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
         this.surveyBox.on('pointerup', () => {
             this.surveyBox.setFillStyle(normalColor);
-            this.scene.start('Report'); // Ejecuta la acción del botón
+            this.scene.start('Hen'); // Ejecuta la acción del botón
         });
 
         this.surveyBox.on('pointerout', () => {
