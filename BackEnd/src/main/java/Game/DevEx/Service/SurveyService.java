@@ -20,25 +20,27 @@ public class SurveyService implements iSurveyService {
     private final DXFactorRepository dxFactorRepository;
     private final SurveyRepository surveyRepository;
     private final ChatGptService chatGptService;
+    private final InventoryService inventoryService;
 
-    private static final String initPrompt = "Necesito que te comportes como una mascota que quiere ayudar a su humano a tener mejor experiencia de desarrollador. ";
-    private static final String questionPromptBase = "Te voy a dar un factor que influye en la experiencia de desarrollador y quiero que generes una pregunta con la intencion de medir la gravedad de la situación."+
-            "Dentro de personaje necesito que hagas una pregunta de Developer Experience basada en: ";
-    private static final String setUpEmotionReader = "Solo respondiendo en números del 1 al 10, que tan emocional encuentras la siguiente respuesta siendo 10 el maximo y 1 el minimo? Si la respuesta no es satisfactoria responde 0: ";
-    private static final String casualConversationPromptBase = "Necesito que me des una respuesta honesta dentro del personaje intentando hacer recomendaciones para mejorar la experiencia de desarrollador de tu humano. ";
+    private static final String initPrompt = "Te llamas Totolo, eres un pequeño tanuki y necesito que ayudes a tu humano a tener mejor experiencia de desarrollador. Tus respuestas deben ser cortas pero tiernas. Si vas a hacer una recomendación esta ser amigable y creativa.";
+    private static final String questionPromptBase = "Recuerda saludar siempre. Te voy a dar un factor que influye en la experiencia de desarrollador y quiero que generes una pregunta con la intencion de medir la gravedad de la situación. Solo haz la pregunta, no repitas las instrucciones dadas. Se creativo. Las preguntas deben siempre ser abiertas."+
+            "El tema de la pregunta de Developer Experience es: ";
+    private static final String setUpEmotionReader = "Solo respondiendo en números del 1 al 10, que tan emocional encuentras la siguiente respuesta siendo 10 el maximo y 1 el minimo? Si la respuesta no esta relacionada o no es satisfactoria responde 0: ";
+    private static final String casualConversationPromptBase = "Necesito que me des una respuesta honesta dentro del personaje intentando hacer recomendaciones muy cortas y amigables de una o dos frases. para mejorar la experiencia de desarrollador de tu humano. ";
     private DXFactor selectedDxFactor;
 
     @Autowired
-    public SurveyService(DXFactorRepository dxFactorRepository, SurveyRepository surveyRepository, ChatGptService chatGptService) {
+    public SurveyService(DXFactorRepository dxFactorRepository, SurveyRepository surveyRepository, ChatGptService chatGptService, InventoryService inventoryService) {
         this.dxFactorRepository = dxFactorRepository;
         this.surveyRepository = surveyRepository;
         this.chatGptService = chatGptService;
+        this.inventoryService = inventoryService;
     }
     @Override
     public String executeSurvey() {
         Optional<DXFactor> gptResponse = getRandomDxFactor();
         DXFactor randomDxFactor;
-        double temperature = 1.5;
+        double temperature = 1.2;
         if(gptResponse.isPresent()){
             randomDxFactor = getRandomDxFactor().get();
             this.selectedDxFactor = randomDxFactor;
@@ -47,19 +49,25 @@ public class SurveyService implements iSurveyService {
         }
         return chatGptService.getVanillaCompletition(questionPromptBase.concat(randomDxFactor.getDxFactorName()),temperature, initPrompt );
     }
-    public String receiveUserAnswer(String userResponse, int userID, String characterEmotion){
+    public String receiveUserAnswer(String userResponse, int userID, String characterEmotion, String gptResponse) {
         int measuredEmotion = measureEmotion(userResponse);
         if(measuredEmotion == 0){
             return "No puedo continuar si no me das una respuesta valida.";
         }
+        if(selectedDxFactor == null){
+            throw new NullPointerException("No puedo recibir una respuesta si no se ha generado una pregunta primero.");
+        };
         Survey survey = new Survey(
                 selectedDxFactor.getDxFactorName(),
                 selectedDxFactor.getDxFactorID(),
                 userID,
                 userResponse,
-                measuredEmotion
+                measuredEmotion,
+                gptResponse
         );
         this.surveyRepository.save(survey);
+        // Como la respuesta fue satisfactoria, se le otorga una modena al usuario.
+        this.inventoryService.addItem(userID, 8, 1);
         return casualConversation(userResponse, characterEmotion);
     }
     public String casualConversation(String userResponse, String characterEmotion) {

@@ -1,5 +1,6 @@
 package Game.DevEx.Controller;
 
+import Game.DevEx.DTOs.ReceiveAnswerDto;
 import Game.DevEx.Interface.iSurveyService;
 import Game.DevEx.Service.SurveyService;
 import org.json.JSONObject;
@@ -27,10 +28,10 @@ public class SurveyController {
         return surveyService.executeSurvey();
     }
     @PostMapping("/receiveanswer")
-    public String receiveUserAnswer(@RequestBody String userResponse, @RequestParam int userID, @RequestParam String characterEmotion) {
-        JSONObject response = new JSONObject(userResponse);
-        String userResponseValue = response.getString("userResponse");
-        return surveyService.receiveUserAnswer(userResponseValue, userID, characterEmotion);
+    public String receiveUserAnswer(@RequestBody ReceiveAnswerDto receiveAnswerDto ,@RequestParam int userID, @RequestParam String characterEmotion) {
+        String userResponseValue = receiveAnswerDto.getUserResponse();
+        String gptResponseValue = receiveAnswerDto.getGptResponse();
+        return surveyService.receiveUserAnswer(userResponseValue, userID, characterEmotion, gptResponseValue);
     }
     @PostMapping("/casualconversation")
     public String casualConversation(@RequestBody String userResponse, @RequestParam String characterEmotion) {
