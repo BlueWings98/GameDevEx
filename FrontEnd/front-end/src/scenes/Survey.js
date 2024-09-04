@@ -3,14 +3,17 @@ import Phaser from "phaser";
 const width = 1690;
 const height = 835;
 const textPerPage = 50; // Maximum number of characters per page
+const backendUrl = 'http://localhost:8080/';
 let textObject1;
 let textObject2;
-let writtenText = "This is a long text that will be displayed inside the orange textbox. It needs pagination if it doesn't fit entirely within the box.";
+let writtenText = "";
 let displayedUserText = "";
 let displayedGeneratedText = "";
 let generatedText = "";
 let currentPage = 0;
 let totalPages = 0;
+let characterEmotion = "Neutral";
+let userID = 1;
 
 class Survey extends Phaser.Scene {
     constructor() {
@@ -18,6 +21,7 @@ class Survey extends Phaser.Scene {
     }
 
     create() {
+        this.getGeneratedQuestion();
         this.createWritableTextBox(0, height - 400, width / 2, 400);
         this.createUnWritableTextBox(0, height - 400, width / 2, 400);
         this.createExitButton();
@@ -28,17 +32,20 @@ class Survey extends Phaser.Scene {
         const textBox1 = this.add.graphics();
         textBox1.fillStyle(0xeabe63, 1); // Orange color
         textBox1.fillRect(x, y, width, height);
-    
+
         textObject1 = this.add.text(x + 20, y + 20, displayedUserText, {
             font: '50px Arial',
             fill: 'Black',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
         });
-    
+
         this.input.keyboard.on('keydown', function (event) {
             if (event.key === 'Enter') {
-                generatedText = sendHttpRequest(writtenText);
-                writtenText = "";
+                receiveAnswerByHttp(writtenText, generatedText).then((response) => {
+                    generatedText = response;
+                    writtenText = "";
+                    updateText();
+                });
             } else if (event.key === 'Backspace' && writtenText.length > 0) {
                 writtenText = writtenText.slice(0, -1);
             } else if (event.key.length === 1) {
@@ -52,17 +59,20 @@ class Survey extends Phaser.Scene {
         });
 
     }
+    async getGeneratedQuestion() {
+        generatedText = await generateQuestionByHttp();
+    }
     createUnWritableTextBox(x, y, width, height) {
         const textBox2 = this.add.graphics();
         textBox2.fillStyle(0xeabe63, 1); // Orange color
         textBox2.fillRect(width, y, width, height);
-    
+
         textObject2 = this.add.text(width + 20, y + 20, displayedGeneratedText, {
             font: '50px Arial',
             fill: 'Black',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
         });
-    
+
     }
     createExitButton() {
         const exitButton = this.add.text(width - 100, 50, 'Exit', {
@@ -76,8 +86,63 @@ class Survey extends Phaser.Scene {
     }
 
 }
-function sendHttpRequest(text) {
-    return "Esto es lo que devolveria el servidor";
+async function receiveAnswerByHttp(writtenText, generatedText) {
+    let gptResponse = "";
+    try {
+        // Send HTTP POST request with userID, characterEmotion in the query string, and the request body
+        const response = await fetch(`${backendUrl}survey/receiveanswer?userID=${userID}&characterEmotion=${characterEmotion}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userResponse: writtenText,
+                gptResponse: generatedText
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        gptResponse = jsonResponse.choices[0].message.content;
+
+        console.log("gptResponse: ", gptResponse);
+        // Add the items to the inventory or handle the response as needed
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+
+    return gptResponse;
+}
+
+async function generateQuestionByHttp() {
+    // Definir el arreglo de características basado en los datos SQL proporcionados
+    let gptQuestion = "";
+    try {
+        // Send HTTP GET request with userID in the query string
+        const response = await fetch(`${backendUrl}survey/generatequestion`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const jsonResponse = await response.json();
+        gptQuestion = jsonResponse.choices[0].message.content;
+
+        console.log("gptQuestion: ", gptQuestion);
+        // Add the items to the inventory
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+
+    return gptQuestion;
 }
 function updateText() {
     // Divide el texto completo en líneas para el cuadro de texto escribible
@@ -93,6 +158,7 @@ function updateText() {
     textObject1.setText(displayedUserText);
 
     // Divide el texto completo en líneas para el cuadro de texto no escribible
+    console.log("Generated Text " + generatedText);
     const linesUnWritable = generatedText.split('\n');
     console.log(linesUnWritable);
     const linesAvailableUnWritable = linesUnWritable.length;

@@ -38,8 +38,7 @@ class Report extends Phaser.Scene {
     }
     init(data){
         this.projectId = data.projectID;
-        this.projectName = data.projectName;
-        console.log("Project ID: ", this.projectId);
+        projectName = data.projectName;
     }
     preload() {
         this.load.image('barn', `${backgroundDir}CampoVainlla.png`);
@@ -75,6 +74,7 @@ class Report extends Phaser.Scene {
             fill: 'Black',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
         });
+        console.log("Project Name: ", projectName);
         textObject3 = this.add.text(this.chickens.x- 200, this.chickens.y- 330, projectName, {
             font: '50px Arial',
             fill: 'Black',
