@@ -85,7 +85,7 @@ class Hen extends Phaser.Scene {
                 chicken.setInteractive();
                 chicken.on('pointerdown', () => {
                     // Switch to the ReportScene and pass the projectID
-                    this.scene.start('Report', { projectID: project.projectID, projectName: project.projectName });
+                    this.scene.start('Report', { projectID: project.projectID, projectName: project.projectName , projectKey: project.projectKey});
                 });
             });
         });

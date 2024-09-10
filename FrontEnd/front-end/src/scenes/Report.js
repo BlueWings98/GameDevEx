@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 const backgroundDir = '../assets/background/';
 const spritesDir = '../assets/sprites/';
+const backendUrl = 'http://localhost:8080/';
 const width = 1690;
 const height = 835;
 const imageHeight = 1887;
@@ -8,29 +9,13 @@ const imageWidth = 1889;
 let textObject1;
 let textObject2;
 let textObject3;
-let projectHealth = 2;
 const textPerPage = 50; // Maximum number of characters per page
 let projectName = "Provexpress SAS";
-let desarrolloLanzamiento = 80;
-let administracionProducto = 80;
-let colaboracionCultura = 80;
-let flujoDesarrolloRealizacion = 80;
-let codeSmells = 308;
-let problemasCriticos = 3;
-let minutosDeudaTecnica = 1890;
-let consecuenciaMasProbable = "brain-overload";
-let valoracion = 50;
 let projectId = 0;
-const tiberonReport = `Code Smells Totales: ${codeSmells}
-Problemas altos o críticos: ${problemasCriticos}
-Minutos humanos de deuda tecnica: ${minutosDeudaTecnica}
-Consecuencia mas probable: ${consecuenciaMasProbable}
-Valoración: ${valoracion}%`;
-const selfReport = `Desarrollo y lanzamiento: ${desarrolloLanzamiento}%
-Administración del producto: ${administracionProducto}%
-Colaboración y cultura: ${colaboracionCultura}%
-Flujo del desarrollo y Realización: ${flujoDesarrolloRealizacion}%`;
+let projectKey = "";
 let totalPages = 0;
+let tiberonJsonResponse = {};
+let totoloJsonResponse = {};
 
 class Report extends Phaser.Scene {
     constructor() {
@@ -39,6 +24,7 @@ class Report extends Phaser.Scene {
     init(data){
         this.projectId = data.projectID;
         projectName = data.projectName;
+        projectKey = data.projectKey;
     }
     preload() {
         this.load.image('barn', `${backgroundDir}CampoVainlla.png`);
@@ -52,6 +38,7 @@ class Report extends Phaser.Scene {
         this.returnToHenButton();
         this.goToTiberonConfigButton();
         this.createTextBox(0, height-400, width / 2, 400);
+        
     }
     createTextBox(x, y, width, height) {
         const textBox1 = this.add.graphics();
@@ -63,25 +50,37 @@ class Report extends Phaser.Scene {
         textBox1.fillRect(x, y, width, height);
         textBox2.fillRect(width, y, width, height);
         projectNameBox.fillRect(this.chickens.x- 230, this.chickens.y- 350, 440, 100);
+
+        getReportsByHttp(this.projectId, projectKey).then(() => {
+            const tiberonReport = `Code Smells Totales: ${307}
+                Problemas altos o críticos: ${2}
+                Minutos humanos de deuda tecnica: ${1899}
+                Consecuencia mas probable: ${"brain-overload"}
+                Valoración: ${tiberonJsonResponse.TiberonScore.toFixed(2)}%`;
+            const selfReport = `Desarrollo y lanzamiento: ${totoloJsonResponse.developmentAndRelease.toFixed(2)}%
+                Administración del producto: ${totoloJsonResponse.productManagement.toFixed(2)}%
+                Colaboración y cultura: ${totoloJsonResponse.collaborationAndCulture.toFixed(2)}%
+                Flujo del desarrollo y Realización: ${totoloJsonResponse.developerFlowAndFulfillment.toFixed(2)}%
+                Valoración: ${totoloJsonResponse.finalScore.toFixed(2)}%`;
+            textObject1 = this.add.text(x + 20, y + 20, tiberonReport, {
+                font: '50px Arial',
+                fill: 'Black',
+                wordWrap: { width: width - 20, useAdvancedWrap: true }
+            });
+            textObject2 = this.add.text(width + 20, y + 20, selfReport, {
+                font: '50px Arial',
+                fill: 'Black',
+                wordWrap: { width: width - 20, useAdvancedWrap: true }
+            });
+            this.updateCharacterState(tiberonJsonResponse.TiberonScore.toFixed(2), totoloJsonResponse.finalScore.toFixed(2))
+        });
         // Crear un objeto de texto en la pantalla
-        textObject1 = this.add.text(x + 20, y + 20, tiberonReport, {
-            font: '50px Arial',
-            fill: 'Black',
-            wordWrap: { width: width - 20, useAdvancedWrap: true }
-        });
-        textObject2 = this.add.text(width + 20, y + 20, selfReport, {
-            font: '50px Arial',
-            fill: 'Black',
-            wordWrap: { width: width - 20, useAdvancedWrap: true }
-        });
         console.log("Project Name: ", projectName);
         textObject3 = this.add.text(this.chickens.x- 200, this.chickens.y- 330, projectName, {
             font: '50px Arial',
             fill: 'Black',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
         });
-        // Calculate total pages based on text length
-        totalPages = Math.ceil(tiberonReport.length / textPerPage);
 
     }
 
@@ -89,15 +88,27 @@ class Report extends Phaser.Scene {
         this.chickens = this.add.sprite(width / 2, height / 2, 'chickens');
         this.chickens.displayWidth = imageWidth/3;
         this.chickens.displayHeight = imageHeight/3;
-        this.updateCharacterState();
     }
-    updateCharacterState() {
-        // Asegurarse de que el valor esté en el rango adecuado
-        projectHealth = Phaser.Math.Clamp(projectHealth, 0, 4);
-
-        // Cambiar el frame del sprite basado en projectHealth
-        this.chickens.setFrame(projectHealth);
+    updateCharacterState(tiberonScore, totoloScore) {
+        // Project health is the average of the two scores
+        let projectHealth = (parseFloat(tiberonScore) + parseFloat(totoloScore)) / 2;
+        console.log("Project Health: ", projectHealth);
+    
+        // Calculate projectHealth as an integer between 0 and 4
+        let healthIndex = Math.floor(projectHealth / 20);
+        console.log("Project Health after the /20: ", healthIndex);
+    
+        // Invert the health index (0 -> 4, 1 -> 3, 2 stays the same, 3 -> 1, 4 -> 0)
+        let invertedStatus = 4 - healthIndex;
+    
+        // Ensure the value is within the valid range (0 to 4)
+        let chickenStatus = Phaser.Math.Clamp(invertedStatus, 0, 4);
+    
+        // Set the frame of the sprite based on the inverted status
+        this.chickens.setFrame(chickenStatus);
+        console.log("Project Health: ", projectHealth, "Inverted Chicken Status: ", chickenStatus, "Tiberon Score: ", tiberonScore, "Totolo Score: ", totoloScore);
     }
+    
     goToTiberonConfigButton() {
         // Dimensiones y posición de la caja
         const boxWidth = 200;
@@ -181,7 +192,41 @@ class Report extends Phaser.Scene {
         });
     }
 }
-function sendHttpRequest(text) {
-    //tiberonReport = "Esto es lo que devolveria el servidor";
+async function getReportsByHttp(projectID, projectKey){
+    console.log("Project ID: ", projectID, "Project Key: ", projectKey);
+    try {
+        const tiberonResponse = await fetch(`${backendUrl}sonarcloud/score?projectName=${projectKey}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!tiberonResponse.ok) {
+            throw new Error(`HTTP error! Status: ${tiberonResponse.status}`);
+        }
+        const totoloResponse = await fetch(`${backendUrl}project/subjective-evaluation?projectID=${projectID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!totoloResponse.ok) {
+            throw new Error(`HTTP error! Status: ${totoloResponse.status}`);
+        }
+
+        tiberonJsonResponse = await tiberonResponse.json();
+        console.log("Tiberon Response: ", tiberonJsonResponse);
+        totoloJsonResponse = await totoloResponse.json();
+        console.log("Totolo Response: ", totoloJsonResponse);
+        console.log("Subjective Final Score: ", totoloJsonResponse.finalScore, "Tiberon Final Score: ", tiberonJsonResponse.TiberonScore);
+
+
+
+        // Add the items to the inventory or handle the response as needed
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
 }
 export default Report;
