@@ -49,7 +49,7 @@ public class SurveyService implements iSurveyService {
         }
         return chatGptService.getVanillaCompletition(questionPromptBase.concat(randomDxFactor.getDxFactorName()),temperature, initPrompt );
     }
-    public String receiveUserAnswer(String userResponse, int userID, String characterEmotion, String gptResponse) {
+    public String receiveUserAnswer(String userResponse, int userID, String characterEmotion, String gptResponse, int projectID) {
         int measuredEmotion = measureEmotion(userResponse);
         if(measuredEmotion == 0){
             return "No puedo continuar si no me das una respuesta valida.";
@@ -63,7 +63,8 @@ public class SurveyService implements iSurveyService {
                 userID,
                 userResponse,
                 measuredEmotion,
-                gptResponse
+                gptResponse,
+                projectID
         );
         this.surveyRepository.save(survey);
         // Como la respuesta fue satisfactoria, se le otorga una modena al usuario.
@@ -89,6 +90,11 @@ public class SurveyService implements iSurveyService {
         String content = messageObject.getString("content");
         System.out.println("Content: " + content);
         return Integer.parseInt(content.replaceAll("[^0-9]", ""));
+    }
+    //Get all surveys by projectID
+    public Iterable<Survey> getSurveysByProjectID(int projectID){
+        Iterable<Survey> surveys = this.surveyRepository.findAllByProjectID(projectID);
+        return surveys;
     }
 
 

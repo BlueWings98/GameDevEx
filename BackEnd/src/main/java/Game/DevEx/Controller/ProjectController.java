@@ -19,4 +19,8 @@ public class ProjectController {
     public String getAllProjects() {
         return projectService.getAllProjects();
     }
+    @GetMapping("/project/subjective-evaluation")
+    public String getSubjectiveEvaluation(@RequestParam("projectID") int projectID) {
+        return projectService.getSubjectiveEvaluation(projectID).toString();
+    }
 }

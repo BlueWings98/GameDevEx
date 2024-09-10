@@ -8,4 +8,5 @@ import lombok.Setter;
 public class ReceiveAnswerDto {
     private String userResponse;
     private String gptResponse;
+    private int projectID;
 }
