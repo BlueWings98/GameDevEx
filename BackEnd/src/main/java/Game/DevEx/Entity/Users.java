@@ -31,5 +31,7 @@ public class Users {
     private String Password;
     @Column(name = "projectid")
     private int ProjectID;
+    @Column(name = "totoloid")
+    private int TotoloID;
 
 }
