@@ -107,6 +107,11 @@ class Report extends Phaser.Scene {
         // Set the frame of the sprite based on the inverted status
         this.chickens.setFrame(chickenStatus);
         console.log("Project Health: ", projectHealth, "Inverted Chicken Status: ", chickenStatus, "Tiberon Score: ", tiberonScore, "Totolo Score: ", totoloScore);
+
+        //Update the project status in the backend
+        updateProjectStatusByHttp(this.projectId, chickenStatus).then(() => {
+            console.log("Project status updated successfully");
+        });
     }
     
     goToTiberonConfigButton() {
@@ -192,6 +197,28 @@ class Report extends Phaser.Scene {
         });
     }
 }
+async function updateProjectStatusByHttp(projectID, projectStatus) {
+    try {
+        const response = await fetch(`${backendUrl}project/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                projectID: projectID,
+                projectStatus: projectStatus
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+    
+}
 async function getReportsByHttp(projectID, projectKey){
     console.log("Project ID: ", projectID, "Project Key: ", projectKey);
     try {
@@ -217,14 +244,8 @@ async function getReportsByHttp(projectID, projectKey){
         }
 
         tiberonJsonResponse = await tiberonResponse.json();
-        console.log("Tiberon Response: ", tiberonJsonResponse);
         totoloJsonResponse = await totoloResponse.json();
-        console.log("Totolo Response: ", totoloJsonResponse);
-        console.log("Subjective Final Score: ", totoloJsonResponse.finalScore, "Tiberon Final Score: ", tiberonJsonResponse.TiberonScore);
 
-
-
-        // Add the items to the inventory or handle the response as needed
     } catch (error) {
         console.error('Error fetching inventory:', error);
     }
