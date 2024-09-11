@@ -133,7 +133,7 @@ public class SonarCloudService {
         }
         System.out.println("Total Weight: " + totalWeight + " Total Score: " + totalScore);
 
-        return (double) totalScore / totalWeight;
+        return 100*((double) totalScore / totalWeight);
     }
 
     public JSONObject getMetricReport() {
