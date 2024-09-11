@@ -71,7 +71,7 @@ class Hen extends Phaser.Scene {
                 // Crear la imagen del proyecto (gallina)
                 const chicken = this.add.sprite(itemX, itemY, 'chickens');
                 chicken.setScale(0.09);
-                let projectHealth = calculateProjectHealth();
+                let projectHealth = project.projectStatus;
                 projectHealth = Phaser.Math.Clamp(projectHealth, 0, 4);
                 chicken.setFrame(projectHealth);
 
@@ -224,9 +224,6 @@ function calculateStatuses() {
         eggsStatus: 1,
         plateStatus: 2
     };
-}
-function calculateProjectHealth() {
-    return 2;
 }
 
 export default Hen;

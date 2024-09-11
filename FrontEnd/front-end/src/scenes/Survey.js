@@ -14,6 +14,7 @@ let currentPage = 0;
 let totalPages = 0;
 let characterEmotion = "Neutral";
 let userID = 1;
+let projectID = 1;
 
 class Survey extends Phaser.Scene {
     constructor() {
@@ -41,7 +42,7 @@ class Survey extends Phaser.Scene {
 
         this.input.keyboard.on('keydown', function (event) {
             if (event.key === 'Enter') {
-                receiveAnswerByHttp(writtenText, generatedText).then((response) => {
+                receiveAnswerByHttp(writtenText, generatedText, projectID).then((response) => {
                     generatedText = response;
                     writtenText = "";
                     updateText();
@@ -86,7 +87,7 @@ class Survey extends Phaser.Scene {
     }
 
 }
-async function receiveAnswerByHttp(writtenText, generatedText) {
+async function receiveAnswerByHttp(writtenText, generatedText, projectID) {
     let gptResponse = "";
     try {
         // Send HTTP POST request with userID, characterEmotion in the query string, and the request body
@@ -97,7 +98,8 @@ async function receiveAnswerByHttp(writtenText, generatedText) {
             },
             body: JSON.stringify({
                 userResponse: writtenText,
-                gptResponse: generatedText
+                gptResponse: generatedText,
+                projectID: projectID
             })
         });
 
@@ -108,7 +110,6 @@ async function receiveAnswerByHttp(writtenText, generatedText) {
         const jsonResponse = await response.json();
         gptResponse = jsonResponse.choices[0].message.content;
 
-        console.log("gptResponse: ", gptResponse);
         // Add the items to the inventory or handle the response as needed
     } catch (error) {
         console.error('Error fetching inventory:', error);
@@ -158,12 +159,9 @@ function updateText() {
     textObject1.setText(displayedUserText);
 
     // Divide el texto completo en líneas para el cuadro de texto no escribible
-    console.log("Generated Text " + generatedText);
     const linesUnWritable = generatedText.split('\n');
-    console.log(linesUnWritable);
     const linesAvailableUnWritable = linesUnWritable.length;
     const linesToShowUnWritable = Math.min(4, linesAvailableUnWritable);
-    console.log(linesToShowUnWritable);
 
     displayedGeneratedText = "";
     for (let i = 0; i < linesToShowUnWritable; i++) {
