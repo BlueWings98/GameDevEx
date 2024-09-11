@@ -25,5 +25,7 @@ public class Project {
     private String ProjectName;
     @Column(name = "projectdescription")
     private String ProjectDescription;
+    @Column(name = "projectstatus")
+    private int ProjectStatus;
 
 }

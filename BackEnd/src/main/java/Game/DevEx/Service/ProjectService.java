@@ -5,6 +5,7 @@ import Game.DevEx.Entity.Project;
 import Game.DevEx.Entity.Survey;
 import Game.DevEx.Repository.DXFactorRepository;
 import Game.DevEx.Repository.ProjectRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ public class ProjectService {
             temp.put("projectKey", project.getProjectKey());
             temp.put("projectName", project.getProjectName());
             temp.put("projectDescription", project.getProjectDescription());
+            temp.put("projectStatus", project.getProjectStatus());
             jsonArray.put(temp);
         }
         return jsonArray.toString();
@@ -101,5 +103,21 @@ public class ProjectService {
         result.put("finalScore", finalScore);
         return result;
     }
+    public String updateProjectStatus(int projectID, int projectStatus) {
+        projectRepository.findById(projectID).ifPresentOrElse(project -> {
+            project.setProjectStatus(projectStatus);  // Update the project status
+            projectRepository.save(project);  // Save the updated project
+        }, () -> {
+            throw new EntityNotFoundException("Project with ID " + projectID + " not found.");
+        });
+        return "The project status has been updated successfully.";
+    }
+    public String getProjectStatus(int projectID) {
+        int response = projectRepository.findById(projectID)
+                .map(Project::getProjectStatus)
+                .orElseThrow(() -> new EntityNotFoundException("Project with ID " + projectID + " not found."));
+        return "" + response;
+    }
+
 
 }
