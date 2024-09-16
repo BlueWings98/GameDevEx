@@ -2,12 +2,17 @@ import Phaser from 'phaser';
 import Survey from './Survey';
 const spritesDir = '../assets/sprites/morpeko/SpriteSheets/';
 const backgroundDir = '../assets/background/';
+const backendUrl = 'http://localhost:8080/';
 const width = 1690;
 const height = 835;
 const imageHeight = 1390;
 const imageWidth = 1417;
 const textPerPage = 50; // Maximum number of characters per page
 const surveyBatteryCost = 25;
+const TotoloID = 1;
+const userID = 1;
+
+let characterSkin = "Green";
 
 let batteryCharge = 100;
 
@@ -19,7 +24,6 @@ class Home extends Phaser.Scene {
         //Background
         this.load.image('barn', `${backgroundDir}CampoVainilla.png`);
         //Character sprites
-        var characterSkin = this.getCharacterSkin();
         this.load.spritesheet("Alegre", `${spritesDir}/${characterSkin}/A.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
         this.load.spritesheet("Triste", `${spritesDir}/${characterSkin}/T.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
         this.load.spritesheet("Enojado", `${spritesDir}/${characterSkin}/E.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
@@ -33,15 +37,14 @@ class Home extends Phaser.Scene {
         this.barn = this.add.image(width / 2, height / 2, 'barn');
         this.barn.displayWidth = width;
         this.barn.displayHeight = height;
-        let characterMood = this.getCharacterMood();
-        this.createAndAddAnimations(characterMood);
+        this.createAndAddAnimations();
         this.goToRewardsButton();
         this.goToHenButton();
         this.openSurveyMenu();
         this.openInventoryMenu();
         this.createBatteryIndicator();
     }
-    createAndAddAnimations(characterMood) {
+    createAndAddAnimations() {
         const floorHeight = 500;
         const fps = 0.2;
 
@@ -71,22 +74,24 @@ class Home extends Phaser.Scene {
             repeat: -1
         });
 
+        // Get a Totolo from the server
+        const Totolo = rechargeByHttp(TotoloID).then(Totolo => {
         // Add sprites and play corresponding animation based on characterMood
-        switch (characterMood) {
+        switch (Totolo.Hunger) {
             case 0:
-                this.Alegre = this.add.sprite(width/1.5, height - floorHeight - 50, "Alegre");
-                this.Alegre.setScale(0.3);
-                this.Alegre.play("AnimAlegre");
+                this.Enojado = this.add.sprite(width/1.5, height - floorHeight - 50, "Enojado");
+                this.Enojado.setScale(0.3);
+                this.Enojado.play("AnimEnojado");
                 break;
-            case 2:
+            case 1:
                 this.Triste = this.add.sprite(width/1.5, height - floorHeight - 50, "Triste");
                 this.Triste.setScale(0.3);
                 this.Triste.play("AnimTriste");
                 break;
             case 3:
-                this.Enojado = this.add.sprite(width/1.5, height - floorHeight - 50, "Enojado");
-                this.Enojado.setScale(0.3);
-                this.Enojado.play("AnimEnojado");
+                this.Alegre = this.add.sprite(width/1.5, height - floorHeight - 50, "Alegre");
+                this.Alegre.setScale(0.3);
+                this.Alegre.play("AnimAlegre");
                 break;
             default:
                 this.Neutral = this.add.sprite(width/1.5, height - floorHeight - 50, "Neutral");
@@ -94,6 +99,10 @@ class Home extends Phaser.Scene {
                 this.Neutral.play("AnimNeutral");
                 break;
         }
+        batteryCharge = Totolo.Battery;
+        characterSkin = Totolo.Skin;
+
+    });
     }
     openSurveyMenu() {
         const boxWidth = 200;
@@ -241,9 +250,6 @@ class Home extends Phaser.Scene {
             this.surveyBox.setFillStyle(normalColor);
         });
     }
-    getCharacterMood() {
-        return 1;
-    }
     getCharacterSkin(){
         return "Green";
     }
@@ -280,5 +286,43 @@ class Home extends Phaser.Scene {
 }
 function sendHttpRequest(text) {
     return "Esto es lo que devolveria el servidor";
+}
+async function getTotoloByHttp(TotoloID){
+    let response;
+    try {
+        response = await fetch(`${backendUrl}totolo?TotoloID=${TotoloID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+    return await response.json();
+}
+async function rechargeByHttp(TotoloID){
+    let response;
+    try {
+        response = await fetch(`${backendUrl}totolo/recharge?TotoloID=${TotoloID}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+    return await response.json();
 }
 export default Home;
