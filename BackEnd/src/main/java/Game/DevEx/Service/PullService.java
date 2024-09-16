@@ -4,6 +4,7 @@ import Game.DevEx.DTOs.PullsDto;
 import Game.DevEx.Embedded.DropTableId;
 import Game.DevEx.Entity.DropTable;
 import Game.DevEx.Entity.GameItem;
+import Game.DevEx.Entity.Users;
 import Game.DevEx.Repository.DropTableRepository;
 import Game.DevEx.Repository.GameItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,17 @@ public class PullService {
     private final DropTableRepository dropTableRepository;
     private final InventoryService inventoryService;
     private final GameItemRepository gameItemRepository;
+    private final UsersService usersService;
+    private final TotoloService totoloService;
 
     @Autowired
-    public PullService(DropTableRepository dropTableRepository, InventoryService inventoryService, GameItemRepository gameItemRepository) {
+    public PullService(DropTableRepository dropTableRepository, InventoryService inventoryService, GameItemRepository gameItemRepository,
+    UsersService usersService, TotoloService totoloService) {
         this.dropTableRepository = dropTableRepository;
         this.inventoryService = inventoryService;
         this.gameItemRepository = gameItemRepository;
+        this.usersService = usersService;
+        this.totoloService = totoloService;
     }
 
     public List<GameItem> pull(PullsDto pullsDto) {
@@ -31,16 +37,21 @@ public class PullService {
         int userId = Integer.parseInt(pullsDto.getUserID());
         int numberOfPulls = Integer.parseInt(pullsDto.getNumberOfPulls());
         System.out.println("Pulling " + numberOfPulls + " times for user " + userId);
-        for (int i = 0; i < numberOfPulls; i++) {
-            GameItem gameItem = getRandomGameItem(pullsDto.getDropTableId(), userId);
-            System.out.println("Pulled: " + gameItem);
-            if(gameItem != null){
-                rewards.add(gameItem);
-                inventoryService.addItem(userId, gameItem.getGameItemId(), 1);
-            } else{
-                throw new NullPointerException("Game item was not found");
+        Users user = usersService.getUserById(userId);
+        int totoloID = user.getTotoloID();
+        if(totoloService.dischargeBatteryByPull(totoloID, numberOfPulls)){
+            for (int i = 0; i < numberOfPulls; i++) {
+                GameItem gameItem = getRandomGameItem(pullsDto.getDropTableId(), userId);
+                System.out.println("Pulled: " + gameItem);
+                if(gameItem != null){
+                    rewards.add(gameItem);
+                    inventoryService.addItem(userId, gameItem.getGameItemId(), 1);
+                } else{
+                    throw new NullPointerException("Game item was not found");
+                }
             }
-
+        } else{
+            throw new IllegalArgumentException("Not enough battery to pull");
         }
         return rewards;
     }

@@ -27,7 +27,10 @@ public class TotoloController {
     @PostMapping("/recharge")
     public String rechargeBatteryAndUpdateHunger(@RequestParam int TotoloID) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("response", totoloService.rechargeBatteryAndUpdateHunger(TotoloID));
+        Totolo response = totoloService.rechargeBatteryAndUpdateHunger(TotoloID);
+        jsonObject.put("Battery", response.getBattery());
+        jsonObject.put("Hunger", response.getHunger());
+        jsonObject.put("Skin", response.getSkin());
         return jsonObject.toString();
     }
     @PostMapping("/skin")

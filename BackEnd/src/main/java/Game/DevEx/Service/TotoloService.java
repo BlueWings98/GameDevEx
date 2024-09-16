@@ -14,6 +14,7 @@ public class TotoloService {
     private static final int BATTERY_RECHARGE_RATE = 25; // 25% recharge
     private static final int HOURS_TO_RECHARGE = 8;      // Recharge every 8 hours
     private static final int MAX_BATTERY = 100;          // Max battery value
+    private static final int PULL_COST = 25;            // Cost to pull
 
     private final TotoloRepository totoloRepository;
     private final InventoryService inventoryService;
@@ -27,8 +28,18 @@ public class TotoloService {
     public Totolo getTotolo(int TotoloID) {
         return this.totoloRepository.findById(TotoloID).orElseThrow();
     }
+    public boolean dischargeBatteryByPull(int TotoloID, int numberOfPulls) {
+        Totolo totolo = this.totoloRepository.findById(TotoloID).orElseThrow();
+        if(totolo.getBattery() >= PULL_COST * numberOfPulls){
+            totolo.setBattery(totolo.getBattery() - (PULL_COST * numberOfPulls));
+            totoloRepository.save(totolo);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-    public String rechargeBatteryAndUpdateHunger(int TotoloID) {
+    public Totolo rechargeBatteryAndUpdateHunger(int TotoloID) {
 
         Totolo totolo = this.totoloRepository.findById(TotoloID).orElseThrow();
 
@@ -58,7 +69,7 @@ public class TotoloService {
         // Save updated entity
         totoloRepository.save(totolo);
 
-        return "Battery recharged to " + newBattery + "% and hunger level is now " + newHunger;
+        return totolo;
     }
 
     public String changeSkin(int TotoloID, String newSkin) {
