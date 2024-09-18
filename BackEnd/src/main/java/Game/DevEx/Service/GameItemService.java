@@ -7,10 +7,6 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.Map;
-
 @Service
 public class GameItemService {
 
@@ -38,6 +34,9 @@ public class GameItemService {
         }
 
         return jsonArray.toString();
+    }
+    public boolean isItemUnique(int gameItemId) {
+        return gameItemRepository.findById(gameItemId).orElse(null).isIsUnique();
     }
     public GameItem getGameItemById(int gameItemId) {
         return gameItemRepository.findById(gameItemId).orElse(null);

@@ -15,11 +15,50 @@ import java.util.Map;
 public class InventoryService {
 
     private final PlayerInventoryRepository playerInventoryRepository;
+    private final GameItemService gameItemService;
 
     @Autowired
-    public InventoryService(PlayerInventoryRepository playerInventoryRepository) {
+    public InventoryService(PlayerInventoryRepository playerInventoryRepository, GameItemService gameItemService) {
         this.playerInventoryRepository = playerInventoryRepository;
+        this.gameItemService = gameItemService;
     }
+    public boolean useItem(int userId, int gameItemId, int quantity) {
+        // Ensure quantity is valid
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than 0.");
+        }
+
+        // Check if the item is unique
+        boolean isUnique = gameItemService.isItemUnique(gameItemId);
+
+        // If the item is unique, skip subtracting from inventory and return true
+        if (isUnique) {
+            return true;
+        }
+
+        // Fetch the PlayerInventory entry for the given user and item
+        PlayerInventory gameObjectEntry = playerInventoryRepository.findById(new PlayerInventoryId(userId, gameItemId)).orElse(null);
+
+        // Validate that the item exists in the inventory
+        if (gameObjectEntry == null) {
+            throw new IllegalArgumentException("Item not found in inventory.");
+        }
+
+        // Check if the player has enough quantity of the item
+        if (gameObjectEntry.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Not enough quantity of the item in inventory.");
+        }
+
+        // Subtract the quantity from the inventory
+        gameObjectEntry.setQuantity(gameObjectEntry.getQuantity() - quantity);
+
+        // Save the updated inventory entry
+        playerInventoryRepository.save(gameObjectEntry);
+
+        return true;
+    }
+
+
 
     public JSONObject getGameItemsAsJson(int userId) {
         List<Object[]> items = playerInventoryRepository.findGameItemIdsAndQuantitiesByUserId(userId);
@@ -42,20 +81,6 @@ public class InventoryService {
     public boolean hasCoins(int userId, int quantity) {
         // Check if the user has enough coins
         return playerInventoryRepository.existsById(new PlayerInventoryId(userId, 8)) && playerInventoryRepository.findById(new PlayerInventoryId(userId, 8)).orElse(null).getQuantity() >= quantity;
-    }
-    public boolean useItem (int userId, int gameItemId, int quantity) {
-        // Get the desired object
-        PlayerInventory gameObjectEntry = playerInventoryRepository.findById(new PlayerInventoryId(userId, gameItemId)).orElse(null);
-
-        // Check if the object exists and if the quantity is enough. It should never be negative.
-        if (gameObjectEntry != null && gameObjectEntry.getQuantity() >= quantity && quantity >= 0) {
-            // Update the quantity
-            gameObjectEntry.setQuantity(gameObjectEntry.getQuantity() - quantity);
-            playerInventoryRepository.save(gameObjectEntry);
-            return true;
-        } else {
-            return false;
-        }
     }
     public boolean addItem(int userId, int gameItemId, int quantity) {
         // Ensure the quantity is positive

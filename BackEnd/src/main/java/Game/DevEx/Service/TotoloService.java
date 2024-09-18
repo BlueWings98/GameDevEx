@@ -17,12 +17,10 @@ public class TotoloService {
     private static final int SURVEY_COST = 25;            // Cost to pull
 
     private final TotoloRepository totoloRepository;
-    private final InventoryService inventoryService;
 
     @Autowired
-    public TotoloService(TotoloRepository totoloRepository , InventoryService inventoryService) {
+    public TotoloService(TotoloRepository totoloRepository) {
         this.totoloRepository = totoloRepository;
-        this.inventoryService = inventoryService;
     }
 
     public Totolo getTotolo(int TotoloID) {
@@ -90,18 +88,12 @@ public class TotoloService {
         totoloRepository.save(totolo);
         return "Name changed to " + newName;
     }
-    public String feedTotolo(int TotoloID, int foodItemID, int userID){
-        // Check if the user has the item
-        if(inventoryService.useItem(userID, foodItemID, 1)){
-            Totolo totolo = this.totoloRepository.findById(TotoloID).orElseThrow();
-            int temp = totolo.getHunger() + 1;
-            totolo.setHunger(Math.min(temp, 3));
-            totoloRepository.save(totolo);
-            return "Totolo was fed";
-        } else {
-            return "You don't have the required item to feed Totolo";
-        }
-
+    public String feedTotolo(int totoloID) {
+        Totolo totolo = totoloRepository.findById(totoloID).orElseThrow();
+        int newHunger = Math.min(totolo.getHunger() + 1, 3);
+        totolo.setHunger(newHunger);
+        totoloRepository.save(totolo);
+        return "Totolo fue alimentado, ahora esta un poco mas feliz!";
     }
 }
 

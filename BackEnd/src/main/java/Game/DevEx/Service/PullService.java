@@ -19,17 +19,12 @@ public class PullService {
     private final DropTableRepository dropTableRepository;
     private final InventoryService inventoryService;
     private final GameItemRepository gameItemRepository;
-    private final UsersService usersService;
-    private final TotoloService totoloService;
-
     @Autowired
-    public PullService(DropTableRepository dropTableRepository, InventoryService inventoryService, GameItemRepository gameItemRepository,
-    UsersService usersService, TotoloService totoloService) {
+    public PullService(DropTableRepository dropTableRepository, InventoryService inventoryService, GameItemRepository gameItemRepository) {
         this.dropTableRepository = dropTableRepository;
         this.inventoryService = inventoryService;
         this.gameItemRepository = gameItemRepository;
-        this.usersService = usersService;
-        this.totoloService = totoloService;
+
     }
 
     public List<GameItem> pull(PullsDto pullsDto) {

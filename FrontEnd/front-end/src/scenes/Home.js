@@ -135,7 +135,7 @@ class Home extends Phaser.Scene {
             this.SurveyButton.setFillStyle(normalColor);
             if(batteryCharge >= surveyBatteryCost){
                 batteryCharge -= surveyBatteryCost;
-                this.scene.launch('Survey', { userID: userID, hunger: hunger, numberOfSurveys: 1 });
+                this.scene.launch('Survey', { userID: userID, hunger: hunger, numberOfSurveys: 1, totoloID : TotoloID });
             } else {
                 alert('Not enough battery charge to access the survey');
             }
@@ -167,7 +167,7 @@ class Home extends Phaser.Scene {
 
         this.InventoryButton.on('pointerup', () => {
             this.InventoryButton.setFillStyle(normalColor);
-            this.scene.launch('Inventory');
+            this.scene.launch('Inventory', { userID: userID, totoloID: TotoloID });
         });
 
     }
@@ -287,9 +287,6 @@ class Home extends Phaser.Scene {
         this.battery.setFrame(invertedFrame);
         batteryIndicator.setText(`%${batteryCharge}`);
     }
-}
-function sendHttpRequest(text) {
-    return "Esto es lo que devolveria el servidor";
 }
 async function getTotoloByHttp(TotoloID){
     let response;

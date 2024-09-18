@@ -1,6 +1,7 @@
 package Game.DevEx.Controller;
 
 import Game.DevEx.Entity.Totolo;
+import Game.DevEx.Service.ItemUsageService;
 import Game.DevEx.Service.TotoloService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 public class TotoloController {
     @Autowired
     private TotoloService totoloService;
+    @Autowired
+    private ItemUsageService itemUsageService;
 
     @GetMapping
     public String getTotolo(@RequestParam int TotoloID) {
@@ -54,7 +57,7 @@ public class TotoloController {
     @PostMapping("/feed")
     public String feedTotolo(@RequestParam int TotoloID, @RequestParam int foodItemID, @RequestParam int userID){
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("response", totoloService.feedTotolo(TotoloID, foodItemID, userID));
+        jsonObject.put("response", itemUsageService.useItem(userID, foodItemID, 1, TotoloID));
         return jsonObject.toString();
     }
 }

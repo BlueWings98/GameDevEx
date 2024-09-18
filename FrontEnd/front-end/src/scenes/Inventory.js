@@ -9,9 +9,18 @@ const backendUrl = 'http://localhost:8080/';
 
 const rewards = [];
 
+let userID = 1;
+let totoloID = 1;
+
 class Inventory extends Phaser.Scene {
     constructor() {
         super({ key: 'Inventory' });
+    }
+    init(data){
+        userID = data.userID;
+        console.log("totoloID antes: ", totoloID);
+        totoloID = data.totoloID;
+        console.log("totoloID despues: ", totoloID);
     }
     preload() {
         this.preloadEveryReward();
@@ -85,9 +94,15 @@ class Inventory extends Phaser.Scene {
                 // Añadir interactividad
                 itemSprite.setInteractive();
                 itemSprite.on('pointerdown', () => {
-                    this.triggerItemEvent(item);
+                    triggerItemEvent(userID, item.gameItemId, 1, totoloID).then((responseData) => {
+                        // Assuming the responseData contains the message, like { message: "Totolo has been fed!" }
+                        if (responseData && responseData.response) {
+                            alert(responseData.response); // Display the message in an alert box
+                        }
+                        itemQuantityText.setText(`Cantidad: ${item.isUnique ? 'U' : item.quantity - 1}`);
+                    });
                 });
-            });
+        });
         } catch (error) {
             console.error('Error getting the user inventory:', error);
         }
@@ -247,14 +262,21 @@ async function triggerItemEvent(userID, itemID, quantity) {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({
+                userID: userID,
+                itemID: itemID,
+                quantity: quantity,
+                totoloID: totoloID
+            })
         });
 
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        console.log('Item event triggered successfully');
+        const responseData = await response.json();
+        return responseData;
     } catch (error) {
         console.error('Error triggering item event:', error);
     }
