@@ -37,21 +37,20 @@ public class PullService {
         int userId = Integer.parseInt(pullsDto.getUserID());
         int numberOfPulls = Integer.parseInt(pullsDto.getNumberOfPulls());
         System.out.println("Pulling " + numberOfPulls + " times for user " + userId);
-        Users user = usersService.getUserById(userId);
-        int totoloID = user.getTotoloID();
-        if(totoloService.dischargeBatteryByPull(totoloID, numberOfPulls)){
+        if(inventoryService.hasCoins(userId, numberOfPulls)) {
             for (int i = 0; i < numberOfPulls; i++) {
+                inventoryService.useItem(userId, 8, 1); // Use 1 coin
                 GameItem gameItem = getRandomGameItem(pullsDto.getDropTableId(), userId);
                 System.out.println("Pulled: " + gameItem);
-                if(gameItem != null){
+                if (gameItem != null) {
                     rewards.add(gameItem);
                     inventoryService.addItem(userId, gameItem.getGameItemId(), 1);
-                } else{
+                } else {
                     throw new NullPointerException("Game item was not found");
                 }
             }
-        } else{
-            throw new IllegalArgumentException("Not enough battery to pull");
+        } else {
+            throw new IllegalArgumentException("User does not have enough coins");
         }
         return rewards;
     }

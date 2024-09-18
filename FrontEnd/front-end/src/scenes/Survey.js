@@ -12,13 +12,20 @@ let displayedGeneratedText = "";
 let generatedText = "";
 let currentPage = 0;
 let totalPages = 0;
+let hunger = 1;
 let characterEmotion = "Neutral";
 let userID = 1;
 let projectID = 1;
+let numberOfSurveys = 1;
 
 class Survey extends Phaser.Scene {
     constructor() {
         super({ key: 'Survey' });
+    }
+    init(data){
+        characterEmotion = hungerToMood(data.hunger);
+        userID = data.userID;
+        numberOfSurveys = data.numberOfSurveys;
     }
 
     create() {
@@ -87,6 +94,21 @@ class Survey extends Phaser.Scene {
     }
 
 }
+function hungerToMood(hunger) {
+    switch (hunger) {
+        case 0:
+            return "Enojado";
+        case 1:
+            return "Triste";
+        case 2:
+            return "Neutral";
+        case 3:
+            return "Alegre";
+    
+        default:
+            return "Neutral";
+    }
+}
 async function receiveAnswerByHttp(writtenText, generatedText, projectID) {
     let gptResponse = "";
     try {
@@ -127,7 +149,12 @@ async function generateQuestionByHttp() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            body: JSON.stringify({
+                userID: userID,
+                characterEmotion: characterEmotion,
+                numberOfSurveys: 1
+            })
         });
 
         if (!response.ok) {

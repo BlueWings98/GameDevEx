@@ -14,7 +14,7 @@ public class TotoloService {
     private static final int BATTERY_RECHARGE_RATE = 25; // 25% recharge
     private static final int HOURS_TO_RECHARGE = 8;      // Recharge every 8 hours
     private static final int MAX_BATTERY = 100;          // Max battery value
-    private static final int PULL_COST = 25;            // Cost to pull
+    private static final int SURVEY_COST = 25;            // Cost to pull
 
     private final TotoloRepository totoloRepository;
     private final InventoryService inventoryService;
@@ -28,10 +28,10 @@ public class TotoloService {
     public Totolo getTotolo(int TotoloID) {
         return this.totoloRepository.findById(TotoloID).orElseThrow();
     }
-    public boolean dischargeBatteryByPull(int TotoloID, int numberOfPulls) {
+    public boolean dischargeBatteryBySurvey(int TotoloID, int numberOfSurveys) {
         Totolo totolo = this.totoloRepository.findById(TotoloID).orElseThrow();
-        if(totolo.getBattery() >= PULL_COST * numberOfPulls){
-            totolo.setBattery(totolo.getBattery() - (PULL_COST * numberOfPulls));
+        if(totolo.getBattery() >= SURVEY_COST * numberOfSurveys){
+            totolo.setBattery(totolo.getBattery() - (SURVEY_COST * numberOfSurveys));
             totoloRepository.save(totolo);
             return true;
         } else {

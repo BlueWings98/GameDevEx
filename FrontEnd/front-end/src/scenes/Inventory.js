@@ -29,7 +29,7 @@ class Inventory extends Phaser.Scene {
             console.error('Error loading rewards:', error);
         }
     }
-    
+
 
     create() {
         this.background = this.add.image(width / 2, height / 2, 'background');
@@ -50,30 +50,30 @@ class Inventory extends Phaser.Scene {
         const startY = 100;
         const spacingX = 500; // Espacio horizontal entre columnas
         const spacingY = 150; // Espacio vertical entre filas
-    
+
         try {
             let inventory = await getInventoryByHttp(userID);
             inventory = inventory.listItems();
-        
+
             inventory.forEach((item, index) => {
                 const column = Math.floor(index / 5); // Determina la columna
                 const row = index % 5; // Determina la fila dentro de la columna
-        
+
                 const itemX = startX + column * spacingX;
                 const itemY = startY + row * spacingY;
-        
+
                 // Mostrar la imagen del objeto
                 const itemSprite = this.add.image(itemX, itemY, 'reward' + item.gameItemId);
                 itemSprite.displayWidth = 100;
                 itemSprite.displayHeight = 100;
-        
+
                 // Mostrar el nombre del objeto
                 const itemName = this.add.text(itemX + 120, itemY - 40, item.name, {
                     fill: '#FFFFFF',
                     fontSize: '30px',
                     fontStyle: 'bold'
                 });
-        
+
                 // Mostrar la cantidad o "U" si es único
                 const itemQuantity = item.isUnique ? 'U' : item.quantity;
                 const itemQuantityText = this.add.text(itemX + 120, itemY + 10, `Cantidad: ${itemQuantity}`, {
@@ -81,7 +81,7 @@ class Inventory extends Phaser.Scene {
                     fontSize: '25px',
                     fontStyle: 'bold'
                 });
-        
+
                 // Añadir interactividad
                 itemSprite.setInteractive();
                 itemSprite.on('pointerdown', () => {
@@ -93,32 +93,7 @@ class Inventory extends Phaser.Scene {
         }
 
     }
-    
-    triggerItemEvent(item) {
-        console.log(item);
-        console.log("Item clicked: ", item.name, " ", item.category);
-        switch (item.category) {
-            case 'Comida':
-                alert("Comida seleccionada, evento específico para comida.");
-                // Aquí podrías añadir la lógica específica para la categoría 'Comida'
-                break;
-            case 'Skin':
-                alert("Cambio de Skin.");
-                // Aquí podrías añadir la lógica específica para la categoría 'Arma'
-                break;
-            case 'Minijuego':
-                alert("Se activo el Minijuego.");
-                // Aquí podrías añadir la lógica específica para la categoría 'Arma'
-                break;
-            case 'Jackpot':
-                alert("Jackpot.");
-                // Aquí podrías añadir la lógica específica para la categoría 'Arma'
-                break;
-            // Añadir más categorías según sea necesario
-            default:
-                alert("Evento genérico para la categoría: " + item.category);
-        }
-    }
+
     createExitButton() {
         const exitButton = this.add.text(width - 100, 50, 'Exit', {
             font: '50px Arial',
@@ -149,7 +124,7 @@ async function getEveryPossibleRewardHttp() {
         console.error('Error fetching Possible Items: ', error);
     }
 }
-function getEveryPossibleRewardLocal(){
+function getEveryPossibleRewardLocal() {
     return [
         {
             "gameItemId": 0,
@@ -264,6 +239,25 @@ async function getInventoryByHttp(userID) {
     }
 
     return inventory;
+}
+async function triggerItemEvent(userID, itemID, quantity) {
+    let response;
+    try {
+        response = await fetch(`${backendUrl}use-item`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        console.log('Item event triggered successfully');
+    } catch (error) {
+        console.error('Error triggering item event:', error);
+    }
 }
 
 

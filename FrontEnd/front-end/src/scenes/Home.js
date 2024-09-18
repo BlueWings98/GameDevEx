@@ -11,8 +11,10 @@ const textPerPage = 50; // Maximum number of characters per page
 const surveyBatteryCost = 25;
 const TotoloID = 1;
 const userID = 1;
+let batteryIndicator;
 
 let characterSkin = "Green";
+let hunger = 1;
 
 let batteryCharge = 100;
 
@@ -75,7 +77,7 @@ class Home extends Phaser.Scene {
         });
 
         // Get a Totolo from the server
-        const Totolo = rechargeByHttp(TotoloID).then(Totolo => {
+        rechargeByHttp(TotoloID).then(Totolo => {
         // Add sprites and play corresponding animation based on characterMood
         switch (Totolo.Hunger) {
             case 0:
@@ -99,7 +101,9 @@ class Home extends Phaser.Scene {
                 this.Neutral.play("AnimNeutral");
                 break;
         }
+        hunger = Totolo.Hunger;
         batteryCharge = Totolo.Battery;
+        this.updateBatteryIndicator();
         characterSkin = Totolo.Skin;
 
     });
@@ -131,7 +135,7 @@ class Home extends Phaser.Scene {
             this.SurveyButton.setFillStyle(normalColor);
             if(batteryCharge >= surveyBatteryCost){
                 batteryCharge -= surveyBatteryCost;
-                this.scene.launch('Survey');
+                this.scene.launch('Survey', { userID: userID, hunger: hunger, numberOfSurveys: 1 });
             } else {
                 alert('Not enough battery charge to access the survey');
             }
@@ -257,7 +261,7 @@ class Home extends Phaser.Scene {
         this.battery = this.add.sprite(150, 150, 'battery');
         this.battery.displayHeight = 400;
         this.battery.displayWidth = 400;
-        const batteryIndicator = this.add.text(95, 140,  `%${batteryCharge}`, {
+        batteryIndicator = this.add.text(95, 140,  `%${batteryCharge}`, {
             font: '50px Arial',
             fill: 'Green'
         });
@@ -268,7 +272,7 @@ class Home extends Phaser.Scene {
         this.updateBatteryIndicator(batteryIndicator);
 
     }
-    updateBatteryIndicator(batteryIndicator) {
+    updateBatteryIndicator() {
         // Clamp the battery charge between 0 and 100
         let batterySprite = Phaser.Math.Clamp(batteryCharge, 0, 100);
         

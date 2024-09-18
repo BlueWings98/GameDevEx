@@ -14,40 +14,48 @@ import java.util.Optional;
 import java.util.Random;
 
 @Service
-public class SurveyService implements iSurveyService {
+public class SurveyService {
     private final int MIN = 1;
 
     private final DXFactorRepository dxFactorRepository;
     private final SurveyRepository surveyRepository;
     private final ChatGptService chatGptService;
     private final InventoryService inventoryService;
+    private final TotoloService totoloService;
 
     private static final String initPrompt = "Te llamas Totolo, eres un pequeño tanuki y necesito que ayudes a tu humano a tener mejor experiencia de desarrollador. Tus respuestas deben ser cortas pero tiernas. Si vas a hacer una recomendación esta ser amigable y creativa.";
-    private static final String questionPromptBase = "Recuerda saludar siempre. Te voy a dar un factor que influye en la experiencia de desarrollador y quiero que generes una pregunta con la intencion de medir la gravedad de la situación. Solo haz la pregunta, no repitas las instrucciones dadas. Se creativo. Las preguntas deben siempre ser abiertas."+
+    private static final String questionPromptBase = ". Recuerda saludar siempre. Te voy a dar un factor que influye en la experiencia de desarrollador y quiero que generes una pregunta con la intencion de medir la gravedad de la situación. Solo haz la pregunta, no repitas las instrucciones dadas. Se creativo. Las preguntas deben siempre ser abiertas."+
             "El tema de la pregunta de Developer Experience es: ";
-    private static final String setUpEmotionReader = "Solo respondiendo en números del 1 al 10, que tan emocional encuentras la siguiente respuesta siendo 10 el maximo y 1 el minimo? Si la respuesta no esta relacionada o no es satisfactoria responde 0: ";
+    private static final String characterMoodInjection = "Maneja una emoción: ";
+    private static final String setUpEmotionReader = "Solo respondiendo en números del 1 al 10, que tan impactante en el contexto de la Experiencia del Desarrollador, encuentras la siguiente respuesta siendo 10 el maximo y 1 el minimo? Si la respuesta no esta relacionada o no es satisfactoria responde 0: ";
     private static final String casualConversationPromptBase = "Necesito que me des una respuesta honesta dentro del personaje intentando hacer recomendaciones muy cortas y amigables de una o dos frases. para mejorar la experiencia de desarrollador de tu humano. ";
     private DXFactor selectedDxFactor;
 
     @Autowired
-    public SurveyService(DXFactorRepository dxFactorRepository, SurveyRepository surveyRepository, ChatGptService chatGptService, InventoryService inventoryService) {
+    public SurveyService(DXFactorRepository dxFactorRepository, SurveyRepository surveyRepository, ChatGptService chatGptService,
+                         InventoryService inventoryService, TotoloService totoloService) {
         this.dxFactorRepository = dxFactorRepository;
         this.surveyRepository = surveyRepository;
         this.chatGptService = chatGptService;
         this.inventoryService = inventoryService;
+        this.totoloService = totoloService;
     }
-    @Override
-    public String executeSurvey() {
-        Optional<DXFactor> gptResponse = getRandomDxFactor();
+    public String executeSurvey(int userID, String characterEmotion, int numberOfSurveys) {
         DXFactor randomDxFactor;
         double temperature = 1.2;
-        if(gptResponse.isPresent()){
-            randomDxFactor = getRandomDxFactor().get();
-            this.selectedDxFactor = randomDxFactor;
+        if(totoloService.dischargeBatteryBySurvey(userID, numberOfSurveys)){
+            Optional<DXFactor> gptResponse = getRandomDxFactor();
+            if(gptResponse.isPresent()){
+                randomDxFactor = getRandomDxFactor().get();
+                this.selectedDxFactor = randomDxFactor;
+            } else {
+                throw new NullPointerException();
+            }
         } else {
-            throw new NullPointerException();
+            return "No tienes suficiente batería para realizar una encuesta. Esta se recargará sola mañana.";
         }
-        return chatGptService.getVanillaCompletition(questionPromptBase.concat(randomDxFactor.getDxFactorName()),temperature, initPrompt );
+        String prompt = characterMoodInjection.concat(characterEmotion) + questionPromptBase.concat(randomDxFactor.getDxFactorName());
+        return chatGptService.getVanillaCompletition(prompt,temperature, initPrompt );
     }
     public String receiveUserAnswer(String userResponse, int userID, String characterEmotion, String gptResponse, int projectID) {
         int measuredEmotion = measureEmotion(userResponse);
@@ -97,8 +105,6 @@ public class SurveyService implements iSurveyService {
         return surveys;
     }
 
-
-    @Override
     public void printAllDxFactors() {
         dxFactorRepository.findAll().forEach(System.out::println);
     }

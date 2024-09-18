@@ -39,6 +39,10 @@ public class InventoryService {
             return new JSONObject();
         }
     }
+    public boolean hasCoins(int userId, int quantity) {
+        // Check if the user has enough coins
+        return playerInventoryRepository.existsById(new PlayerInventoryId(userId, 8)) && playerInventoryRepository.findById(new PlayerInventoryId(userId, 8)).orElse(null).getQuantity() >= quantity;
+    }
     public boolean useItem (int userId, int gameItemId, int quantity) {
         // Get the desired object
         PlayerInventory gameObjectEntry = playerInventoryRepository.findById(new PlayerInventoryId(userId, gameItemId)).orElse(null);
