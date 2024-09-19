@@ -1,8 +1,10 @@
 package Game.DevEx.Service;
 
+import Game.DevEx.Entity.BarrierToImprovement;
 import Game.DevEx.Entity.DXFactor;
 import Game.DevEx.Entity.Survey;
 import Game.DevEx.Interface.iSurveyService;
+import Game.DevEx.Repository.BarrierToImprovementRepository;
 import Game.DevEx.Repository.DXFactorRepository;
 import Game.DevEx.Repository.SurveyRepository;
 import org.json.JSONArray;
@@ -13,15 +15,19 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.Random;
 
+import static org.apache.commons.lang3.StringUtils.isNumeric;
+
 @Service
 public class SurveyService {
     private final int MIN = 1;
 
     private final DXFactorRepository dxFactorRepository;
     private final SurveyRepository surveyRepository;
+    private final BarrierToImprovementRepository barrierToImprovementRepository;
     private final ChatGptService chatGptService;
     private final InventoryService inventoryService;
     private final TotoloService totoloService;
+    private DXFactor selectedDxFactor;
 
     private static final String initPrompt = "Te llamas Totolo, eres un pequeño tanuki y necesito que ayudes a tu humano a tener mejor experiencia de desarrollador. Tus respuestas deben ser cortas pero tiernas. Si vas a hacer una recomendación esta ser amigable y creativa.";
     private static final String questionPromptBase = ". Recuerda saludar siempre. Te voy a dar un factor que influye en la experiencia de desarrollador y quiero que generes una pregunta con la intencion de medir la gravedad de la situación. Solo haz la pregunta, no repitas las instrucciones dadas. Se creativo. Las preguntas deben siempre ser abiertas."+
@@ -29,16 +35,19 @@ public class SurveyService {
     private static final String characterMoodInjection = "Maneja una emoción: ";
     private static final String setUpEmotionReader = "Solo respondiendo en números del 1 al 10, que tan impactante en el contexto de la Experiencia del Desarrollador, encuentras la siguiente respuesta siendo 10 el maximo y 1 el minimo? Si la respuesta no esta relacionada o no es satisfactoria responde 0: ";
     private static final String casualConversationPromptBase = "Necesito que me des una respuesta honesta dentro del personaje intentando hacer recomendaciones muy cortas y amigables de una o dos frases. para mejorar la experiencia de desarrollador de tu humano. ";
-    private DXFactor selectedDxFactor;
+    private static final String initBarrierToImprovementPrompt = "Necesito que a partir de la respuesta del usuario y de Totolo, escogas la barrera para la mejora mas relevante a partir de la siguiente lista. Solo escoge una y tu respuesta debe ser el nombre y un numero del 1 al 10 siendo 10 el mas relevante y 1 el menos relevante. Necesito que solo me des como respuesta lo que te pido, el resto no es valido: ";
+    private static final String barrierToImprovementPrompt = "Necesito que a partir de la respuesta del usuario y de Totolo, escogas la barrera para la mejora mas relevante a partir de la siguiente lista. Solo escoge una y tu respuesta debe ser el nombre y un numero del 1 al 10 siendo 10 el mas relevante y 1 el menos relevante: ";
+
 
     @Autowired
     public SurveyService(DXFactorRepository dxFactorRepository, SurveyRepository surveyRepository, ChatGptService chatGptService,
-                         InventoryService inventoryService, TotoloService totoloService) {
+                         InventoryService inventoryService, TotoloService totoloService, BarrierToImprovementRepository barrierToImprovementRepository) {
         this.dxFactorRepository = dxFactorRepository;
         this.surveyRepository = surveyRepository;
         this.chatGptService = chatGptService;
         this.inventoryService = inventoryService;
         this.totoloService = totoloService;
+        this.barrierToImprovementRepository = barrierToImprovementRepository;
     }
     public String executeSurvey(int userID, String characterEmotion, int numberOfSurveys) {
         DXFactor randomDxFactor;
@@ -77,7 +86,63 @@ public class SurveyService {
         this.surveyRepository.save(survey);
         // Como la respuesta fue satisfactoria, se le otorga una modena al usuario.
         this.inventoryService.addItem(userID, 8, 1);
-        return casualConversation(userResponse, characterEmotion);
+        // Se calcula la barrera para la mejora mas relevante.
+        if(calculateBarriersToImprovement(userResponse, gptResponse)){
+            return casualConversation(userResponse, characterEmotion);
+        }
+        return "Hubo un error al calcular la barrera para la mejora.";
+    }
+    public Boolean calculateBarriersToImprovement(String userReponse, String gptResponse){
+        // A partir de las dos respuestas del usuario y de Totolo, se calcula cual seria la barrera para la mejora mas relevante.
+        Iterable<BarrierToImprovement> barrierToImprovement = barrierToImprovementRepository.findAll();
+        //Necesito concatenar las respuestas del usuario y de Totolo para poder hacer la comparación.
+        String concatenatedResponses = barrierToImprovementPrompt.concat("Esta fue tu pregunta: " + gptResponse);
+        concatenatedResponses = concatenatedResponses.concat(" Esta fue la respuesta del usuario: " + userReponse);
+        String allBarriers = " ";
+        for(BarrierToImprovement barrier : barrierToImprovement){
+            allBarriers = allBarriers.concat(barrier.getName() + ", ");
+        }
+        concatenatedResponses = concatenatedResponses.concat(" Las barreras para la mejora son: " + allBarriers);
+        double temperature = 1;
+        String gptResponseBarrier = chatGptService.getVanillaCompletition(concatenatedResponses,temperature, initBarrierToImprovementPrompt);
+        JSONObject jsonResponse = new JSONObject(gptResponseBarrier);
+        // Navigate through the JSON structure to get the content
+        JSONArray choicesArray = jsonResponse.getJSONArray("choices");
+        JSONObject firstChoice = choicesArray.getJSONObject(0);
+        JSONObject messageObject = firstChoice.getJSONObject("message");
+        String content = messageObject.getString("content");
+        System.out.println("Content: " + content);
+        return determineBarrierValue(content);
+    }
+    private Boolean determineBarrierValue(String gptResponse){
+        // Parsear la respuesta de forma más flexible
+        String[] parts = gptResponse.split("\\s+"); // Separa por uno o más espacios en blanco
+        String barrera = "";
+        int numero = 0;
+
+        // Construir el nombre de la barrera
+        for (int i = 0; i < parts.length - 1; i++) {
+            if (isNumeric(parts[i])) {
+                break; // Se encontró el número, se termina el bucle
+            }
+            barrera += parts[i].replaceAll("[^a-zA-Z]", "") + " ";
+        }
+        barrera = barrera.trim();
+
+        // Extraer el número
+        try {
+            numero = Integer.parseInt(parts[parts.length - 1]);
+        } catch (NumberFormatException e) {
+            System.out.println("No se pudo extraer el número de la respuesta.");
+        }
+
+        // Guardar en variables
+        String barreraMasRelevante = barrera;
+        int numeroBarrera = numero;
+
+        System.out.println("Barrera más relevante: " + barreraMasRelevante);
+        System.out.println("Número de barrera: " + numeroBarrera);
+        return true;
     }
     public String casualConversation(String userResponse, String characterEmotion) {
         // Necesito generar la respuesta honesta de chatgpt dentro del personaje de la mascota pero manteniendo el contexto con el usuario.
