@@ -42,106 +42,84 @@ class Home extends Phaser.Scene {
         this.createAndAddAnimations();
         this.goToRewardsButton();
         this.goToHenButton();
-        this.openSurveyMenu();
         this.openInventoryMenu();
         this.createBatteryIndicator();
     }
     createAndAddAnimations() {
         const floorHeight = 500;
         const fps = 0.2;
-
+    
         // Create animations
-        this.anims.create({
-            key: "AnimAlegre",
-            frames: this.anims.generateFrameNumbers("Alegre"),
-            frameRate: fps,
-            repeat: -1
-        });
-        this.anims.create({
-            key: "AnimTriste",
-            frames: this.anims.generateFrameNumbers("Triste"),
-            frameRate: fps,
-            repeat: -1
-        });
-        this.anims.create({
-            key: "AnimEnojado",
-            frames: this.anims.generateFrameNumbers("Enojado"),
-            frameRate: fps,
-            repeat: -1
-        });
-        this.anims.create({
-            key: "AnimNeutral",
-            frames: this.anims.generateFrameNumbers("Neutral"),
-            frameRate: fps,
-            repeat: -1
-        });
-
+        this.createCharacterAnimations(fps);
+    
         // Get a Totolo from the server
         rechargeByHttp(TotoloID).then(Totolo => {
-        // Add sprites and play corresponding animation based on characterMood
-        switch (Totolo.Hunger) {
-            case 0:
-                this.Enojado = this.add.sprite(width/1.5, height - floorHeight - 50, "Enojado");
-                this.Enojado.setScale(0.3);
-                this.Enojado.play("AnimEnojado");
-                break;
-            case 1:
-                this.Triste = this.add.sprite(width/1.5, height - floorHeight - 50, "Triste");
-                this.Triste.setScale(0.3);
-                this.Triste.play("AnimTriste");
-                break;
-            case 3:
-                this.Alegre = this.add.sprite(width/1.5, height - floorHeight - 50, "Alegre");
-                this.Alegre.setScale(0.3);
-                this.Alegre.play("AnimAlegre");
-                break;
-            default:
-                this.Neutral = this.add.sprite(width/1.5, height - floorHeight - 50, "Neutral");
-                this.Neutral.setScale(0.3);
-                this.Neutral.play("AnimNeutral");
-                break;
-        }
-        hunger = Totolo.Hunger;
-        batteryCharge = Totolo.Battery;
-        this.updateBatteryIndicator();
-        characterSkin = Totolo.Skin;
-
-    });
-    }
-    openSurveyMenu() {
-        const boxWidth = 200;
-        const boxHeight = 100;
-
-        this.SurveyButton = this.add.rectangle(width / 2, height / 1.5, boxWidth, boxHeight, 0x109010);
-        this.SurveyButton.setOrigin(0.5);
-
-        this.SurveyText = this.add.text(width / 2, height / 1.5, 'Go to Survey', {
-            fill: '#FFD700',
-            fontSize: '50px',
-            fontStyle: 'bold'
-        });
-        this.SurveyText.setOrigin(0.5);
-
-        this.SurveyButton.setInteractive();
-
-        const normalColor = 0x109010;
-        const pressedColor = 0x0a5c0a;
-
-        this.SurveyButton.on('pointerdown', () => {
-            this.SurveyButton.setFillStyle(pressedColor);
-        });
-
-        this.SurveyButton.on('pointerup', () => {
-            this.SurveyButton.setFillStyle(normalColor);
-            if(batteryCharge >= surveyBatteryCost){
-                batteryCharge -= surveyBatteryCost;
-                this.scene.launch('Survey', { userID: userID, hunger: hunger, numberOfSurveys: 1, totoloID : TotoloID });
-            } else {
-                alert('Not enough battery charge to access the survey');
-            }
+            this.Emocion = this.addCharacterByMood(Totolo.Hunger, floorHeight);
+            hunger = Totolo.Hunger;
+            batteryCharge = Totolo.Battery;
+            characterSkin = Totolo.Skin;
+    
+            // Update UI elements
+            this.updateBatteryIndicator();
             
+            // Add interaction listeners to the sprite
+            this.addInteractionListeners(this.Emocion);
         });
     }
+    
+    // Create animations for different emotions
+    createCharacterAnimations(fps) {
+        const emotions = ["Alegre", "Triste", "Enojado", "Neutral"];
+        
+        emotions.forEach(emotion => {
+            this.anims.create({
+                key: `Anim${emotion}`,
+                frames: this.anims.generateFrameNumbers(emotion),
+                frameRate: fps,
+                repeat: -1
+            });
+        });
+    }
+    
+    // Add character sprite based on their mood
+    addCharacterByMood(hunger, floorHeight) {
+        const moodMap = {
+            0: { key: "Enojado", anim: "AnimEnojado" },
+            1: { key: "Triste", anim: "AnimTriste" },
+            3: { key: "Alegre", anim: "AnimAlegre" },
+            default: { key: "Neutral", anim: "AnimNeutral" }
+        };
+    
+        const mood = moodMap[hunger] || moodMap.default;
+        const sprite = this.add.sprite(width / 1.5, height - floorHeight - 50, mood.key);
+        sprite.setScale(0.3);
+        sprite.play(mood.anim);
+        
+        return sprite;
+    }
+    
+    // Add interaction listeners to the emotion sprite
+    addInteractionListeners(sprite) {
+        sprite.setInteractive();
+        sprite.on('pointerup', () => {
+            if (batteryCharge >= surveyBatteryCost) {
+                batteryCharge -= surveyBatteryCost;
+                this.scene.launch('Survey', { userID: userID, hunger: hunger, numberOfSurveys: 1, totoloID: TotoloID });
+            } else {
+                alert('No tengo suficiente energía hoy, ¿te parece si lo intentamos mañana?');
+            }
+        });
+    
+        sprite.on('pointerover', () => {
+            sprite.setScale(0.32);
+        });
+    
+        sprite.on('pointerout', () => {
+            sprite.setScale(0.3);
+        });
+        console.log(sprite);
+    }
+    
     openInventoryMenu(){
         const boxWidth = 200;
         const boxHeight = 100;
@@ -161,13 +139,14 @@ class Home extends Phaser.Scene {
         const normalColor = 0xCD7F32;
         const pressedColor = 0xE1C16E;
 
-        this.InventoryButton.on('pointerdown', () => {
+        this.InventoryButton.on('pointerup', () => {
+            this.scene.launch('Inventory', { userID: userID, totoloID: TotoloID });
+        });
+        this.InventoryButton.on('pointerover', () => {
             this.InventoryButton.setFillStyle(pressedColor);
         });
-
-        this.InventoryButton.on('pointerup', () => {
+        this.InventoryButton.on('pointerout', () => {
             this.InventoryButton.setFillStyle(normalColor);
-            this.scene.launch('Inventory', { userID: userID, totoloID: TotoloID });
         });
 
     }
@@ -179,8 +158,8 @@ class Home extends Phaser.Scene {
         const boxY = (height / 2) - (boxHeight / 2);
 
         // Crear la caja amarilla
-        this.surveyBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
-        this.surveyBox.setOrigin(0.5); // Establecer el origen en el centro
+        this.rewardsBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
+        this.rewardsBox.setOrigin(0.5); // Establecer el origen en el centro
 
         // Crear el texto sobre la caja
         this.returnButton = this.add.text(boxX, boxY, 'Rewards', {
@@ -191,26 +170,29 @@ class Home extends Phaser.Scene {
         this.returnButton.setOrigin(0.5); // Centrar el texto
 
         // Hacer la caja interactiva
-        this.surveyBox.setInteractive();
+        this.rewardsBox.setInteractive();
 
         // Definir los colores para los estados
         const normalColor = 0xD2691E;
         const pressedColor = 0xA0522D; // Color ligeramente más oscuro
 
         // Cambiar el color al presionar el botón
-        this.surveyBox.on('pointerdown', () => {
-            this.surveyBox.setFillStyle(pressedColor);
+        this.rewardsBox.on('pointerdown', () => {
+            this.rewardsBox.setFillStyle(pressedColor);
         });
 
         // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
-        this.surveyBox.on('pointerup', () => {
-            this.surveyBox.setFillStyle(normalColor);
+        this.rewardsBox.on('pointerup', () => {
+            this.rewardsBox.setFillStyle(normalColor);
             //this.scene.add
             this.scene.start('Rewards'); // Ejecuta la acción del botón
         });
+        this.rewardsBox.on('pointerover', () => {
+            this.rewardsBox.setScale(1.1);
+        });
 
-        this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setFillStyle(normalColor);
+        this.rewardsBox.on('pointerout', () => {
+            this.rewardsBox.setScale(1);
         });
     }
     goToHenButton() {
@@ -250,8 +232,12 @@ class Home extends Phaser.Scene {
             this.scene.start('Hen'); // Ejecuta la acción del botón
         });
 
+        this.surveyBox.on('pointerover', () => {
+            this.surveyBox.setScale(1.1);
+        });
+
         this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setFillStyle(normalColor);
+            this.surveyBox.setScale(1);
         });
     }
     getCharacterSkin(){
@@ -267,7 +253,22 @@ class Home extends Phaser.Scene {
         });
         batteryIndicator.setInteractive();
         batteryIndicator.on('pointerdown', () => {
-            batteryCharge =+ 1;
+            alert("Esta es la bateria de tu Totolo. Hacer actividades con el Totolo consume bateria, esta se recarga sola.");
+        });
+        batteryIndicator.on('pointerover', () => {
+            batteryIndicator.setColor('Red');
+        });
+        batteryIndicator.on('pointerout', () => {
+            batteryIndicator.setColor('Green');
+        });
+        this.battery.setInteractive();
+        this.battery.on('pointerover', () => {
+            this.battery.displayHeight = 420;
+            this.battery.displayWidth = 420;
+        });
+        this.battery.on('pointerout', () => {
+            this.battery.displayHeight = 400;
+            this.battery.displayWidth = 400;
         });
         this.updateBatteryIndicator(batteryIndicator);
 

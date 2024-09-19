@@ -87,6 +87,14 @@ class Hen extends Phaser.Scene {
                     // Switch to the ReportScene and pass the projectID
                     this.scene.start('Report', { projectID: project.projectID, projectName: project.projectName , projectKey: project.projectKey});
                 });
+                chicken.on('pointerover', () => {
+                    // Scale the chicken image when the cursor is over it
+                    chicken.setScale(0.1);
+                });
+                chicken.on('pointerout', () => {
+                    // Restore the original scale when the cursor is no longer over the image
+                    chicken.setScale(0.09);
+            });
             });
         });
     }
@@ -167,8 +175,11 @@ class Hen extends Phaser.Scene {
             this.scene.start('Home'); // Ejecuta la acción del botón
         });
 
+        this.surveyBox.on('pointerover', () => {
+            this.surveyBox.setScale(1.1);
+        });
         this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setFillStyle(normalColor);
+            this.surveyBox.setScale(1.0);
         });
     }
 }

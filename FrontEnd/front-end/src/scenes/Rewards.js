@@ -18,7 +18,7 @@ class Rewards extends Phaser.Scene {
         this.load.image('saucer', `${backgroundDir}Casino.png`);
         this.load.image('coins', `${itemsDir}Coin.png`);
         this.load.image('pull1', `${pullsDir}Pull1.png`);
-        //this.load.image('pull10', `${pullsDir}Pull10.png`);
+        this.load.image('banner', `${backgroundDir}Gallinero/Placa/Bueno.png`);
 
         //Preload the rewards
         const rewards = getEveryPossibleRewardLocal();
@@ -40,8 +40,90 @@ class Rewards extends Phaser.Scene {
             fontSize: '70px',
             fontStyle: 'bold'
         });
+        this.coins.setInteractive();
+        this.coins.on('pointerdown', () => {
+            alert("Consigue monedas haciendo encuestas. Gastalas acá.");
+        });
+        this.coins.on('pointerover', () => {
+            this.coins.displayWidth = 220;
+            this.coins.displayHeight = 220;
+        });
+        this.coins.on('pointerout', () => {
+            this.coins.displayWidth = 200;
+            this.coins.displayHeight = 200;
+        });
         this.createPullsButton();
         this.returnToHomeButton();
+        this.createBanner();
+    }
+    createBanner() {
+        // Crear el banner
+        this.banner = this.add.image(2100, 430, 'banner');
+        this.banner.setScale(0.85);
+    
+        const startingX = 1325;
+        // Añadir el texto "TEMPORADA 1" en mayúsculas y bold
+        let titleText = this.add.text(startingX, 50, 'TEMPORADA 1', {
+            fontFamily: 'Arial',
+            fontSize: '35px',
+            fontStyle: 'bold',
+            color: '#000000'
+        });
+    
+        // Añadir el texto "Intentos 5/90 para garantizar Legendario:"
+        let attemptsText = this.add.text(startingX, 150, 'Intentos 5/90 para garantizar Legendario:', {
+            fontFamily: 'Arial',
+            fontSize: '20px',
+            color: '#000000'
+        });
+    
+        // Añadir el texto "1 Día pago libre"
+        let freeDayText = this.add.text(startingX, 250, '1 Día pago libre', {
+            fontFamily: 'Arial',
+            fontSize: '20px',
+            color: '#000000'
+        });
+    
+        // Añadir el texto "Rarezas:" en un tamaño de fuente un poco más grande
+        let rarityTitleText = this.add.text(startingX, 350, 'Rarezas:', {
+            fontFamily: 'Arial',
+            fontSize: '60px',
+            color: '#ffffff'
+        });
+    
+        // Añadir imágenes y textos para cada rareza con sus colores y porcentajes
+        let rarities = [
+            { text: 'Común 29.5%', color: '#808080', imageKey: 'reward2', description: 'Comida para alimentar a tu Totolo.' },  // Gris
+            { text: 'Raro 7%', color: '#0000FF', imageKey: 'reward4', description: 'Skins para vestir a tu personaje.' },       // Azul
+            { text: 'Épico 3%', color: '#800080', imageKey: 'reward6', description: 'Un minijuego.' },      // Morado
+            { text: 'Legendario 1%', color: '#FFA500', imageKey: 'reward7', description: 'Un dia libre pago.' }  // Naranja
+        ];
+    
+        let startY = 500; // Posición inicial en Y para las rarezas
+        let spacingY = 80; // Espacio entre cada rareza
+    
+        rarities.forEach((rarity, index) => {
+            // Añadir la imagen correspondiente a la rareza
+            let image = this.add.image(startingX+250, startY + index * spacingY, rarity.imageKey);
+            image.setDisplaySize(80,80);
+            image.setInteractive();
+            image.on('pointerdown', () => {
+                alert(rarity.description);
+            });
+            image.on('pointermove', () =>{
+                image.setDisplaySize(100,100);
+            });
+            image.on('pointerout', () =>{
+                image.setDisplaySize(80,80);
+            });
+    
+            // Añadir el texto correspondiente a la rareza con el color correcto
+            let rarityText = this.add.text(startingX, startY + index * spacingY - 20, rarity.text, {
+                fontFamily: 'Arial',
+                fontSize: '30px',
+                color: rarity.color
+            });
+        });
     }
     createPullsButton() {
         // Cargar las imágenes de los botones
@@ -68,28 +150,14 @@ class Rewards extends Phaser.Scene {
             }
              // Ejecuta la acción del botón para 1 pull
         });
+
+        this.pull1Button.on('pointerover', () => {
+            this.pull1Button.setScale(0.25); // Ajusta la escala cuando el cursor está sobre el botón
+        });
     
         this.pull1Button.on('pointerout', () => {
-            this.pull1Button.clearTint(); // Restaura el color si el cursor se mueve fuera
+            this.pull1Button.setScale(0.2);  // Restaura el color si el cursor se mueve fuera
         });
-    
-        /*this.pull10Button.on('pointerdown', () => {
-            this.pull10Button.setTint(0xFF8C00); // Cambia el color cuando se presiona
-        });
-    
-        this.pull10Button.on('pointerup', () => {
-            this.pull10Button.clearTint(); // Restaura el color original
-            if(coinCounter >= 10){
-                this.generateReward(11); // Ejecuta la acción del botón para 10+1 pulls
-                this.coinsText.setText("X " + coinCounter);
-            } else {
-                alert("Not enough coins to pull.");
-            }
-        });
-    
-        this.pull10Button.on('pointerout', () => {
-            this.pull10Button.clearTint(); // Restaura el color si el cursor se mueve fuera
-        });*/
     }
     
 
@@ -130,9 +198,12 @@ class Rewards extends Phaser.Scene {
             this.homeBox.setFillStyle(normalColor);
             this.scene.start('Home'); // Ejecuta la acción del botón
         });
-    
+
+        this.homeBox.on('pointerover', () => {
+            this.homeBox.setScale(1.2); // Ajusta la escala cuando el cursor está sobre el botón
+        });
         this.homeBox.on('pointerout', () => {
-            this.homeBox.setFillStyle(normalColor);
+            this.homeBox.setScale(1);  // Restaura el color si el cursor se mueve fuera
         });
     }
 

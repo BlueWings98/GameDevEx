@@ -150,9 +150,12 @@ class Report extends Phaser.Scene {
             this.tiberonBox.setFillStyle(normalColor);
             this.scene.start('TiberonConfig'); // Ejecuta la acción del botón
         });
-    
+        
+        this.tiberonBox.on('pointerover', () => {
+            this.tiberonBox.setScale(1.1);
+        });
         this.tiberonBox.on('pointerout', () => {
-            this.tiberonBox.setFillStyle(normalColor);
+            this.tiberonBox.setScale(1.0);
         });
     }
     returnToHenButton() {
@@ -192,8 +195,11 @@ class Report extends Phaser.Scene {
             this.scene.start('Hen'); // Ejecuta la acción del botón
         });
 
+        this.surveyBox.on('pointerover', () => {
+            this.surveyBox.setScale(1.1);
+        });
         this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setFillStyle(normalColor);
+            this.surveyBox.setScale(1.0);
         });
     }
 }

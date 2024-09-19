@@ -105,9 +105,11 @@ class TiberonConfig extends Phaser.Scene {
             this.surveyBox.setFillStyle(normalColor);
             this.scene.start('Report'); // Ejecuta la acción del botón
         });
-
+        this.surveyBox.on('pointerover', () => {
+            this.surveyBox.setScale(1.1);
+        });
         this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setFillStyle(normalColor);
+            this.surveyBox.setScale(1.0);
         });
     }
 
