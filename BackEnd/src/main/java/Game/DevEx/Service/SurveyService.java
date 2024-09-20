@@ -1,9 +1,11 @@
 package Game.DevEx.Service;
 
+import Game.DevEx.Entity.BarrierResponse;
 import Game.DevEx.Entity.BarrierToImprovement;
 import Game.DevEx.Entity.DXFactor;
 import Game.DevEx.Entity.Survey;
 import Game.DevEx.Interface.iSurveyService;
+import Game.DevEx.Repository.BarrierResponseRepository;
 import Game.DevEx.Repository.BarrierToImprovementRepository;
 import Game.DevEx.Repository.DXFactorRepository;
 import Game.DevEx.Repository.SurveyRepository;
@@ -24,6 +26,7 @@ public class SurveyService {
     private final DXFactorRepository dxFactorRepository;
     private final SurveyRepository surveyRepository;
     private final BarrierToImprovementRepository barrierToImprovementRepository;
+    private final BarrierResponseRepository barrierResponseRepository;
     private final ChatGptService chatGptService;
     private final InventoryService inventoryService;
     private final TotoloService totoloService;
@@ -41,13 +44,15 @@ public class SurveyService {
 
     @Autowired
     public SurveyService(DXFactorRepository dxFactorRepository, SurveyRepository surveyRepository, ChatGptService chatGptService,
-                         InventoryService inventoryService, TotoloService totoloService, BarrierToImprovementRepository barrierToImprovementRepository) {
+                         InventoryService inventoryService, TotoloService totoloService, BarrierToImprovementRepository barrierToImprovementRepository,
+                         BarrierResponseRepository barrierResponseRepository) {
         this.dxFactorRepository = dxFactorRepository;
         this.surveyRepository = surveyRepository;
         this.chatGptService = chatGptService;
         this.inventoryService = inventoryService;
         this.totoloService = totoloService;
         this.barrierToImprovementRepository = barrierToImprovementRepository;
+        this.barrierResponseRepository = barrierResponseRepository;
     }
     public String executeSurvey(int userID, String characterEmotion, int numberOfSurveys) {
         DXFactor randomDxFactor;
@@ -139,6 +144,13 @@ public class SurveyService {
         // Guardar en variables
         String barreraMasRelevante = barrera;
         int numeroBarrera = numero;
+        int barrierID = barrierToImprovementRepository.findIdByName(barreraMasRelevante);
+        BarrierResponse barrierResponse = new BarrierResponse(
+                barrierID,
+                numeroBarrera,
+                java.time.LocalDate.now()
+        );
+        barrierResponseRepository.save(barrierResponse);
 
         System.out.println("Barrera más relevante: " + barreraMasRelevante);
         System.out.println("Número de barrera: " + numeroBarrera);
@@ -152,7 +164,7 @@ public class SurveyService {
     }
     public int measureEmotion(String userResponse){
         //The temperature can go between 0 and 2. 0 Is the most predictable, I need to quantify emotion as cold and predictable as possible.
-        double temperature = 0.5;
+        double temperature = 0.8;
         String promt = setUpEmotionReader.concat(userResponse);
         String gptResponse = chatGptService.getVanillaCompletition(promt,temperature,"");
         JSONObject jsonResponse = new JSONObject(gptResponse);
