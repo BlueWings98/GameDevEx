@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @Builder
+@Table(name = "barrierresponse")
 public class BarrierResponse {
     //    barrierresponseid SERIAL PRIMARY KEY,
     //    barrierid INTEGER NOT NULL,
@@ -22,15 +23,15 @@ public class BarrierResponse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "barrierresponseid")
     private int barrierResponseId;
-    @Column(name = "barrierid")
-    private int barrierId;
+    @Column(name = "barriertoimprovementid")
+    private int barriertoimprovementiId;
     @Column(name = "responsevalue")
     private int responseValue;
     @Column(name = "responsedate")
     private LocalDate responseDate;
 
-    public BarrierResponse(int barrierId, int responseValue, LocalDate responseDate) {
-        this.barrierId = barrierId;
+    public BarrierResponse(int barrierResponseId, int responseValue, LocalDate responseDate) {
+        this.barriertoimprovementiId = barrierResponseId;
         this.responseValue = responseValue;
         this.responseDate = responseDate;
     }

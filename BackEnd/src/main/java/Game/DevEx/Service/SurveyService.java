@@ -119,24 +119,15 @@ public class SurveyService {
         System.out.println("Content: " + content);
         return determineBarrierValue(content);
     }
-    private Boolean determineBarrierValue(String gptResponse){
-        // Parsear la respuesta de forma más flexible
-        String[] parts = gptResponse.split("\\s+"); // Separa por uno o más espacios en blanco
-        String barrera = "";
+    private Boolean determineBarrierValue(String gptResponse) {
+        // Split the response into parts based on the last comma and number
+        String barrera = gptResponse.replaceAll(", \\d+$", ""); // Remove final comma and number
         int numero = 0;
 
-        // Construir el nombre de la barrera
-        for (int i = 0; i < parts.length - 1; i++) {
-            if (isNumeric(parts[i])) {
-                break; // Se encontró el número, se termina el bucle
-            }
-            barrera += parts[i].replaceAll("[^a-zA-Z]", "") + " ";
-        }
-        barrera = barrera.trim();
-
         // Extraer el número
+        String[] parts = gptResponse.split(",\\s+"); // Split by comma and spaces before the number
         try {
-            numero = Integer.parseInt(parts[parts.length - 1]);
+            numero = Integer.parseInt(parts[parts.length - 1].replaceAll("[^0-9]", ""));
         } catch (NumberFormatException e) {
             System.out.println("No se pudo extraer el número de la respuesta.");
         }
@@ -144,7 +135,9 @@ public class SurveyService {
         // Guardar en variables
         String barreraMasRelevante = barrera;
         int numeroBarrera = numero;
+        System.out.println("Barrera más relevante: " + barreraMasRelevante);
         int barrierID = barrierToImprovementRepository.findIdByName(barreraMasRelevante);
+        System.out.println("ID de la barrera: " + barrierID);
         BarrierResponse barrierResponse = new BarrierResponse(
                 barrierID,
                 numeroBarrera,
@@ -155,6 +148,10 @@ public class SurveyService {
         System.out.println("Barrera más relevante: " + barreraMasRelevante);
         System.out.println("Número de barrera: " + numeroBarrera);
         return true;
+    }
+
+    public int getBarrierIDByName(String barrierName){
+        return barrierToImprovementRepository.findIdByName(barrierName);
     }
     public String casualConversation(String userResponse, String characterEmotion) {
         // Necesito generar la respuesta honesta de chatgpt dentro del personaje de la mascota pero manteniendo el contexto con el usuario.

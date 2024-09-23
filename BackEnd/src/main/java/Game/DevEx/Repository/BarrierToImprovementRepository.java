@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface BarrierToImprovementRepository extends CrudRepository<BarrierToImprovement, Integer> {
 
-    // Método para encontrar el ID de una barrera por su nombre
+    // Metodo para encontrar el ID de una barrera por su nombre
     @Query("SELECT b.barrierToImprovementId FROM BarrierToImprovement b WHERE b.name = :name")
     Integer findIdByName(@Param("name") String name);
 }

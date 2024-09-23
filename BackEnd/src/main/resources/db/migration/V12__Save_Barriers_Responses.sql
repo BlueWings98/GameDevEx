@@ -1,6 +1,6 @@
 CREATE TABLE barrierresponse (
     barrierresponseid SERIAL PRIMARY KEY,
-    barrierid INTEGER NOT NULL,
+    barriertoimprovementid INTEGER NOT NULL,
     responsevalue INTEGER NOT NULL,
     responsedate DATE NOT NULL);
 

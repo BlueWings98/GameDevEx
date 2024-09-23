@@ -43,5 +43,12 @@ public class SurveyController {
     public String getSurveyByProjectID(@RequestParam int projectID) {
         return surveyService.getSurveysByProjectID(projectID).toString();
     }
+    @GetMapping("/barrier/byname")
+    public String getBarrierIDByName(@RequestParam String barrierName) {
+        JSONObject response = new JSONObject();
+        response.put("barrierID", surveyService.getBarrierIDByName(barrierName));
+        return response.toString();
+    }
+
 }
 
