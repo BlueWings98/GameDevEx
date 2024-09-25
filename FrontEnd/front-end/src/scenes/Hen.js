@@ -229,11 +229,11 @@ async function getProjectsByHttp() {
 function calculateStatuses() {
     return {
         companionStatus: 0,
-        fenceStatus: 1,
-        backgroundStatus: 2,
+        fenceStatus: 0,
+        backgroundStatus: 0,
         henStatus: 0,
-        eggsStatus: 1,
-        plateStatus: 2
+        eggsStatus: 0,
+        plateStatus: 0
     };
 }
 
