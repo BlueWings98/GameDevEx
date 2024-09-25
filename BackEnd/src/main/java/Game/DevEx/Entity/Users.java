@@ -1,8 +1,6 @@
 package Game.DevEx.Entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,10 +19,11 @@ public class Users {
     Password VARCHAR(100) NOT NULL
      */
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "userid")
     private int UserID;
     @Column(name = "username")
-    private String UserName;
+    private String userName;
     @Column(name = "email")
     private String Email;
     @Column(name = "password")
@@ -34,4 +33,11 @@ public class Users {
     @Column(name = "totoloid")
     private int TotoloID;
 
+    public Users(String userName, String email, int totoloId, int projectID, String password) {
+        this.userName = userName;
+        this.TotoloID = totoloId;
+        this.ProjectID = projectID;
+        this.Email = email;
+        this.Password = password;
+    }
 }

@@ -95,5 +95,14 @@ public class TotoloService {
         totoloRepository.save(totolo);
         return "Totolo fue alimentado, ahora esta un poco mas feliz!";
     }
+    public Totolo createDefaultTotolo() {
+        Totolo totolo = Totolo.builder()
+                .Battery(100)
+                .Hunger(0)
+                .Skin("Base")
+                .Name("Totolo")
+                .build();
+        return totoloRepository.save(totolo);
+    }
 }
 
