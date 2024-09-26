@@ -10,8 +10,8 @@ const spacingX = 220; // Horizontal spacing between images
 const spacingY = 220; // Vertical spacing between rows
 const backendUrl = 'http://localhost:8080/';
 const spritesDir = '../assets/sprites/';
-
-let projectId = 0;
+const modularCategories = ["Acompanantes", "Cerca", "Fondo", "Gallinero", "Huevos", "Placa"];
+const henDir = '../assets/background/Gallinero/';
 
 let statuses = {
     acompanantesStatus: 2,
@@ -28,15 +28,14 @@ class Hen extends Phaser.Scene {
     }
 
     preload() {
-        const modularCategories = ["Acompanantes", "Cerca", "Fondo", "Gallinero", "Huevos", "Placa"];
-        const spritesDir = '../assets/sprites/';
-        const henDir = '../assets/background/Gallinero/';
 
         // Cargar spritesheet para las gallinas
         this.load.spritesheet("chickens", `${spritesDir}chickens/Chickens.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
 
         // Obtener los estados del proyecto (esto puede ser asíncrono en un caso real)
         getProjectStatuses();
+
+        this.load.image('FlechaDerecha', `${spritesDir}buttons/FlechaDerecha.png`);
 
         // Pre-cargar las imágenes para las categorías modulares basadas en su estado
         this.preloadScene(modularCategories, henDir);
@@ -139,49 +138,54 @@ class Hen extends Phaser.Scene {
         image.displayHeight = height;
     }
     returnToHomeButton() {
-        // Dimensiones y posición de la caja
-        const boxWidth = 200;
-        const boxHeight = 100;
-        const boxX = width - boxWidth;
-        const boxY = (height / 2) - (boxHeight / 2);
-
-        // Crear la caja amarilla
-        this.surveyBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
-        this.surveyBox.setOrigin(0.5); // Establecer el origen en el centro
-
-        // Crear el texto sobre la caja
+        // Dimensions and position of the button
+        const boxWidth = 400;
+        const boxHeight = 200;
+        const boxX = width - boxWidth+150;
+        const boxY = (height / 2) - (boxHeight / 2)+100;
+    
+        // Replace the rectangle with the 'FlechaDerecha' button image
+        this.surveyBox = this.add.image(boxX, boxY, 'FlechaDerecha'); // Use the new image for the button
+        this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Set the image size
+        this.surveyBox.setOrigin(0.5); // Set origin to center
+    
+        // Add text on top of the button (if needed)
         this.returnButton = this.add.text(boxX, boxY, 'Return', {
             fill: '#FFD700',
             fontSize: '50px',
             fontStyle: 'bold'
         });
-        this.returnButton.setOrigin(0.5); // Centrar el texto
-
-        // Hacer la caja interactiva
+        this.returnButton.setOrigin(0.5); // Center the text
+    
+        // Make the button interactive
         this.surveyBox.setInteractive();
-
-        // Definir los colores para los estados
+    
+        // Define colors for different states (only relevant if you want to add color effects on text)
         const normalColor = 0xD2691E;
-        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
-
-        // Cambiar el color al presionar el botón
+        const pressedColor = 0xA0522D; // Slightly darker color
+    
+        // Handle button press (click)
         this.surveyBox.on('pointerdown', () => {
-            this.surveyBox.setFillStyle(pressedColor);
+            this.surveyBox.setDisplaySize(boxWidth * 0.95, boxHeight * 0.95); // Slightly shrink on press
         });
-
-        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
+    
+        // Restore the size and navigate to the 'Home' scene when releasing the button
         this.surveyBox.on('pointerup', () => {
-            this.surveyBox.setFillStyle(normalColor);
-            this.scene.start('Home'); // Ejecuta la acción del botón
+            this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
+            this.scene.start('Home'); // Execute the button action
         });
-
+    
+        // Increase the button size on hover
         this.surveyBox.on('pointerover', () => {
-            this.surveyBox.setScale(1.1);
+            this.surveyBox.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Increase size by 10%
         });
+    
+        // Restore the original size when the pointer leaves the button
         this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setScale(1.0);
+            this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
         });
     }
+    
 }
 
 function getProjectStatuses() {

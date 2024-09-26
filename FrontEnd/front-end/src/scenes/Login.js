@@ -86,7 +86,7 @@ class Login extends Phaser.Scene {
             const isUserNameAvailable = await isUserNameAvailableResponse.json();
             console.log(isUserNameAvailable.isUserNameAvailable);
 
-            if (isUserNameAvailable) {
+            if (isUserNameAvailable.isUserNameAvailable) {
                 // If the username is available, prompt for email and projectID
                 this.promptNewUserDetails();
             } else {

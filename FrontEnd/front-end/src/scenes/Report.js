@@ -28,6 +28,8 @@ class Report extends Phaser.Scene {
     }
     preload() {
         this.load.image('barn', `${backgroundDir}CampoVainlla.png`);
+        this.load.image('FlechaIzquierda', `${spritesDir}buttons/FlechaIzquierda.png`);
+        this.load.image('Boton2', `${spritesDir}buttons/Boton2.png`);
         this.load.spritesheet("chickens", `${spritesDir}chickens/Chickens.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
     }
     create() {
@@ -37,6 +39,7 @@ class Report extends Phaser.Scene {
         this.generateVisualReport();
         this.returnToHenButton();
         this.goToTiberonConfigButton();
+        this.goToFullReportButton();
         this.createTextBox(0, height-400, width / 2, 400);
         
     }
@@ -115,93 +118,139 @@ class Report extends Phaser.Scene {
     }
     
     goToTiberonConfigButton() {
-        // Dimensiones y posición de la caja
-        const boxWidth = 200;
-        const boxHeight = 100;
-        const boxX =  width - boxWidth;
+        // Dimensions and position of the button
+        const boxWidth = 400;
+        const boxHeight = 200;
+        const boxX = width - boxWidth+180;
         const boxY = (height / 2) - (boxHeight / 2) - 200;
     
-        // Crear la caja amarilla
-        this.tiberonBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
-        this.tiberonBox.setOrigin(0.5); // Establecer el origen en el centro
+        // Replace the rectangle with the 'Boton2' button image
+        this.tiberonBox = this.add.image(boxX, boxY, 'Boton2'); // Use the new image for the button
+        this.tiberonBox.setDisplaySize(boxWidth, boxHeight); // Set the image size
+        this.tiberonBox.setOrigin(0.5); // Set origin to center
     
-        // Crear el texto sobre la caja
+        // Add text on top of the button (if needed)
         this.tiberonButton = this.add.text(boxX, boxY, 'Config', {
             fill: '#FFD700',
             fontSize: '50px',
             fontStyle: 'bold'
         });
-        this.tiberonButton.setOrigin(0.5); // Centrar el texto
+        this.tiberonButton.setOrigin(0.5); // Center the text
     
-        // Hacer la caja interactiva
+        // Make the button interactive
         this.tiberonBox.setInteractive();
     
-        // Definir los colores para los estados
-        const normalColor = 0xD2691E;
-        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
-    
-        // Cambiar el color al presionar el botón
+        // Handle button press (click)
         this.tiberonBox.on('pointerdown', () => {
-            this.tiberonBox.setFillStyle(pressedColor);
+            this.tiberonBox.setDisplaySize(boxWidth * 0.95, boxHeight * 0.95); // Slightly shrink on press
         });
     
-        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
+        // Restore the size and navigate to the 'TiberonConfig' scene when releasing the button
         this.tiberonBox.on('pointerup', () => {
-            this.tiberonBox.setFillStyle(normalColor);
-            this.scene.start('TiberonConfig'); // Ejecuta la acción del botón
+            this.tiberonBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
+            this.scene.start('TiberonConfig'); // Execute the button action
         });
-        
+    
+        // Increase the button size on hover
         this.tiberonBox.on('pointerover', () => {
-            this.tiberonBox.setScale(1.1);
+            this.tiberonBox.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Increase size by 10%
         });
+    
+        // Restore the original size when the pointer leaves the button
         this.tiberonBox.on('pointerout', () => {
-            this.tiberonBox.setScale(1.0);
+            this.tiberonBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
         });
     }
+    goToFullReportButton() {
+        // Dimensions and position of the button
+        const boxWidth = 400;
+        const boxHeight = 200;
+        const boxX = width - boxWidth+180;
+        const boxY = (height / 2) - (boxHeight / 2);
+    
+        // Replace the rectangle with the 'Boton2' button image
+        this.fullBox = this.add.image(boxX, boxY, 'Boton2'); // Use the new image for the button
+        this.fullBox.setDisplaySize(boxWidth, boxHeight); // Set the image size
+        this.fullBox.setOrigin(0.5); // Set origin to center
+    
+        // Add text on top of the button (if needed)
+        this.fullButton = this.add.text(boxX, boxY, 'Full\nReport', {
+            fill: '#FFD700',
+            fontSize: '50px',
+            fontStyle: 'bold'
+        });
+        this.fullButton.setOrigin(0.5); // Center the text
+    
+        // Make the button interactive
+        this.fullBox.setInteractive();
+    
+        // Handle button press (click)
+        this.fullBox.on('pointerdown', () => {
+            this.tiberonBox.setDisplaySize(boxWidth * 0.95, boxHeight * 0.95); // Slightly shrink on press
+        });
+    
+        // Restore the size and navigate to the 'TiberonConfig' scene when releasing the button
+        this.fullBox.on('pointerup', () => {
+            this.fullBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
+            this.scene.start('TiberonConfig'); // Execute the button action
+        });
+    
+        // Increase the button size on hover
+        this.fullBox.on('pointerover', () => {
+            this.fullBox.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Increase size by 10%
+        });
+    
+        // Restore the original size when the pointer leaves the button
+        this.fullBox.on('pointerout', () => {
+            this.fullBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
+        });
+    }
+    
     returnToHenButton() {
-        // Dimensiones y posición de la caja
-        const boxWidth = 200;
-        const boxHeight = 100;
+        // Dimensions and position of the button
+        const boxWidth = 400;
+        const boxHeight = 200;
         const boxX = 200;
         const boxY = (height / 2) - (boxHeight / 2);
-
-        // Crear la caja amarilla
-        this.surveyBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
-        this.surveyBox.setOrigin(0.5); // Establecer el origen en el centro
-
-        // Crear el texto sobre la caja
+    
+        // Replace the rectangle with the 'FlechaIzquierda' button image
+        this.surveyBox = this.add.image(boxX, boxY, 'FlechaIzquierda'); // Use the new image for the button
+        this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Set the image size
+        this.surveyBox.setOrigin(0.5); // Set origin to center
+    
+        // Add text on top of the button (if needed)
         this.returnButton = this.add.text(boxX, boxY, 'Hen', {
             fill: '#FFD700',
             fontSize: '50px',
             fontStyle: 'bold'
         });
-        this.returnButton.setOrigin(0.5); // Centrar el texto
-
-        // Hacer la caja interactiva
+        this.returnButton.setOrigin(0.5); // Center the text
+    
+        // Make the button interactive
         this.surveyBox.setInteractive();
-
-        // Definir los colores para los estados
-        const normalColor = 0xD2691E;
-        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
-
-        // Cambiar el color al presionar el botón
+    
+        // Handle button press (click)
         this.surveyBox.on('pointerdown', () => {
-            this.surveyBox.setFillStyle(pressedColor);
+            this.surveyBox.setDisplaySize(boxWidth * 0.95, boxHeight * 0.95); // Slightly shrink on press
         });
-
-        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
+    
+        // Restore the size and navigate to the 'Hen' scene when releasing the button
         this.surveyBox.on('pointerup', () => {
-            this.surveyBox.setFillStyle(normalColor);
-            this.scene.start('Hen'); // Ejecuta la acción del botón
+            this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
+            this.scene.start('Hen'); // Execute the button action
         });
-
+    
+        // Increase the button size on hover
         this.surveyBox.on('pointerover', () => {
-            this.surveyBox.setScale(1.1);
+            this.surveyBox.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Increase size by 10%
         });
+    
+        // Restore the original size when the pointer leaves the button
         this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setScale(1.0);
+            this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
         });
     }
+    
 }
 async function updateProjectStatusByHttp(projectID, projectStatus) {
     try {

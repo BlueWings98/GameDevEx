@@ -33,6 +33,8 @@ class Home extends Phaser.Scene {
     preload() {
         //Background
         this.load.image('barn', `${backgroundDir}CampoVainilla.png`);
+        //Buttons
+        this.load.image('Boton2', '../assets/sprites/buttons/Boton2.png');
         //Character sprites
         this.load.spritesheet("Alegre", `${spritesDir}/${characterSkin}/A.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
         this.load.spritesheet("Triste", `${spritesDir}/${characterSkin}/T.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
@@ -40,6 +42,7 @@ class Home extends Phaser.Scene {
         this.load.spritesheet("Neutral", `${spritesDir}/${characterSkin}/N.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
         //Battery indicator
         this.load.spritesheet('battery', '../assets/sprites/battery/Batteries.png', { frameWidth: imageWidth, frameHeight: imageHeight });
+
 
 
     }
@@ -128,126 +131,133 @@ class Home extends Phaser.Scene {
         console.log(sprite);
     }
     
-    openInventoryMenu(){
-        const boxWidth = 200;
-        const boxHeight = 100;
-
-        this.InventoryButton = this.add.rectangle(width / 2, height / 1.2, boxWidth, boxHeight, 0xCD7F32);
-        this.InventoryButton.setOrigin(0.5);
-
+    openInventoryMenu() {
+        const boxWidth = 400;
+        const boxHeight = 200;
+    
+        // Replace the rectangle with the button image
+        this.InventoryButton = this.add.image(width / 2, height / 1.2, 'Boton2'); // Use your button image
+        this.InventoryButton.setDisplaySize(boxWidth, boxHeight); // Set the image size
+        this.InventoryButton.setOrigin(0.5); // Center the image
+    
+        // Add text on top of the button
         this.InventoryText = this.add.text(width / 2, height / 1.2, 'Bag', {
             fill: '#FFD700',
             fontSize: '50px',
             fontStyle: 'bold'
         });
-        this.InventoryText.setOrigin(0.5);
-
+        this.InventoryText.setOrigin(0.5); // Center the text
+    
+        // Make the button interactive
         this.InventoryButton.setInteractive();
-
-        const normalColor = 0xCD7F32;
-        const pressedColor = 0xE1C16E;
-
+    
+        // When the button is clicked, open the Inventory scene
         this.InventoryButton.on('pointerup', () => {
             this.scene.launch('Inventory', { userID: UserID, totoloID: TotoloID });
         });
+    
+        // Change the image size when hovering over the button
         this.InventoryButton.on('pointerover', () => {
-            this.InventoryButton.setFillStyle(pressedColor);
+            this.InventoryButton.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Increase size by 10%
         });
+    
+        // Restore the original size when the pointer leaves the button
         this.InventoryButton.on('pointerout', () => {
-            this.InventoryButton.setFillStyle(normalColor);
+            this.InventoryButton.setDisplaySize(boxWidth, boxHeight); // Restore original size
         });
-
     }
+    
     goToRewardsButton() {
-        // Dimensiones y posición de la caja
-        const boxWidth = 200;
-        const boxHeight = 100;
+        // Dimensions and position for the button
+        const boxWidth = 400;
+        const boxHeight = 200;
         const boxX = width - 200;
-        const boxY = (height / 2) - (boxHeight / 2);
-
-        // Crear la caja amarilla
-        this.rewardsBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
-        this.rewardsBox.setOrigin(0.5); // Establecer el origen en el centro
-
-        // Crear el texto sobre la caja
+        const boxY = (height / 2) - (boxHeight / 2) + 100;
+    
+        // Load the button image
+        this.rewardsBox = this.add.image(boxX, boxY, 'Boton2'); // Image instead of rectangle
+        this.rewardsBox.setDisplaySize(boxWidth, boxHeight); // Set the image size
+        this.rewardsBox.setOrigin(0.5); // Center the image origin
+    
+        // Add text on top of the button image
         this.returnButton = this.add.text(boxX, boxY, 'Rewards', {
             fill: '#FFD700',
             fontSize: '50px',
             fontStyle: 'bold'
         });
-        this.returnButton.setOrigin(0.5); // Centrar el texto
-
-        // Hacer la caja interactiva
+        this.returnButton.setOrigin(0.5); // Center the text
+    
+        // Make the button interactive
         this.rewardsBox.setInteractive();
-
-        // Definir los colores para los estados
-        const normalColor = 0xD2691E;
-        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
-
-        // Cambiar el color al presionar el botón
+    
+        // Define the scale change for interaction
         this.rewardsBox.on('pointerdown', () => {
-            this.rewardsBox.setFillStyle(pressedColor);
+            this.rewardsBox.setScale(1.1); // Increase size on press
         });
-
-        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
+    
         this.rewardsBox.on('pointerup', () => {
-            this.rewardsBox.setFillStyle(normalColor);
-            //this.scene.add
-            this.scene.start('Rewards', { userID: UserID});
+            this.rewardsBox.setDisplaySize(boxWidth, boxHeight); // Restore size on release
+            this.scene.start('Rewards', { userID: UserID });
         });
+    
         this.rewardsBox.on('pointerover', () => {
-            this.rewardsBox.setScale(1.1);
+            this.rewardsBox.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Increase size on hover
         });
-
+    
         this.rewardsBox.on('pointerout', () => {
-            this.rewardsBox.setScale(1);
+            this.rewardsBox.setDisplaySize(boxWidth, boxHeight); // Restore size on exit
         });
     }
+    
     goToHenButton() {
-        // Dimensiones y posición de la caja
-        const boxWidth = 200;
-        const boxHeight = 100;
+        // Dimensions and position for the button
+        const boxWidth = 400;
+        const boxHeight = 200;
         const boxX = 200;
-        const boxY = (height / 2) - (boxHeight / 2);
-
-        // Crear la caja amarilla
-        this.surveyBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
-        this.surveyBox.setOrigin(0.5); // Establecer el origen en el centro
-
-        // Crear el texto sobre la caja
+        const boxY = (height / 2) - (boxHeight / 2) + 100;
+    
+        // Load the button image instead of the rectangle
+        this.surveyBox = this.add.image(boxX, boxY, 'Boton2'); // Use your button image
+        this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Set the image size
+        this.surveyBox.setOrigin(0.5); // Set origin to center
+    
+        // Add text on top of the image
         this.returnButton = this.add.text(boxX, boxY, 'Hen', {
             fill: '#FFD700',
             fontSize: '50px',
             fontStyle: 'bold'
         });
-        this.returnButton.setOrigin(0.5); // Centrar el texto
-
-        // Hacer la caja interactiva
+        this.returnButton.setOrigin(0.5); // Center the text
+    
+        // Make the button interactive
         this.surveyBox.setInteractive();
-
-        // Definir los colores para los estados
+    
+        // Define the colors for different states
         const normalColor = 0xD2691E;
-        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
-
-        // Cambiar el color al presionar el botón
+        const pressedColor = 0xA0522D; // Slightly darker color
+    
+        // Change the image size when pressing the button
         this.surveyBox.on('pointerdown', () => {
-            this.surveyBox.setFillStyle(pressedColor);
+            this.surveyBox.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Increase size by 10%
         });
-
-        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
+    
+        // Restore the original size and navigate to the 'Hen' scene when releasing the button
         this.surveyBox.on('pointerup', () => {
-            this.surveyBox.setFillStyle(normalColor);
-            this.scene.start('Hen'); // Ejecuta la acción del botón
+            this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Restore size
+            this.scene.start('Hen'); // Execute button action
         });
-
+    
+        // Increase the button size on hover using setDisplaySize
         this.surveyBox.on('pointerover', () => {
-            this.surveyBox.setScale(1.1);
+            this.surveyBox.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Increase size by 10%
         });
-
+    
+        // Restore the original button size when the pointer leaves the box
         this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setScale(1);
+            this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
         });
     }
+    
     createBatteryIndicator() {
         this.battery = this.add.sprite(150, 150, 'battery');
         this.battery.displayHeight = 400;
@@ -293,25 +303,6 @@ class Home extends Phaser.Scene {
         this.battery.setFrame(invertedFrame);
         batteryIndicator.setText(`%${batteryCharge}`);
     }
-}
-async function getTotoloByHttp(TotoloID){
-    let response;
-    try {
-        response = await fetch(`${backendUrl}totolo?TotoloID=${TotoloID}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-    } catch (error) {
-        console.error('Error fetching inventory:', error);
-    }
-    return await response.json();
 }
 async function rechargeByHttp(TotoloID){
     let response;
