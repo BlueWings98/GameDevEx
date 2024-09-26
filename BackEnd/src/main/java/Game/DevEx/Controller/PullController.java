@@ -3,12 +3,10 @@ package Game.DevEx.Controller;
 import Game.DevEx.DTOs.PullsDto;
 import Game.DevEx.Entity.GameItem;
 import Game.DevEx.Service.PullService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,5 +22,11 @@ public class PullController {
     @PostMapping
     public ResponseEntity<List<GameItem>> pull(@RequestBody PullsDto pullsDto) {
         return ResponseEntity.ok(pullService.pull(pullsDto));
+    }
+    @GetMapping
+    public String calculatePityByUserId(@RequestParam int userId) {
+        JSONObject response = new JSONObject();
+        response.put("pityCounter", pullService.calculatePityByUserId(userId));
+        return response.toString();
     }
 }

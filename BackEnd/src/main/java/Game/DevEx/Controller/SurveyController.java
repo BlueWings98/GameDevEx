@@ -26,13 +26,15 @@ public class SurveyController {
 
     @PostMapping("/generatequestion")
     public String executeSurvey(@RequestBody SurveyRequestDto surveyRequestDto) {
-        return surveyService.executeSurvey(surveyRequestDto.getUserID(), surveyRequestDto.getCharacterEmotion(), surveyRequestDto.getNumberOfSurveys());
+        return surveyService.executeSurvey(surveyRequestDto.getTotoloID(), surveyRequestDto.getCharacterEmotion(), surveyRequestDto.getNumberOfSurveys());
     }
     @PostMapping("/receiveanswer")
-    public String receiveUserAnswer(@RequestBody ReceiveAnswerDto receiveAnswerDto ,@RequestParam int userID, @RequestParam String characterEmotion) {
+    public String receiveUserAnswer(@RequestBody ReceiveAnswerDto receiveAnswerDto ) {
         String userResponseValue = receiveAnswerDto.getUserResponse();
         String gptResponseValue = receiveAnswerDto.getGptResponse();
         int projectID = receiveAnswerDto.getProjectID();
+        int userID = receiveAnswerDto.getUserID();
+        String characterEmotion = receiveAnswerDto.getCharacterEmotion();
         return surveyService.receiveUserAnswer(userResponseValue, userID, characterEmotion, gptResponseValue, projectID);
     }
     @PostMapping("/casualconversation")

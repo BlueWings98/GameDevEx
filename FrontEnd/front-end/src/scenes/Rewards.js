@@ -9,10 +9,14 @@ const height = 835;
 
 var inventory = [];
 var coinCounter = 0;
+let userID = 1;
 
 class Rewards extends Phaser.Scene {
     constructor() {
         super({key :'Rewards'});
+    }
+    init(data){
+        userID = data.userID;
     }
     preload() {
         this.load.image('saucer', `${backgroundDir}Casino.png`);
@@ -34,11 +38,12 @@ class Rewards extends Phaser.Scene {
         this.coins = this.add.image(100, 100, 'coins');
         this.coins.displayWidth = 200;
         this.coins.displayHeight = 200;
-        getCoins(1);
-        this.coinsText = this.add.text(170, 80,"X " + coinCounter, {
+        getCoins(userID).then(() => {
+            this.coinsText = this.add.text(170, 80,"X " + coinCounter, {
             fill: '#FFD700',
             fontSize: '70px',
             fontStyle: 'bold'
+            });
         });
         this.coins.setInteractive();
         this.coins.on('pointerdown', () => {
@@ -71,24 +76,26 @@ class Rewards extends Phaser.Scene {
         });
     
         // Añadir el texto "Intentos 5/90 para garantizar Legendario:"
-        let attemptsText = this.add.text(startingX, 150, 'Intentos 5/90 para garantizar Legendario:', {
+        let attemptsText = this.add.text(startingX, 150, '5/90 Pulls para garantizar \n Legendario:', {
             fontFamily: 'Arial',
-            fontSize: '20px',
-            color: '#000000'
+            fontSize: '25px',
+            color: '#000000',
+            fontStyle: 'bold'
         });
     
         // Añadir el texto "1 Día pago libre"
         let freeDayText = this.add.text(startingX, 250, '1 Día pago libre', {
             fontFamily: 'Arial',
-            fontSize: '20px',
-            color: '#000000'
+            fontSize: '30px',
+            color: '#000000',
+            fontStyle: 'bold'
         });
     
         // Añadir el texto "Rarezas:" en un tamaño de fuente un poco más grande
         let rarityTitleText = this.add.text(startingX, 350, 'Rarezas:', {
             fontFamily: 'Arial',
             fontSize: '60px',
-            color: '#ffffff'
+            color: '#000000'
         });
     
         // Añadir imágenes y textos para cada rareza con sus colores y porcentajes
@@ -146,9 +153,8 @@ class Rewards extends Phaser.Scene {
                 this.coinsText.setText("X " + coinCounter);
                 this.pull1Button.disableInteractive();
             } else {
-                alert("Not enough coins to pull.");
+                alert("No te quedan mas monedas. Consigue mas haciendo encuestas.");
             }
-             // Ejecuta la acción del botón para 1 pull
         });
 
         this.pull1Button.on('pointerover', () => {
@@ -208,12 +214,13 @@ class Rewards extends Phaser.Scene {
     }
 
     async generateReward(coinsToPull) {
-        let userID = 1;
         const dropTableId = 1;
         const reward = pullByHttpRequest(userID, dropTableId ,coinsToPull);
         let result = await reward;
         console.log("result: ", result);
-        getCoins(1); //Update the coin counter.
+        getCoins(userID).then(() => {
+            this.coinsText.setText("X " + coinCounter);
+        });
         
         for (let i = 0; i < result.length; i++) {
             const imageKey = 'reward' + result[i].gameItemId; // Usa un id único o el índice cargado
@@ -265,6 +272,7 @@ class Rewards extends Phaser.Scene {
 }
 async function getCoins(userID){
     try {
+        console.log("Getting coins for user: ", userID);
         const response = await fetch(`${backendUrl}inventory?userID=${userID}`, {
             method: 'GET',
             headers: {

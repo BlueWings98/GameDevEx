@@ -17,6 +17,7 @@ let characterEmotion = "Neutral";
 let userID = 1;
 let projectID = 1;
 let numberOfSurveys = 1;
+let totoloID = 1;
 
 class Survey extends Phaser.Scene {
     constructor() {
@@ -24,8 +25,9 @@ class Survey extends Phaser.Scene {
     }
     init(data){
         characterEmotion = hungerToMood(data.hunger);
-        userID = data.userID;
+        totoloID = data.totoloID;
         numberOfSurveys = data.numberOfSurveys;
+        userID = data.userID;
     }
 
     create() {
@@ -113,7 +115,8 @@ async function receiveAnswerByHttp(writtenText, generatedText, projectID) {
     let gptResponse = "";
     try {
         // Send HTTP POST request with userID, characterEmotion in the query string, and the request body
-        const response = await fetch(`${backendUrl}survey/receiveanswer?userID=${userID}&characterEmotion=${characterEmotion}`, {
+        console.log("userID: " + userID + " characterEmotion: " + characterEmotion);
+        const response = await fetch(`${backendUrl}survey/receiveanswer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -121,7 +124,9 @@ async function receiveAnswerByHttp(writtenText, generatedText, projectID) {
             body: JSON.stringify({
                 userResponse: writtenText,
                 gptResponse: generatedText,
-                projectID: projectID
+                projectID: projectID,
+                userID: userID,
+                characterEmotion: characterEmotion
             })
         });
 
@@ -151,7 +156,7 @@ async function generateQuestionByHttp() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                userID: userID,
+                totoloID: totoloID,
                 characterEmotion: characterEmotion,
                 numberOfSurveys: 1
             })

@@ -18,7 +18,7 @@ class Inventory extends Phaser.Scene {
     }
     init(data){
         userID = data.userID;
-        console.log("totoloID antes: ", totoloID);
+        console.log("totoloID despues: ", userID);
         totoloID = data.totoloID;
         console.log("totoloID despues: ", totoloID);
     }
@@ -45,7 +45,7 @@ class Inventory extends Phaser.Scene {
         this.background.displayWidth = width;
         this.background.displayHeight = height;
         this.createExitButton();
-        this.displayInventory(1);
+        this.displayInventory(userID);
     }
     listAllItems(userID) {
         let inventory = getInventoryByHttp(userID);
@@ -226,6 +226,7 @@ function getEveryPossibleRewardLocal() {
 }
 async function getInventoryByHttp(userID) {
     let inventory = new InventoryEntity(userID);
+    console.log("UserID before http: ", userID);
 
     try {
         // Send HTTP GET request with userID in the query string

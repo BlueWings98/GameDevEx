@@ -9,8 +9,9 @@ const imageHeight = 1390;
 const imageWidth = 1417;
 const textPerPage = 50; // Maximum number of characters per page
 const surveyBatteryCost = 25;
-const TotoloID = 1;
-const userID = 1;
+let TotoloID = 1;
+let UserID = 1;
+let ProjectID = 1;
 let batteryIndicator;
 
 let characterSkin = "Green";
@@ -21,6 +22,13 @@ let batteryCharge = 100;
 class Home extends Phaser.Scene {
     constructor() {
         super({ key: 'Home' });
+    }
+    init(data){
+        ProjectID = data.projectID;
+        UserID = data.userID;
+        TotoloID = data.totoloID;
+        characterSkin = data.characterSkin;
+        
     }
     preload() {
         //Background
@@ -104,7 +112,7 @@ class Home extends Phaser.Scene {
         sprite.on('pointerup', () => {
             if (batteryCharge >= surveyBatteryCost) {
                 batteryCharge -= surveyBatteryCost;
-                this.scene.launch('Survey', { userID: userID, hunger: hunger, numberOfSurveys: 1, totoloID: TotoloID });
+                this.scene.launch('Survey', { userID: UserID, hunger: hunger, numberOfSurveys: 1, totoloID: TotoloID });
             } else {
                 alert('No tengo suficiente energía hoy, ¿te parece si lo intentamos mañana?');
             }
@@ -140,7 +148,7 @@ class Home extends Phaser.Scene {
         const pressedColor = 0xE1C16E;
 
         this.InventoryButton.on('pointerup', () => {
-            this.scene.launch('Inventory', { userID: userID, totoloID: TotoloID });
+            this.scene.launch('Inventory', { userID: UserID, totoloID: TotoloID });
         });
         this.InventoryButton.on('pointerover', () => {
             this.InventoryButton.setFillStyle(pressedColor);
@@ -185,7 +193,7 @@ class Home extends Phaser.Scene {
         this.rewardsBox.on('pointerup', () => {
             this.rewardsBox.setFillStyle(normalColor);
             //this.scene.add
-            this.scene.start('Rewards'); // Ejecuta la acción del botón
+            this.scene.start('Rewards', { userID: UserID});
         });
         this.rewardsBox.on('pointerover', () => {
             this.rewardsBox.setScale(1.1);
@@ -239,9 +247,6 @@ class Home extends Phaser.Scene {
         this.surveyBox.on('pointerout', () => {
             this.surveyBox.setScale(1);
         });
-    }
-    getCharacterSkin(){
-        return "Green";
     }
     createBatteryIndicator() {
         this.battery = this.add.sprite(150, 150, 'battery');

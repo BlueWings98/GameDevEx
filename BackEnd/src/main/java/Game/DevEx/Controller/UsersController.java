@@ -1,6 +1,8 @@
 package Game.DevEx.Controller;
 
+import Game.DevEx.Entity.Totolo;
 import Game.DevEx.Entity.Users;
+import Game.DevEx.Service.TotoloService;
 import Game.DevEx.Service.UsersService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,8 @@ import java.io.Console;
 public class UsersController {
     @Autowired
     private UsersService usersService;
+    @Autowired
+    private TotoloService totoloService;
 
     @GetMapping
     public String getUserById(@RequestParam int userId) {
@@ -77,9 +81,11 @@ public class UsersController {
             return jsonObject.toString();
         }
         Users result = usersService.getUserByUserName(userName);
+        Totolo totolo = totoloService.getTotolo(result.getTotoloID());
         jsonObject.put("UserID", result.getUserID());
         jsonObject.put("TotoloID", result.getTotoloID());
         jsonObject.put("ProjectID", result.getProjectID());
+        jsonObject.put("CharacterSkin", totolo.getSkin());
 
         return jsonObject.toString();
     }

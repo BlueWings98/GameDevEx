@@ -32,7 +32,7 @@ public class SurveyService {
     private final TotoloService totoloService;
     private DXFactor selectedDxFactor;
 
-    private static final String initPrompt = "Te llamas Totolo, eres un pequeño tanuki y necesito que ayudes a tu humano a tener mejor experiencia de desarrollador. Tus respuestas deben ser cortas pero tiernas. Si vas a hacer una recomendación esta ser amigable y creativa.";
+    private static final String initPrompt = "Te llamas Totolo, eres un pequeño tanuki y necesito que ayudes a tu humano a tener mejor experiencia de desarrollador. Tus respuestas deben ser cortas pero tiernas. Si vas a hacer una recomendación esta ser amigable y creativa. ";
     private static final String questionPromptBase = ". Recuerda saludar siempre. Te voy a dar un factor que influye en la experiencia de desarrollador y quiero que generes una pregunta con la intencion de medir la gravedad de la situación. Solo haz la pregunta, no repitas las instrucciones dadas. Se creativo. Las preguntas deben siempre ser abiertas."+
             "El tema de la pregunta de Developer Experience es: ";
     private static final String characterMoodInjection = "Maneja una emoción: ";
@@ -54,10 +54,10 @@ public class SurveyService {
         this.barrierToImprovementRepository = barrierToImprovementRepository;
         this.barrierResponseRepository = barrierResponseRepository;
     }
-    public String executeSurvey(int userID, String characterEmotion, int numberOfSurveys) {
+    public String executeSurvey(int totoloID, String characterEmotion, int numberOfSurveys) {
         DXFactor randomDxFactor;
         double temperature = 1.2;
-        if(totoloService.dischargeBatteryBySurvey(userID, numberOfSurveys)){
+        if(totoloService.dischargeBatteryBySurvey(totoloID, numberOfSurveys)){
             Optional<DXFactor> gptResponse = getRandomDxFactor();
             if(gptResponse.isPresent()){
                 randomDxFactor = getRandomDxFactor().get();
@@ -68,8 +68,8 @@ public class SurveyService {
         } else {
             return "No tienes suficiente batería para realizar una encuesta. Esta se recargará sola mañana.";
         }
-        String prompt = characterMoodInjection.concat(characterEmotion) + questionPromptBase.concat(randomDxFactor.getDxFactorName());
-        return chatGptService.getVanillaCompletition(prompt,temperature, initPrompt );
+        String prompt = questionPromptBase.concat(randomDxFactor.getDxFactorName());
+        return chatGptService.getVanillaCompletition(prompt,temperature, initPrompt.concat(characterMoodInjection + characterEmotion) );
     }
     public String receiveUserAnswer(String userResponse, int userID, String characterEmotion, String gptResponse, int projectID) {
         int measuredEmotion = measureEmotion(userResponse);

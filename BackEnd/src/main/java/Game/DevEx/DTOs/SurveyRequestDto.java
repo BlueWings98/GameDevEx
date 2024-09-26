@@ -5,7 +5,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SurveyRequestDto {
-    private int userID;
+    private int totoloID;
     private String characterEmotion;
     private int numberOfSurveys;
 

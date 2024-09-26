@@ -27,6 +27,7 @@ public class TotoloService {
         return this.totoloRepository.findById(TotoloID).orElseThrow();
     }
     public boolean dischargeBatteryBySurvey(int TotoloID, int numberOfSurveys) {
+        System.out.println("TotoloID: " + TotoloID);
         Totolo totolo = this.totoloRepository.findById(TotoloID).orElseThrow();
         if(totolo.getBattery() >= SURVEY_COST * numberOfSurveys){
             totolo.setBattery(totolo.getBattery() - (SURVEY_COST * numberOfSurveys));
@@ -101,6 +102,7 @@ public class TotoloService {
                 .Hunger(0)
                 .Skin("Base")
                 .Name("Totolo")
+                .LastLogin(LocalDate.now())
                 .build();
         return totoloRepository.save(totolo);
     }

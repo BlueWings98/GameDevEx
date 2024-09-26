@@ -1,8 +1,12 @@
 package Game.DevEx.Service;
 
+import Game.DevEx.Entity.GameItem;
 import Game.DevEx.Entity.PlayerInventory;
 import Game.DevEx.Embedded.PlayerInventoryId;
+import Game.DevEx.Entity.Users;
+import Game.DevEx.Repository.GameItemRepository;
 import Game.DevEx.Repository.PlayerInventoryRepository;
+import Game.DevEx.Repository.UsersRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +20,16 @@ public class InventoryService {
 
     private final PlayerInventoryRepository playerInventoryRepository;
     private final GameItemService gameItemService;
+    private final UsersRepository usersRepository;
+    private final GameItemRepository gameItemRepository;
 
     @Autowired
-    public InventoryService(PlayerInventoryRepository playerInventoryRepository, GameItemService gameItemService) {
+    public InventoryService(PlayerInventoryRepository playerInventoryRepository, GameItemService gameItemService,
+                            UsersRepository usersRepository, GameItemRepository gameItemRepository) {
         this.playerInventoryRepository = playerInventoryRepository;
         this.gameItemService = gameItemService;
+        this.usersRepository = usersRepository;
+        this.gameItemRepository = gameItemRepository;
     }
     public boolean useItem(int userId, int gameItemId, int quantity) {
         // Ensure quantity is valid
@@ -102,6 +111,16 @@ public class InventoryService {
             gameObjectEntry = new PlayerInventory();
             gameObjectEntry.setId(id);
             gameObjectEntry.setQuantity(quantity);
+
+            // Retrieve the Users and GameItem from the database
+            Users user = usersRepository.findById(userId).orElseThrow(() ->
+                    new RuntimeException("User not found with ID: " + userId));
+            GameItem gameItem = gameItemRepository.findById(gameItemId).orElseThrow(() ->
+                    new RuntimeException("GameItem not found with ID: " + gameItemId));
+
+            // Set the Users and GameItem in the PlayerInventory object
+            gameObjectEntry.setUsers(user);
+            gameObjectEntry.setGameItem(gameItem);
         }
 
         // Save the updated or newly created entry
@@ -109,6 +128,7 @@ public class InventoryService {
 
         return true;
     }
+
     public boolean hasItem(int userId, int gameItemId) {
         // Check if the item exists in the inventory
         return playerInventoryRepository.existsById(new PlayerInventoryId(userId, gameItemId));
