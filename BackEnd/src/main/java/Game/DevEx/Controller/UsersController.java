@@ -67,6 +67,7 @@ public class UsersController {
         jsonObject.put("Password", result.getPassword());
         jsonObject.put("Email", result.getEmail());
         jsonObject.put("ProjectID", result.getProjectID());
+        jsonObject.put("CharacterSkin", totoloService.getTotolo(result.getTotoloID()).getSkin());
 
         return jsonObject.toString();
     }

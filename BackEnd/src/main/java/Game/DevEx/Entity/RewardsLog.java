@@ -31,7 +31,7 @@ public class RewardsLog {
     @Column(name = "transactionid")
     private int transactionID;
     @Column(name = "userid")
-    private int userID;
+    private int userId;
     @Column(name = "gameitemid")
     private int gameItemID;
     @Column(name = "pulls_without_legendary")
@@ -40,7 +40,7 @@ public class RewardsLog {
     private LocalDateTime rewardDate;
 
     public RewardsLog(int userID, int gameItemID, int pullsWithoutLegendary) {
-        this.userID = userID;
+        this.userId = userID;
         this.gameItemID = gameItemID;
         this.pullsWithoutLegendary = pullsWithoutLegendary;
         this.rewardDate = LocalDateTime.now();

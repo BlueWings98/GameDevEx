@@ -29,13 +29,8 @@ class Login extends Phaser.Scene {
         //this.barn.displayHeight = height;
 
         // Create Username Input Field
-        this.createWritableTextBox(100, 300, 600, 100, 'Enter Username');
+        this.createWritableTextBox(100, 300, 600, 100, 'Nombre de Usuario');
 
-        // Create Submit Button
-        this.createButton(100, 450, 'Submit', async () => {
-            if (!this.userName) return; // Ensure username is not empty
-            await this.checkUserName();
-        });
 
         // Handle keyboard input
         this.input.keyboard.on('keydown', (event) => {
@@ -84,24 +79,19 @@ class Login extends Phaser.Scene {
         this.textObject.setText(this.displayedUserText);
     }
 
-    createButton(x, y, text, callback) {
-        const button = this.add.text(x, y, text, { fontSize: '32px', fill: '#fff' })
-            .setInteractive()
-            .on('pointerdown', callback);
-    }
 
     async checkUserName() {
         try {
-            const userExistsResponse = await fetch(`${backendUrl}users/available?userName=${this.userName}`);
-            const userExists = await userExistsResponse.json();
-            console.log(userExists.isUserNameAvailable);
+            const isUserNameAvailableResponse = await fetch(`${backendUrl}users/available?userName=${this.userName}`);
+            const isUserNameAvailable = await isUserNameAvailableResponse.json();
+            console.log(isUserNameAvailable.isUserNameAvailable);
 
-            if (userExists) {
-                // If user exists, log them in
-                await this.loginUser();
-            } else {
-                // If user doesn't exist, prompt for email and projectID
+            if (isUserNameAvailable) {
+                // If the username is available, prompt for email and projectID
                 this.promptNewUserDetails();
+            } else {
+                // If the username is not available, log in the user
+                await this.loginUser();
             }
         } catch (error) {
             console.error('Error checking username:', error);
@@ -131,33 +121,29 @@ class Login extends Phaser.Scene {
         this.children.removeAll();
 
         // Create writable text boxes for email and projectID
-        this.createWritableTextBox(100, 300, 600, 100, 'Enter Email');
-        this.currentTextBox = 'email';
+        this.createWritableTextBox(100, 300, 600, 100, 'Id del Proyecto al que quieras pertenecer: 1-3');
 
-        this.createWritableTextBox(100, 450, 600, 100, 'Enter Project ID');
+        this.createWritableTextBox(100, 450, 600, 100, '');
         this.currentTextBox = 'projectID';
 
-        // Submit button for registering new user
-        this.createButton(100, 600, 'Register', async () => {
-            if (this.email && this.projectID) {
-                await this.createNewUser();
-            }
-        });
     }
 
     async createNewUser() {
         try {
+            console.log('Creating new user:', this.userName, this.email, this.projectID);
             const response = await fetch(`${backendUrl}users`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     userName: this.userName,
-                    email: this.email,
+                    email: "placeholderemail@example.com",
                     projectID: this.projectID
                 })
             });
             const newUser = await response.json();
             console.log('New user created:', newUser);
+            this.scene.start('Home', { projectID: newUser.ProjectID, userID: newUser.UserID,
+                totoloID: newUser.TotoloID, characterSkin : newUser.CharacterSkin});
 
             // Proceed to the next scene or game logic
         } catch (error) {
