@@ -10,6 +10,7 @@ const height = 835;
 var inventory = [];
 var coinCounter = 0;
 let userID = 1;
+let attemptsText;
 
 class Rewards extends Phaser.Scene {
     constructor() {
@@ -59,9 +60,12 @@ class Rewards extends Phaser.Scene {
         });
         this.createPullsButton();
         this.returnToHomeButton();
-        this.createBanner();
+        pittyCounterByUserIdHttp(userID).then((pittyCounter) => {
+            this.createBanner(pittyCounter);
+        });
+        
     }
-    createBanner() {
+    createBanner(pittyCounter) {
         // Crear el banner
         this.banner = this.add.image(2100, 430, 'banner');
         this.banner.setScale(0.85);
@@ -76,7 +80,7 @@ class Rewards extends Phaser.Scene {
         });
     
         // Añadir el texto "Intentos 5/90 para garantizar Legendario:"
-        let attemptsText = this.add.text(startingX, 150, '5/90 Pulls para garantizar \n Legendario:', {
+        attemptsText = this.add.text(startingX, 150, `${pittyCounter}/90 Pulls para garantizar \n Legendario:`, {
             fontFamily: 'Arial',
             fontSize: '25px',
             color: '#000000',
@@ -234,22 +238,26 @@ class Rewards extends Phaser.Scene {
     
             // Añadir textos
             this.rewardText1 = this.add.text(width / 2, height / 2 - 100, result[i].name, {
-                fill: '#FFFFFF',
+                fill: '#000000', // Change to black for maximum contrast
                 fontSize: '50px',
+                fontFamily: 'Arial', // Use a simple, easy-to-read font
                 fontStyle: 'bold'
             }).setOrigin(0.5);
-    
+            
             this.rewardText2 = this.add.text(width / 2, height / 2 - 50, result[i].rarity, {
-                fill: '#FFD700',
+                fill: '#ffff00', // Change to white for better contrast
                 fontSize: '50px',
+                fontFamily: 'Arial',
                 fontStyle: 'bold'
             }).setOrigin(0.5);
-    
+            
             this.rewardText3 = this.add.text(width / 2, height / 2, result[i].description, {
-                fill: '#FFD700',
+                fill: '#FFFFFF', // Consistent white for contrast
                 fontSize: '50px',
+                fontFamily: 'Arial',
                 fontStyle: 'bold'
             }).setOrigin(0.5);
+            
     
             // Configurar el botón interactivo
             this.displayedReward.setInteractive();
@@ -259,13 +267,14 @@ class Rewards extends Phaser.Scene {
                 this.rewardText2.destroy();
                 this.rewardText3.destroy();
                 this.pull1Button.setInteractive();
-                //this.pull10Button.setInteractive();
             });
     
             inventory.push(result[i]);
             console.log("Reward added to inventory: ", result[i]);
         }
-    
+        pittyCounterByUserIdHttp(userID).then((pittyCounter) => {
+            attemptsText.setText(`${pittyCounter}/90 Pulls para garantizar \n Legendario:`);
+        });
         console.log("Current inventory: ", inventory);
     }
     
@@ -402,6 +411,24 @@ async function pullByHttpRequest(userID, dropTableId, numberOfPulls) {
 
     // Return the array with the retrieved rewards
     return rewardsArray;
+}
+async function pittyCounterByUserIdHttp(userID){
+    try {
+        const response = await fetch(`${backendUrl}pull?userId=${userID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Error getting the pitty counter.');
+        }
+        const pittyCounter = await response.json();
+        console.log("Pitty counter: ", pittyCounter);
+        return pittyCounter.pityCounter;
+    } catch (error) {
+        throw new Error('Error getting the pitty counter.');
+    }
 }
 
 export default Rewards;
