@@ -7,6 +7,7 @@ import Home from '../scenes/Home'
 import Inventory from '../scenes/Inventory'
 import TiberonConfig from '../scenes/TiberonConfig'
 import Login from '../scenes/Login'
+import FullReport from '../scenes/FullReport'
 
 let game;
 
@@ -17,7 +18,7 @@ const initializeGame = () => {
       parent: 'phaser-container',
       width: 1690,
       height: 835,
-      scene: [Login, Home, Rewards, Survey, Report, Hen, Inventory, TiberonConfig],
+      scene: [Login, Home, Rewards, Survey, Report, Hen, Inventory, TiberonConfig, FullReport],
     };
     game = new Phaser.Game(config);
   }

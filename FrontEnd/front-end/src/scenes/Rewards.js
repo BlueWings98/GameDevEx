@@ -3,6 +3,7 @@ import Phaser from "phaser";
 const backgroundDir = '../assets/background/';
 const itemsDir = '../assets/sprites/items/';
 const pullsDir = '../assets/sprites/pulls/';
+const buttonsDir = '../assets/sprites/buttons/';
 const backendUrl = 'http://localhost:8080/';
 const width = 1690;
 const height = 835;
@@ -24,6 +25,7 @@ class Rewards extends Phaser.Scene {
         this.load.image('coins', `${itemsDir}Coin.png`);
         this.load.image('pull1', `${pullsDir}Pull1.png`);
         this.load.image('banner', `${backgroundDir}Gallinero/Placa/Bueno.png`);
+        this.load.image('flechaIzquierda', `${buttonsDir}FlechaIzquierda.png`);
 
         //Preload the rewards
         const rewards = getEveryPossibleRewardLocal();
@@ -174,46 +176,30 @@ class Rewards extends Phaser.Scene {
 
     returnToHomeButton() {
         // Dimensiones y posición de la caja
-        const boxWidth = 200;
-        const boxHeight = 100;
+        const boxWidth = 350;
+        const boxHeight = 200;
         const boxX = 200;
-        const boxY = (height / 2) - (boxHeight / 2);
+        const boxY = (height / 2) - (boxHeight / 2) + 100;
     
         // Crear la caja amarilla
-        this.homeBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
+        this.homeBox = this.add.image(boxX, boxY, 'flechaIzquierda');
         this.homeBox.setOrigin(0.5); // Establecer el origen en el centro
-    
-        // Crear el texto sobre la caja
-        this.returnButton = this.add.text(boxX, boxY, 'Return', {
-            fill: '#FFD700',
-            fontSize: '50px',
-            fontStyle: 'bold'
-        });
-        this.returnButton.setOrigin(0.5); // Centrar el texto
+        this.homeBox.setDisplaySize(boxWidth, boxHeight); // Establecer el tamaño de la imagen
     
         // Hacer la caja interactiva
         this.homeBox.setInteractive();
     
-        // Definir los colores para los estados
-        const normalColor = 0xD2691E;
-        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
-    
-        // Cambiar el color al presionar el botón
-        this.homeBox.on('pointerdown', () => {
-            this.homeBox.setFillStyle(pressedColor);
-        });
     
         // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
         this.homeBox.on('pointerup', () => {
-            this.homeBox.setFillStyle(normalColor);
             this.scene.start('Home'); // Ejecuta la acción del botón
         });
 
         this.homeBox.on('pointerover', () => {
-            this.homeBox.setScale(1.2); // Ajusta la escala cuando el cursor está sobre el botón
+            this.homeBox.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Aumenta el tamaño en un 10%
         });
         this.homeBox.on('pointerout', () => {
-            this.homeBox.setScale(1);  // Restaura el color si el cursor se mueve fuera
+            this.homeBox.setDisplaySize(boxWidth, boxHeight); // Restaura el tamaño original
         });
     }
 

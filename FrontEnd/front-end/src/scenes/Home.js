@@ -191,9 +191,6 @@ class Home extends Phaser.Scene {
         this.rewardsBox.setInteractive();
     
         // Define the scale change for interaction
-        this.rewardsBox.on('pointerdown', () => {
-            this.rewardsBox.setScale(1.1); // Increase size on press
-        });
     
         this.rewardsBox.on('pointerup', () => {
             this.rewardsBox.setDisplaySize(boxWidth, boxHeight); // Restore size on release

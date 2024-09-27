@@ -12,7 +12,6 @@ let displayedGeneratedText = "";
 let generatedText = "";
 let currentPage = 0;
 let totalPages = 0;
-let hunger = 1;
 let characterEmotion = "Neutral";
 let userID = 1;
 let projectID = 1;

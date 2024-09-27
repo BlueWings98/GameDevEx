@@ -192,7 +192,8 @@ class Report extends Phaser.Scene {
         // Restore the size and navigate to the 'TiberonConfig' scene when releasing the button
         this.fullBox.on('pointerup', () => {
             this.fullBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
-            this.scene.start('TiberonConfig'); // Execute the button action
+            console.log("Project ID: ", this.projectId);
+            this.scene.start('FullReport', {projectID : this.projectId}); // Execute the button action
         });
     
         // Increase the button size on hover
