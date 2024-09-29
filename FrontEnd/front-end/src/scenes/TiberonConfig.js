@@ -5,14 +5,12 @@ const backgroundDir = '../assets/background/';
 const backendUrl = 'http://localhost:8080/';
 const width = 1690;
 const height = 835;
-const imageHeight = 1887;
-const imageWidth = 1889;
 class TiberonConfig extends Phaser.Scene {
     constructor() {
         super({ key: 'TiberonConfig' });
     }
     preload() {
-        this.load.image('background', `${backgroundDir}CampoVainilla.png`);
+        this.load.image('background', `${backgroundDir}CasillaDeTexto.png`);
         this.load.image('tiberon', `${spritesDir}tiberon/Tiberon.png`);
     }
     create() {

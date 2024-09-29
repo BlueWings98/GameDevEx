@@ -18,6 +18,13 @@ const initializeGame = () => {
       parent: 'phaser-container',
       width: 1690,
       height: 835,
+      physics: {
+        default: 'arcade',
+        arcade: {
+          gravity: { y: 100 },
+          debug: false,
+        }
+      },
       scene: [Login, Home, Rewards, Survey, Report, Hen, Inventory, TiberonConfig, FullReport],
     };
     game = new Phaser.Game(config);

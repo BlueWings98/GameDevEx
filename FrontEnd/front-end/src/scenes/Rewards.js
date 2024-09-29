@@ -224,7 +224,7 @@ class Rewards extends Phaser.Scene {
     
             // Añadir textos
             this.rewardText1 = this.add.text(width / 2, height / 2 - 100, result[i].name, {
-                fill: '#000000', // Change to black for maximum contrast
+                fill: '#e30052', // Change to black for maximum contrast
                 fontSize: '50px',
                 fontFamily: 'Arial', // Use a simple, easy-to-read font
                 fontStyle: 'bold'
