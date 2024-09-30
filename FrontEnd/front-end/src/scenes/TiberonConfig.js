@@ -23,11 +23,11 @@ class TiberonConfig extends Phaser.Scene {
         this.displayCharacteristics(getCharaceristicsByHttp());
     }
     displayCharacteristics(characteristicsPromise) {
-        const startX = 250;
-        const startY = 100;
-        const spacingY = 150;
+        const startX = 260;
+        const startY = 110;
+        const spacingY = 100;
         const spacingX = 400; // Espaciado entre columnas
-        const maxPerColumn = 5;
+        const maxPerColumn = 6;
 
         characteristicsPromise.then(characteristics => {
             console.log("Characteristics in the display: ", characteristics);
@@ -42,7 +42,7 @@ class TiberonConfig extends Phaser.Scene {
                 // Mostrar el nombre de la característica
                 this.add.text(itemX, itemY, characteristic.name, {
                     fill: '#000000',
-                    fontSize: '25px',
+                    fontSize: '27px',
                     fontStyle: 'bold'
                 });
 
@@ -50,8 +50,7 @@ class TiberonConfig extends Phaser.Scene {
                 // Mostrar el peso de la característica
                 this.add.text(itemX, itemY + 30, `Peso: ${characteristic.weight}`, {
                     fill: '#000000',
-                    fontSize: '25px',
-                    fontStyle: 'bold'
+                    fontSize: '25px'
                 });
                 // Mostrar si esta activada o no
                 this.add.text(itemX, itemY + 60, "Activada", {
