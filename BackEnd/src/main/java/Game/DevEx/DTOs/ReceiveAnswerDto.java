@@ -12,4 +12,5 @@ public class ReceiveAnswerDto {
     private int projectID;
     private int userID;
     private String characterEmotion;
+    private int dxFactorID;
 }

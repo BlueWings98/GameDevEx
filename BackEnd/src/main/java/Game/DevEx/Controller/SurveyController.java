@@ -35,7 +35,8 @@ public class SurveyController {
         int projectID = receiveAnswerDto.getProjectID();
         int userID = receiveAnswerDto.getUserID();
         String characterEmotion = receiveAnswerDto.getCharacterEmotion();
-        return surveyService.receiveUserAnswer(userResponseValue, userID, characterEmotion, gptResponseValue, projectID);
+        int dxFactorID = receiveAnswerDto.getDxFactorID();
+        return surveyService.receiveUserAnswer(userResponseValue, userID, characterEmotion, gptResponseValue, projectID, dxFactorID);
     }
     @PostMapping("/casualconversation")
     public String casualConversation(@RequestBody String userResponse, @RequestParam String characterEmotion) {
