@@ -8,7 +8,6 @@ let textObject1;
 let textObject2;
 let displayedUserText = "";
 let displayedGeneratedText = "Estoy pensando....";
-let generatedText = "";
 let characterEmotion = "Neutral";
 let userID = 1;
 let projectID = 1;
@@ -61,7 +60,7 @@ class Survey extends Phaser.Scene {
                 return;
             }
             if (event.key === 'Enter') {
-                receiveAnswerByHttp(displayedUserText, generatedText, projectID, this).then((response) => {
+                receiveAnswerByHttp(displayedUserText, displayedGeneratedText, projectID, this).then((response) => {
                     displayedGeneratedText = response;
                     displayedUserText = "";
                     textObject1.setText(displayedUserText);  // Update writable text
@@ -142,7 +141,6 @@ class Survey extends Phaser.Scene {
 
 }
 async function receiveAnswerByHttp(writtenText, generatedText, projectID, scene) {
-    let gptResponse = "";
     try {
         // Send HTTP POST request with userID, characterEmotion in the query string, and the request body
         const response = await fetch(`${backendUrl}survey/receiveanswer`, {
@@ -165,18 +163,19 @@ async function receiveAnswerByHttp(writtenText, generatedText, projectID, scene)
         }
 
         const jsonResponse = await response.json();
-        gptResponse = jsonResponse.gptResponse;
+        let gptJsonResponse = jsonResponse.gptResponse;
         console.log("isAnswerValid: ", jsonResponse.isAnswerValid);
         if (jsonResponse.isAnswerValid) {
             scene.createCoin();
         }
 
+        console.log("gptResponse: ", gptJsonResponse);
+        return gptJsonResponse;
+
         // Add the items to the inventory or handle the response as needed
     } catch (error) {
         console.error('Error fetching inventory:', error);
     }
-    console.log("gptResponse: ", gptResponse);
-    return gptResponse;
 }
 
 async function generateQuestionByHttp() {

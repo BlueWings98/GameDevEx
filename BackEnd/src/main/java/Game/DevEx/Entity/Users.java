@@ -29,14 +29,14 @@ public class Users {
     @Column(name = "password")
     private String Password;
     @Column(name = "projectid")
-    private int ProjectID;
+    private int projectID;
     @Column(name = "totoloid")
     private int TotoloID;
 
     public Users(String userName, String email, int totoloId, int projectID, String password) {
         this.userName = userName;
         this.TotoloID = totoloId;
-        this.ProjectID = projectID;
+        this.projectID = projectID;
         this.Email = email;
         this.Password = password;
     }

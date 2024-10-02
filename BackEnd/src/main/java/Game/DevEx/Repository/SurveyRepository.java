@@ -23,5 +23,6 @@ public interface SurveyRepository extends CrudRepository<Survey, Integer> {
             "FROM Survey s GROUP BY s.DXFactorID ORDER BY s.DXFactorID ASC")
     List<AverageDxFactorDto> findAverageDxfactorValuesForAllProjects();
 
+    long countByProjectID(int projectID);
 }
 

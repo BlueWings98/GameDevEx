@@ -13,6 +13,9 @@ const spritesDir = '../assets/sprites/';
 const modularCategories = ["Acompanantes", "Cerca", "Fondo", "Gallinero", "Huevos", "Placa"];
 const henDir = '../assets/background/Gallinero/';
 
+let totalUsers = 0;
+let totalSurveys = 0;
+
 let statuses = {
     acompanantesStatus: 2,
     cercaStatus: 2,
@@ -53,6 +56,30 @@ class Hen extends Phaser.Scene {
         this.createProjectChikens();
         this.createCompanyName();
         this.returnToHomeButton();
+        this.getTotals();
+    }
+    getTotals(){
+        const users = getTotalUsersByHttp();
+        const x = 35;
+        const y = 50;
+        users.then(users => {
+            totalUsers = users;
+            this.add.text(x, y, `Total Users: ${totalUsers}`, {
+                fill: '#000000',
+                fontSize: '30px Arial',
+                fontStyle: 'bold'
+            });
+        });
+        const surveys = getTotalSurveysByHttp();
+        surveys.then(surveys => {
+            totalSurveys = surveys;
+            this.add.text(x, y+x, `Total Surveys: ${totalSurveys}`, {
+                fill: '#000000',
+                fontSize: '30px Arial',
+                fontStyle: 'bold'
+            });
+        });
+
     }
 
     createProjectChikens() {
@@ -201,6 +228,52 @@ function* getStatusIterator() {
     for (let X of Object.values(statuses)) {
         yield X;
     }
+}
+//GET http://localhost:8080/users/total
+async function getTotalUsersByHttp() {
+    let totalUsers = 0;
+    try {
+        const response = await fetch(`${backendUrl}users/total`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        totalUsers = await response.json();
+
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+
+    return totalUsers.total;
+}
+//GET http://localhost:8080/survey/count
+async function getTotalSurveysByHttp() {
+    let totalSurveys = 0;
+    try {
+        const response = await fetch(`${backendUrl}survey/count`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        totalSurveys = await response.json();
+
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+
+    return totalSurveys.count;
 }
 
 async function getProjectsByHttp() {

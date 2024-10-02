@@ -137,10 +137,4 @@ async function getCharaceristicsByHttp() {
 
     return characteristics;
 }
-// Función para actualizar el JSON
-function updateJson(characteristicsData) {
-    const jsonData = JSON.stringify(characteristicsData, null, 2);
-    console.log(jsonData);
-    // Aquí podrías hacer algo con el JSON, como enviarlo a un servidor o guardarlo localmente
-}
 export default TiberonConfig;

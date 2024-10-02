@@ -31,6 +31,20 @@ public class UsersController {
 
         return jsonObject.toString();
     }
+    @GetMapping("/total")
+    public String getTotalUsers() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("total", usersService.getTotalUsers());
+
+        return jsonObject.toString();
+    }
+    @GetMapping("/total/byprojectid")
+    public String getTotalUsers(@RequestParam int projectID) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("total", usersService.getTotalUsersByProjectID(projectID));
+
+        return jsonObject.toString();
+    }
     @GetMapping("/available")
     public String isUserNameAvailable(@RequestParam String userName) {
         JSONObject jsonObject = new JSONObject();

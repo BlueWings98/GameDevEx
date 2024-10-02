@@ -92,7 +92,7 @@ public class SurveyService {
         if(measuredEmotion == 0){
             response.put("gptResponse", "No puedo continuar si no me das una respuesta valida.");
             response.put("isAnswerValid", false);
-            return "";
+            return response.toString();
         }
         DXFactor selectedDxFactor = dxFactorRepository.findById(dxFactorID).orElse(null);
         if(selectedDxFactor == null){
@@ -204,5 +204,13 @@ public class SurveyService {
         int randomNumber = random.nextInt(numberOfFactors - MIN + 1) + MIN;
         return dxFactorRepository.findById(randomNumber);
 
+    }
+
+    public long getSurveyCountByProjectID(int projectID) {
+        return surveyRepository.countByProjectID(projectID);
+    }
+
+    public long getSurveyCount() {
+        return surveyRepository.count();
     }
 }

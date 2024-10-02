@@ -19,17 +19,31 @@ class Login extends Phaser.Scene {
 
     preload() {
         // Load background image
-        this.load.image('barn', `${backgroundDir}CampoVainilla.png`);
+        //FrontEnd\front-end\public\assets\background\Login1.png
+        //FrontEnd\front-end\public\assets\background\Login2.png
+        this.load.image('login', `${backgroundDir}Login1.png`);
+        this.load.image('login2', `${backgroundDir}Login2.png`);
     }
 
     create() {
-        // Add background
-        //this.barn = this.add.image(width / 2, height / 2, 'barn');
-        //this.barn.displayWidth = width;
-        //this.barn.displayHeight = height;
+        // Add backgrounds
+
+        this.backgound = this.add.image(width / 2, height / 2, 'login');
+        this.backgound.displayWidth = width;
+        this.backgound.displayHeight = height;
+
+        //Create instructions text
+        this.add.text(600, 200, 'Ingresa tu nombre de usuario', {
+            font: '38px Arial',
+            fontStyle: 'bold',
+            fill: 'Black ',
+            wordWrap: { width: 700, useAdvancedWrap: true }
+        });
+
 
         // Create Username Input Field
-        this.createWritableTextBox(100, 300, 600, 100, 'Nombre de Usuario');
+        this.createWritableTextBox(640, 340, 500, 'Nombre de Usuario');
+
 
 
         // Handle keyboard input
@@ -38,16 +52,13 @@ class Login extends Phaser.Scene {
         });
     }
 
-    createWritableTextBox(x, y, width, height, placeholder) {
-        const textBox = this.add.graphics();
-        textBox.fillStyle(0xeabe63, 1); // Orange color
-        textBox.fillRect(x, y, width, height);
+    createWritableTextBox(x, y, width, placeholder, fontSize = '32') {
 
         // Display placeholder text until the user types
         this.textObject = this.add.text(x + 20, y + 20, this.displayedUserText || placeholder, {
-            font: '32px Arial',
+            font: `${fontSize}px Arial`,
             fill: 'Black',
-            wordWrap: { width: width - 20, useAdvancedWrap: true }
+            wordWrap: { width: width, useAdvancedWrap: true }
         });
     }
 
@@ -61,6 +72,7 @@ class Login extends Phaser.Scene {
                 this.email = this.writtenText;
                 this.writtenText = '';
             } else if (this.currentTextBox === 'projectID') {
+
                 this.projectID = this.writtenText;
                 this.writtenText = '';
                 this.createNewUser();
@@ -68,6 +80,10 @@ class Login extends Phaser.Scene {
         } else if (event.key === 'Backspace' && this.writtenText.length > 0) {
             this.writtenText = this.writtenText.slice(0, -1);
         } else if (event.key.length === 1) {
+            // If currentTextBox is projectID, only allow numbers
+            if (this.currentTextBox === 'projectID' && isNaN(event.key)) {
+                return;
+            }
             this.writtenText += event.key;
         }
 
@@ -107,8 +123,10 @@ class Login extends Phaser.Scene {
             });
             const user = await response.json();
             console.log('User logged in:', user);
-            this.scene.start('Home', { projectID: user.ProjectID, userID: user.UserID,
-                totoloID: user.TotoloID, characterSkin : user.CharacterSkin});
+            this.scene.start('Home', {
+                projectID: user.ProjectID, userID: user.UserID,
+                totoloID: user.TotoloID, characterSkin: user.CharacterSkin
+            });
 
             // Proceed to the next scene or game logic
         } catch (error) {
@@ -120,10 +138,24 @@ class Login extends Phaser.Scene {
         // Clear screen to remove previous input
         this.children.removeAll();
 
-        // Create writable text boxes for email and projectID
-        this.createWritableTextBox(100, 300, 600, 100, 'Id del Proyecto al que quieras pertenecer: 1-3');
+        this.backgound.destroy();
 
-        this.createWritableTextBox(100, 450, 600, 100, '');
+        this.backgound = this.add.image(width / 2, height / 2, 'login2');
+        // Reapply display size to fit the new texture
+        this.backgound.displayWidth = width;
+        this.backgound.displayHeight = height;
+
+        // Create writable text boxes for email and projectID
+        this.createWritableTextBox(570, 420, 530, 'Id del Proyecto al que quieras pertenecer: 1-3', 50);
+
+        this.createWritableTextBox(800, 660, 200, '', 50);
+                // Add new instructions
+        this.add.text(590, 205, 'Escribe solo el numero y Enter', {
+            font: '38px Arial',
+            fontStyle: 'bold',
+            fill: 'Black ',
+            wordWrap: { width: 700, useAdvancedWrap: true }
+        });
         this.currentTextBox = 'projectID';
 
     }
@@ -142,8 +174,10 @@ class Login extends Phaser.Scene {
             });
             const newUser = await response.json();
             console.log('New user created:', newUser);
-            this.scene.start('Home', { projectID: newUser.ProjectID, userID: newUser.UserID,
-                totoloID: newUser.TotoloID, characterSkin : newUser.CharacterSkin});
+            this.scene.start('Home', {
+                projectID: newUser.ProjectID, userID: newUser.UserID,
+                totoloID: newUser.TotoloID, characterSkin: newUser.CharacterSkin
+            });
 
             // Proceed to the next scene or game logic
         } catch (error) {

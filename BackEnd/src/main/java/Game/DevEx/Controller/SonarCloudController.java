@@ -15,13 +15,16 @@ public class SonarCloudController {
     private SonarCloudService sonarCloudService;
 
     @GetMapping("/sonarcloud")
-    public String getSonarProject(@RequestParam String projectName) {
-        JSONObject temp = sonarCloudService.getSonarProjectIssues(projectName);
+    public String getSonarProject(@RequestParam String projectKey) {
+        if(projectKey == null) {
+            return "Please provide a project key";
+        }
+        JSONObject temp = sonarCloudService.getSonarProjectIssues(projectKey);
         return temp.toString();
     }
     @GetMapping("/sonarcloud/analysis")
-    public String getSonarProjectAnalysis(@RequestParam String projectName) {
-        JSONObject temp = sonarCloudService.analyzeSonarProject(projectName);
+    public String getSonarProjectAnalysis(@RequestParam String projectKey) {
+        JSONObject temp = sonarCloudService.analyzeSonarProject(projectKey);
         return temp.toString();
     }
     @GetMapping("/sonarcloud/metrics")

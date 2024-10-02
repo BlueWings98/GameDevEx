@@ -37,4 +37,11 @@ public class UsersService {
     public Users getUserByUserName(String userName) {
         return usersRepository.findByUserName(userName);
     }
+
+    public long getTotalUsers() {
+        return usersRepository.count();
+    }
+    public long getTotalUsersByProjectID(int projectID) {
+        return usersRepository.countByProjectID(projectID);
+    }
 }

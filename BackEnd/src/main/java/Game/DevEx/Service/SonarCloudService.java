@@ -39,13 +39,13 @@ public class SonarCloudService {
         this.metricRepository = metricRepository;
     }
 
-    public JSONObject getSonarProjectIssues(String projectName) {
+    public JSONObject getSonarProjectIssues(String projectKey) {
         String issueStatuses = "OPEN,CONFIRMED,ACCEPTED";
         boolean resolved = false;
 
         // Construct the URL with query parameters
         String url = String.format("%s/issues/search?projects=%s&issueStatuses=%s&resolved=%b&ps=%s",
-                apiUrl, projectName, issueStatuses, resolved, pageSize);
+                apiUrl, projectKey, issueStatuses, resolved, pageSize);
 
         // Set up the headers with Basic Auth
         HttpHeaders headers = new HttpHeaders();
@@ -179,8 +179,8 @@ public class SonarCloudService {
         }
     }
 
-    public JSONObject analyzeSonarProject(String projectName){
-        JSONObject sonarProjectIssues = getSonarProjectIssues(projectName);
+    public JSONObject analyzeSonarProject(String projectKey){
+        JSONObject sonarProjectIssues = getSonarProjectIssues(projectKey);
 
         // Extract and print "effortTotal" and "debtTotal"
         int effortTotal = sonarProjectIssues.getInt("effortTotal");

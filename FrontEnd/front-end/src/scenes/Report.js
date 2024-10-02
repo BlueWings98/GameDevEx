@@ -18,6 +18,9 @@ let tiberonJsonResponse = {};
 let totoloJsonResponse = {};
 let sonarJsonResponse = {};
 
+let userCountByProject = {};
+let surveyCountByProject = {};
+
 class Report extends Phaser.Scene {
     constructor() {
         super({ key: 'Report' });
@@ -73,25 +76,29 @@ class Report extends Phaser.Scene {
                 Problemas Críticos: ${sonarJsonResponse.severityCounts.CRITICAL || 0}
                 Problemas Mayores: ${sonarJsonResponse.severityCounts.MAJOR || 0}
                 Minutos humanos de deuda técnica: ${sonarJsonResponse.debtTotal}
-                Etiquetas más frecuentes: ${topTags[0][0]} (${topTags[0][1]}), ${topTags[1][0]} (${topTags[1][1]})
+                Etiqueta más frecuente: ${topTags[0][0]} (${topTags[0][1]})
                 Calidad más relevante: ${topQuality} (${topQualityValue})
                 Valoración: ${tiberonJsonResponse.TiberonScore.toFixed(2)}%`;
 
 
             const selfReport = 
-                `Desarrollo y lanzamiento: ${totoloJsonResponse.developmentAndRelease.toFixed(2)}%
+                `Usuarios Registrados: ${userCountByProject.total}
+                Encuestas Realizadas: ${surveyCountByProject.count}
+                Desarrollo y lanzamiento: ${totoloJsonResponse.developmentAndRelease.toFixed(2)}%
                 Administración del producto: ${totoloJsonResponse.productManagement.toFixed(2)}%
                 Colaboración y cultura: ${totoloJsonResponse.collaborationAndCulture.toFixed(2)}%
                 Flujo del desarrollo y Realización: ${totoloJsonResponse.developerFlowAndFulfillment.toFixed(2)}%
                 Valoración: ${totoloJsonResponse.finalScore.toFixed(2)}%`;
             textObject1 = this.add.text(x + 20, y + 20, tiberonReport, {
-                font: '35px Arial',
+                font: '38px Arial',
                 fill: 'Black',
+                fontStyle: 'bold',
                 wordWrap: { width: width - 20, useAdvancedWrap: true }
             });
             textObject2 = this.add.text(width + 20, y + 20, selfReport, {
-                font: '50px Arial',
+                font: '38px Arial',
                 fill: 'Black',
+                fontStyle: 'bold',
                 wordWrap: { width: width - 20, useAdvancedWrap: true }
             });
             this.updateCharacterState(tiberonJsonResponse.TiberonScore.toFixed(2), totoloJsonResponse.finalScore.toFixed(2))
@@ -328,9 +335,29 @@ async function getReportsByHttp(projectID, projectKey) {
             throw new Error(`HTTP error! Status: ${totoloResponse.status}`);
         }
 
+        // Get User count by http
+        const userCountResponse = await fetch(`${backendUrl}users/total/byprojectid?projectID=${projectID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        // Get Survey count by http
+        const surveyCountResponse = await fetch(`${backendUrl}survey/count/byprojectid?projectID=${projectID}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
         tiberonJsonResponse = await tiberonResponse.json();
         sonarJsonResponse = await sonarResponse.json();
         totoloJsonResponse = await totoloResponse.json();
+        userCountByProject = await userCountResponse.json();
+        surveyCountByProject = await surveyCountResponse.json();
+
+        console.log("Users Count: ", userCountByProject.total);
+        console.log("Survey Count: ", surveyCountByProject.count);
 
     } catch (error) {
         console.error('Error fetching inventory:', error);
