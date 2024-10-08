@@ -40,10 +40,10 @@ public class ReportService {
         this.barrierToImprovementRepository = barrierToImprovementRepository;
     }
     public String generateRecomendationsByProjectId(int ProjectId) {
-        String setupPromtp = "You are a software project auditor. You have been asked to provide a report and recommendations. " +
-                "You need to choose two team and two personal strategies using the information you will be provided. " +
-                "Please do not repeat the information given, only the most important points and recommendations and do not give a overly long answer." +
-                "Use these strategies for your answer: " + getAllStrategies();
+        String setupPromtp = "Eres un auditor de proyectos de software. Tu respuesta debe ser en español. Se te ha pedido que proporciones un informe y recomendaciones. " +
+                "Debes elegir dos estrategias de equipo y dos estrategias personales utilizando la información que se te proporcionará. " +
+                "Por favor, no repitas la información dada, solo menciona los puntos más importantes y las recomendaciones, y no des una respuesta demasiado extensa." +
+                "Utiliza estas estrategias para tu respuesta: " + getAllStrategies();
         String prompt = "";
 
         prompt += mostImportantDXFactorByProject(ProjectId);
@@ -53,7 +53,7 @@ public class ReportService {
 
 
         double temperature = 1.0;
-        String response = chatGptService.getVanillaCompletition(prompt, temperature, setupPromtp);
+        String response = chatGptService.getSuperCompletition(prompt, temperature, setupPromtp);
 
         JSONObject jsonResponse = new JSONObject(response);
         // Navigate through the JSON structure to get the content
@@ -67,26 +67,26 @@ public class ReportService {
         List<AverageDxFactorDto> dxFactorValues = surveyRepository.findAverageDxfactorValuesByProjectID(ProjectId);
         //Get the DXFactor with the highest average value
         DXFactor mostCommonDXFactor = dxFactorRepository.findById(dxFactorValues.get(0).getDxFactorId()).get();
-        return "The most important Developer Experience Factor for this project is " + mostCommonDXFactor.getDxFactorName() + " with an average value of " + dxFactorValues.get(0).getAverageDxFactorValue() + " The maximun value is 10 that represents the worst possible value.";
+        return "El factor de experiencia del desarrollador más importante para este proyecto es: " + mostCommonDXFactor.getDxFactorName() + ", con un promedio de: " + dxFactorValues.get(0).getAverageDxFactorValue() + ". El valor máximo es 10, que representa el peor valor posible.";
 
     }
     public String mostImportantDXFactorByAllProjects() {
         List<AverageDxFactorDto> dxFactorValues = surveyRepository.findAverageDxfactorValuesForAllProjects();
         //Get the DXFactor with the highest average value
         DXFactor mostCommonDXFactor = dxFactorRepository.findById(dxFactorValues.get(0).getDxFactorId()).get();
-        return "The most important DX Factor for all projects is " + mostCommonDXFactor.getDxFactorName() + " with an average value of " + dxFactorValues.get(0).getAverageDxFactorValue();
+        return "El factor DX más importante para todos los proyectos es: " + mostCommonDXFactor.getDxFactorName() + ", con un promedio de: " + dxFactorValues.get(0).getAverageDxFactorValue();
     }
     public String mostImportantBarrierByProject(int ProjectId) {
         List<AverageBarrierDto> barrierValues = barrierResponseRepository.findAverageBarrierValuesForAllProjects();
         //Get the Barrier with the highest average value
         BarrierToImprovement mostCommonBarrier = barrierToImprovementRepository.findById(barrierValues.get(0).getBarrierToImprovementId()).get();
-        return "The most important Barrier for project " + ProjectId + " is " + mostCommonBarrier.getName() + " with an average value of " + barrierValues.get(0).getAverageBarrierValue();
+        return "La barrera más importante para el proyecto" + ProjectId + " es " + mostCommonBarrier.getName() + ", con un promedio de: " + barrierValues.get(0).getAverageBarrierValue();
     }
     public String mostImportantBarrierByAllProjects() {
         List<AverageBarrierDto> barrierValues = barrierResponseRepository.findAverageBarrierValuesForAllProjects();
         //Get the Barrier with the highest average value
         BarrierToImprovement mostCommonBarrier = barrierToImprovementRepository.findById(barrierValues.get(0).getBarrierToImprovementId()).get();
-        return "The most important Barrier for all projects is " + mostCommonBarrier.getName() + " with an average value of " + barrierValues.get(0).getAverageBarrierValue();
+        return "La barrera más importante para todos los proyectos es: " + mostCommonBarrier.getName() + ", con un promedio de: " + barrierValues.get(0).getAverageBarrierValue();
     }
 
 
@@ -96,12 +96,12 @@ public class ReportService {
         for (Strategy strategy : strategies) {
             strategiesString.append(strategy.getName()).append(", ");
             if(strategy.getIsTeamStrategy()){
-                strategiesString.append(" (Team Strategy), ");
+                strategiesString.append(" (Equipo), ");
             } else {
-                strategiesString.append(" (Personal Strategy), ");
+                strategiesString.append(" (Personal), ");
             }
         }
-        return "The strategies available are the following, choose the best one: " + strategiesString;
+        return "Las estrategias disponibles son las siguientes, elige la mejor: "+ strategiesString;
     }
     private String getAllStrategiesJson(){
         Iterable<Strategy> strategies = strategyRepository.findAll();
@@ -113,7 +113,7 @@ public class ReportService {
             temp.put("isTeamStrategy", strategy.getIsTeamStrategy());
             jsonArray.put(temp);
         }
-        return "The strategies available are the following: " + jsonArray;
+        return "Las estrategias disponibles son las siguientes: " + jsonArray;
     }
 
     private String getSubjectiveEvaluation(int projectID) {
@@ -132,7 +132,7 @@ public class ReportService {
             }
         }
 
-        return "After many surveys in the project, we concluded that the repository health has the following categories and scores: " + evaluationString;
+        return ". Luego de muchas encuestas en el proyecto, concluimos que la salud del repositorio tiene las siguientes categorías y puntajes: " + evaluationString + " Siendo un 100 un perfecto ambiente laboral y de desarrollo.";
     }
 
     private String getSonarProjectScore(int projectID) {
@@ -141,7 +141,7 @@ public class ReportService {
         // Need the Project Key not the project name
         double projectScore = sonarCloudService.getSonarProjectScore(projectKey);
 
-        return String.format("After a SonarCloud analysis, we concluded that the repository health is %.2f%%", projectScore);
+        return String.format("Después de un análisis de SonarCloud, concluimos que el estado del repositorio es del %.2f%% siendo un 100 cuando cumple con todas las metas de calidad propuestas.", projectScore);
     }
 
 }

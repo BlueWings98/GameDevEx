@@ -35,6 +35,7 @@ class Survey extends Phaser.Scene {
     create() {
         this.createWritableTextBox(0, height - 400, width / 2, 400);
         this.createUnWritableTextBox(0, height - 400, width / 2, 400);
+        this.createInvisibleBox(0, 0, width, height - 400);
         this.createExitButton();
 
         // Update generated text when the question is received
@@ -76,6 +77,8 @@ class Survey extends Phaser.Scene {
                 textObject1.setText(displayedUserText);  // Update writable text
             }
         }, this);
+        //This is to capture unwanted clicks.
+        textBox1.setInteractive(new Phaser.Geom.Rectangle(x, y, width, height), Phaser.Geom.Rectangle.Contains);
 
     }
     createUnWritableTextBox(x, y, width, height) {
@@ -88,6 +91,8 @@ class Survey extends Phaser.Scene {
             fill: 'Black',
             wordWrap: { width: width - 20, useAdvancedWrap: true }
         });
+        //This is to capture unwanted clicks.
+        textBox2.setInteractive(new Phaser.Geom.Rectangle(width, y, width, height), Phaser.Geom.Rectangle.Contains);
     }
     createExitButton() {
         const exitButton = this.add.text(width - 100, 50, 'Exit', {
@@ -138,6 +143,16 @@ class Survey extends Phaser.Scene {
         // Collide with world bounds
         this.physics.add.collider(coin, this.physics.world.bounds);
     }
+    //This method creates an invisible box that captures unwanted clicks
+    createInvisibleBox(x, y, width, height) {
+        const invisibleBox = this.add.graphics();
+        invisibleBox.fillStyle(0x000000, 0.4); // Transparent color
+        invisibleBox.fillRect(x, y, width, height);
+    
+        // Enable input so it captures clicks
+        invisibleBox.setInteractive(new Phaser.Geom.Rectangle(x, y, width, height), Phaser.Geom.Rectangle.Contains);
+    }
+    
 
 }
 async function receiveAnswerByHttp(writtenText, generatedText, projectID, scene) {
