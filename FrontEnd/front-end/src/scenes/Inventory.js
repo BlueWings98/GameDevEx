@@ -5,7 +5,7 @@ const width = 1690;
 const height = 835;
 const itemsDir = '../assets/sprites/items/';
 const backgroundDir = '../assets/background/';
-const backendUrl = 'http://localhost:8080/';
+const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080/';
 
 const rewards = [];
 
@@ -24,7 +24,7 @@ class Inventory extends Phaser.Scene {
     }
     preload() {
         this.preloadEveryReward();
-        this.load.image('background', `${backgroundDir}Barn.png`);
+        this.load.image('background', `${backgroundDir}CasillaDeTexto.png`);
 
     }
     preloadEveryReward() {
@@ -55,10 +55,10 @@ class Inventory extends Phaser.Scene {
         });
     }
     async displayInventory(userID) {
-        const startX = 50;
-        const startY = 100;
+        const startX = 150;
+        const startY = 150;
         const spacingX = 500; // Espacio horizontal entre columnas
-        const spacingY = 150; // Espacio vertical entre filas
+        const spacingY = 120; // Espacio vertical entre filas
 
         try {
             let inventory = await getInventoryByHttp(userID);

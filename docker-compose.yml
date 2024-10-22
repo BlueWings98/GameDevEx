@@ -11,6 +11,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/yourdatabase
       SPRING_DATASOURCE_USERNAME: youruser
       SPRING_DATASOURCE_PASSWORD: yourpassword
+      FRONTEND_URL: https://34.136.94.49   # Ahora debe apuntar a HTTPS
+      BACKEND_URL: http://34.136.94.49:8080
     depends_on:
       - db
 
@@ -18,11 +20,17 @@ services:
     build:
       context: ./FrontEnd/front-end
       dockerfile: Dockerfile
+      args:
+        - REACT_APP_BACKEND_URL=${BACKEND_URL:-http://localhost:8080/}
     ports:
-      - "3000:80"
+      - "443:443"   # Cambiamos el puerto expuesto a 443
+    environment:
+      REACT_APP_BACKEND_URL: ${BACKEND_URL:-http://localhost:8080/}
+      NODE_ENV: production
+    command: httpd-foreground
 
   db:
-    image: postgres:latest
+    image: postgres:16.4
     ports:
       - "5432:5432"
     environment:
@@ -32,6 +40,6 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
-
 volumes:
   db_data:
+

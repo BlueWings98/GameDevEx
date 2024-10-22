@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import Survey from './Survey';
 const spritesDir = '../assets/sprites/morpeko/SpriteSheets/';
 const backgroundDir = '../assets/background/';
-const backendUrl = 'http://localhost:8080/';
+const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080/';
 const width = 1690;
 const height = 835;
 const imageHeight = 1390;

@@ -13,17 +13,29 @@ RUN npm install
 # Copia el resto del código fuente al contenedor
 COPY . .
 
+# Pasar variables de entorno en build time
+ARG REACT_APP_BACKEND_URL
+ENV REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
+
 # Compila la aplicación de React
 RUN npm run build
 
-# Usa una imagen de Nginx para servir la aplicación compilada
-FROM nginx:alpine
+# Usa una imagen de Apache para servir la aplicación compilada
+FROM httpd:latest
 
-# Copia los archivos compilados de React desde la etapa de construcción al directorio de Nginx
-COPY --from=build /usr/src/app/build /usr/share/nginx/html
+# Copia los archivos compilados de React al directorio de Apache
+COPY --from=build /usr/src/app/build /usr/local/apache2/htdocs/
 
-# Exponer el puerto que Nginx usará
-EXPOSE 80
+# Asegurarse que las llaves se copien al contenedor
+COPY ./localhost.crt /usr/local/apache2/conf/
+COPY ./localhost.key /usr/local/apache2/conf/
 
-# Comando por defecto para ejecutar Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Copia el archivo de configuración de SSL para Apache
+COPY ./apache.conf /usr/local/apache2/conf/httpd.conf
+
+# Exponer el puerto 443
+EXPOSE 443
+
+# Comando por defecto para ejecutar Apache en modo foreground
+CMD ["httpd-foreground"]
+

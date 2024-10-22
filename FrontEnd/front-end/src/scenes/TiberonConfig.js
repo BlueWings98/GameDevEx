@@ -2,7 +2,7 @@ import Phaser from "phaser";
 
 const spritesDir = '../assets/sprites/';
 const backgroundDir = '../assets/background/';
-const backendUrl = 'http://localhost:8080/';
+const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080/';
 const width = 1690;
 const height = 835;
 class TiberonConfig extends Phaser.Scene {

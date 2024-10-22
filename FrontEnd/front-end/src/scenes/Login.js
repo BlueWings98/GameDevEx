@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 const width = 1690;
 const height = 835;
 
-const backendUrl = 'http://localhost:8080/';
+const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080/';
 const backgroundDir = '../assets/background/';
 
 class Login extends Phaser.Scene {
@@ -15,6 +15,8 @@ class Login extends Phaser.Scene {
         this.displayedUserText = '';
         this.writtenText = '';
         this.currentTextBox = 'userName'; // To track which text box is active
+        console.log("React App backendUrl: ", process.env.REACT_APP_BACKEND_URL);
+        console.log("Solo backendUrl: ", process.env.BACKEND_URL);
     }
 
     preload() {

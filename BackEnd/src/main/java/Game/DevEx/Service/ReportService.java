@@ -42,7 +42,7 @@ public class ReportService {
     public String generateRecomendationsByProjectId(int ProjectId) {
         String setupPromtp = "Eres un auditor de proyectos de software. Tu respuesta debe ser en español. Se te ha pedido que proporciones un informe y recomendaciones. " +
                 "Debes elegir dos estrategias de equipo y dos estrategias personales utilizando la información que se te proporcionará. " +
-                "Por favor, no repitas la información dada, solo menciona los puntos más importantes y las recomendaciones, y no des una respuesta demasiado extensa." +
+                "Por favor, no repitas la información dada, solo menciona los puntos más importantes y las recomendaciones, tus respuestas deben ser completas pero concisas y no tan largas." +
                 "Utiliza estas estrategias para tu respuesta: " + getAllStrategies();
         String prompt = "";
 
