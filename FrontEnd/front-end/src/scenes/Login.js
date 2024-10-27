@@ -16,7 +16,6 @@ class Login extends Phaser.Scene {
         this.writtenText = '';
         this.currentTextBox = 'userName'; // To track which text box is active
         console.log("React App backendUrl: ", process.env.REACT_APP_BACKEND_URL);
-        console.log("Solo backendUrl: ", process.env.BACKEND_URL);
     }
 
     preload() {
