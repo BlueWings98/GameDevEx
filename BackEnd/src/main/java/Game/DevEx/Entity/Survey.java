@@ -32,8 +32,10 @@ public class Survey {
     private int DXFactorValue;
     @Column(name = "surveydate")
     private LocalDate SurveyDate;
+    @Column(name = "projectid")
+    private int projectID;
 
-    public Survey(String dxFactorName, int DXFactorID, int UserID ,String userResponse, int measuredEmotion, String gptResponse) {
+    public Survey(String dxFactorName, int DXFactorID, int UserID ,String userResponse, int measuredEmotion, String gptResponse, int projectID) {
         this.UserID = UserID;
         this.UserResponse = userResponse;
         this.DXFactorID = DXFactorID;
@@ -41,5 +43,6 @@ public class Survey {
         this.DXFactorValue = measuredEmotion;
         this.SurveyDate = LocalDate.now();
         this.GPTResponse = gptResponse;
+        this.projectID = projectID;
     }
 }

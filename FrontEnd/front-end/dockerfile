@@ -7,6 +7,10 @@ WORKDIR /usr/src/app
 # Copia el package.json y el package-lock.json al contenedor
 COPY package*.json ./
 
+# Pasar variables de entorno en build time
+ARG REACT_APP_BACKEND_URL
+ENV REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
+
 # Instala las dependencias del proyecto
 RUN npm install
 

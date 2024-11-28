@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -14,32 +15,30 @@ public class SonarCloudController {
     private SonarCloudService sonarCloudService;
 
     @GetMapping("/sonarcloud")
-    public String getSonarProject(@RequestBody String projectName) {
-        JSONObject json = new JSONObject(projectName);
-        String projectNameValue = json.getString("projectName");
-        JSONObject temp = sonarCloudService.getSonarProjectIssues(projectNameValue);
+    public String getSonarProject(@RequestParam String projectKey) {
+        if(projectKey == null) {
+            return "Please provide a project key";
+        }
+        JSONObject temp = sonarCloudService.getSonarProjectIssues(projectKey);
         return temp.toString();
     }
     @GetMapping("/sonarcloud/analysis")
-    public String getSonarProjectAnalysis(@RequestBody String projectName) {
-        JSONObject json = new JSONObject(projectName);
-        String projectNameValue = json.getString("projectName");
-        JSONObject temp = sonarCloudService.analyzeSonarProject(projectNameValue);
+    public String getSonarProjectAnalysis(@RequestParam String projectKey) {
+        JSONObject temp = sonarCloudService.analyzeSonarProject(projectKey);
         return temp.toString();
     }
     @GetMapping("/sonarcloud/metrics")
-    public String getSonarProjectMetrics(@RequestBody String projectName) {
-        JSONObject json = new JSONObject(projectName);
-        String projectNameValue = json.getString("projectName");
-        JSONObject temp = sonarCloudService.getSonarProjectMetrics(projectNameValue);
+    public String getSonarProjectMetrics(@RequestParam String projectName) {
+        JSONObject temp = sonarCloudService.getSonarProjectMetrics(projectName);
         return temp.toString();
     }
     @GetMapping("/sonarcloud/score")
-    public double getSonarProjectScore(@RequestBody String projectName) {
-        JSONObject json = new JSONObject(projectName);
-        String projectNameValue = json.getString("projectName");
+    public String getSonarProjectScore(@RequestParam String projectName) {
         //Final Tiberon Score
-        return sonarCloudService.getSonarProjectScore(projectNameValue);
+        double tiberonScore = sonarCloudService.getSonarProjectScore(projectName);
+        JSONObject temp = new JSONObject();
+        temp.put("TiberonScore", tiberonScore);
+        return temp.toString();
     }
     @GetMapping("/sonarcloud/metrics/report")
     public String getSonarProjectMetricsReport() {

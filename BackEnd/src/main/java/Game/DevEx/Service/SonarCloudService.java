@@ -39,13 +39,13 @@ public class SonarCloudService {
         this.metricRepository = metricRepository;
     }
 
-    public JSONObject getSonarProjectIssues(String projectName) {
+    public JSONObject getSonarProjectIssues(String projectKey) {
         String issueStatuses = "OPEN,CONFIRMED,ACCEPTED";
         boolean resolved = false;
 
         // Construct the URL with query parameters
         String url = String.format("%s/issues/search?projects=%s&issueStatuses=%s&resolved=%b&ps=%s",
-                apiUrl, projectName, issueStatuses, resolved, pageSize);
+                apiUrl, projectKey, issueStatuses, resolved, pageSize);
 
         // Set up the headers with Basic Auth
         HttpHeaders headers = new HttpHeaders();
@@ -73,13 +73,13 @@ public class SonarCloudService {
 
         return null; // Return null or handle as necessary
     }
-    public JSONObject getSonarProjectMetrics(String projectName){
+    public JSONObject getSonarProjectMetrics(String projectKey){
         Iterable<Metric> iterable = this.metricRepository.findAll();
         StringBuilder sonarMetricsQueryString = new StringBuilder();
         for (Metric metric : iterable) {
             sonarMetricsQueryString.append(metric.getMetricKey()).append(",");
         }
-        String url = String.format("%s/measures/component?component=%s&metricKeys=%s&additionalFields=%s", apiUrl, projectName, sonarMetricsQueryString, "metrics");
+        String url = String.format("%s/measures/component?component=%s&metricKeys=%s&additionalFields=%s", apiUrl, projectKey, sonarMetricsQueryString, "metrics");
         HttpHeaders headers = new HttpHeaders();
         String auth = apiKey + ":"; // Token followed by an empty password
         byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.US_ASCII));
@@ -98,8 +98,8 @@ public class SonarCloudService {
         }
         return null;
     }
-    public double getSonarProjectScore(String projectName) {
-        JSONObject sonarProjectMetrics = getSonarProjectMetrics(projectName);
+    public double getSonarProjectScore(String projectKey) {
+        JSONObject sonarProjectMetrics = getSonarProjectMetrics(projectKey);
         Iterable<Metric> iterable = this.metricRepository.findAll();
         int totalWeight = 0;
         int totalScore = 0;
@@ -121,19 +121,16 @@ public class SonarCloudService {
                     break;
                 }
             }
-            System.out.println(metricJson.toString());
 
             if (metricJson != null) {
                 String value = metricJson.getString("value");
                 double multiplier = calculateMultiplier(value, bestValue, worstValue, type);
-                System.out.println("Metric: " + metricKey + " Value: " + value + " Multiplier: " + multiplier);
                 totalWeight += weight;
                 totalScore += (int) (multiplier * weight);
             }
         }
-        System.out.println("Total Weight: " + totalWeight + " Total Score: " + totalScore);
 
-        return (double) totalScore / totalWeight;
+        return 100*((double) totalScore / totalWeight);
     }
 
     public JSONObject getMetricReport() {
@@ -182,15 +179,12 @@ public class SonarCloudService {
         }
     }
 
-    public JSONObject analyzeSonarProject(String projectName){
-        JSONObject sonarProjectIssues = getSonarProjectIssues(projectName);
+    public JSONObject analyzeSonarProject(String projectKey){
+        JSONObject sonarProjectIssues = getSonarProjectIssues(projectKey);
 
         // Extract and print "effortTotal" and "debtTotal"
         int effortTotal = sonarProjectIssues.getInt("effortTotal");
         int debtTotal = sonarProjectIssues.getInt("debtTotal");
-        System.out.println("effortTotal: " + effortTotal);
-        System.out.println("debtTotal: " + debtTotal);
-
         // Initialize maps to count occurrences
         Map<String, Integer> severityCount = new HashMap<>();
         Map<String, Integer> cleanCodeAttributeCategoryCount = new HashMap<>();
@@ -228,18 +222,6 @@ public class SonarCloudService {
             }
         }
 
-        // Print the counts with names
-        System.out.println("Severity counts:");
-        printCountMap(severityCount);
-
-        System.out.println("Clean Code Attribute Category counts:");
-        printCountMap(cleanCodeAttributeCategoryCount);
-
-        System.out.println("Software Quality counts:");
-        printCountMap(softwareQualityCount);
-
-        System.out.println("Tag counts:");
-        printCountMap(tagCount);
 
         // Create and return a JSON object with the maps' contents
         JSONObject resultJson = new JSONObject();
@@ -251,11 +233,5 @@ public class SonarCloudService {
         resultJson.put("tagCounts", new JSONObject(tagCount));
 
         return resultJson;
-    }
-    // Helper method to print the map in the desired format
-    private void printCountMap(Map<String, Integer> countMap) {
-        for (Map.Entry<String, Integer> entry : countMap.entrySet()) {
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }
     }
 }

@@ -2,17 +2,15 @@ import Phaser from "phaser";
 
 const spritesDir = '../assets/sprites/';
 const backgroundDir = '../assets/background/';
-const backendUrl = 'http://localhost:8080/';
+const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080/';
 const width = 1690;
 const height = 835;
-const imageHeight = 1887;
-const imageWidth = 1889;
 class TiberonConfig extends Phaser.Scene {
     constructor() {
         super({ key: 'TiberonConfig' });
     }
     preload() {
-        this.load.image('background', `${backgroundDir}CampoVainilla.png`);
+        this.load.image('background', `${backgroundDir}CasillaDeTexto.png`);
         this.load.image('tiberon', `${spritesDir}tiberon/Tiberon.png`);
     }
     create() {
@@ -25,11 +23,11 @@ class TiberonConfig extends Phaser.Scene {
         this.displayCharacteristics(getCharaceristicsByHttp());
     }
     displayCharacteristics(characteristicsPromise) {
-        const startX = 250;
-        const startY = 100;
-        const spacingY = 150;
+        const startX = 260;
+        const startY = 110;
+        const spacingY = 100;
         const spacingX = 400; // Espaciado entre columnas
-        const maxPerColumn = 5;
+        const maxPerColumn = 6;
 
         characteristicsPromise.then(characteristics => {
             console.log("Characteristics in the display: ", characteristics);
@@ -44,7 +42,7 @@ class TiberonConfig extends Phaser.Scene {
                 // Mostrar el nombre de la característica
                 this.add.text(itemX, itemY, characteristic.name, {
                     fill: '#000000',
-                    fontSize: '25px',
+                    fontSize: '27px',
                     fontStyle: 'bold'
                 });
 
@@ -52,8 +50,7 @@ class TiberonConfig extends Phaser.Scene {
                 // Mostrar el peso de la característica
                 this.add.text(itemX, itemY + 30, `Peso: ${characteristic.weight}`, {
                     fill: '#000000',
-                    fontSize: '25px',
-                    fontStyle: 'bold'
+                    fontSize: '25px'
                 });
                 // Mostrar si esta activada o no
                 this.add.text(itemX, itemY + 60, "Activada", {
@@ -105,9 +102,11 @@ class TiberonConfig extends Phaser.Scene {
             this.surveyBox.setFillStyle(normalColor);
             this.scene.start('Report'); // Ejecuta la acción del botón
         });
-
+        this.surveyBox.on('pointerover', () => {
+            this.surveyBox.setScale(1.1);
+        });
         this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setFillStyle(normalColor);
+            this.surveyBox.setScale(1.0);
         });
     }
 
@@ -137,11 +136,5 @@ async function getCharaceristicsByHttp() {
     }
 
     return characteristics;
-}
-// Función para actualizar el JSON
-function updateJson(characteristicsData) {
-    const jsonData = JSON.stringify(characteristicsData, null, 2);
-    console.log(jsonData);
-    // Aquí podrías hacer algo con el JSON, como enviarlo a un servidor o guardarlo localmente
 }
 export default TiberonConfig;

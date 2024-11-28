@@ -8,10 +8,13 @@ const startingX = 580;
 const startingY = 410;
 const spacingX = 220; // Horizontal spacing between images
 const spacingY = 220; // Vertical spacing between rows
-const backendUrl = 'http://localhost:8080/';
+const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080/';
 const spritesDir = '../assets/sprites/';
+const modularCategories = ["Acompanantes", "Cerca", "Fondo", "Gallinero", "Huevos", "Placa"];
+const henDir = '../assets/background/Gallinero/';
 
-let projectId = 0;
+let totalUsers = 0;
+let totalSurveys = 0;
 
 let statuses = {
     acompanantesStatus: 2,
@@ -28,15 +31,14 @@ class Hen extends Phaser.Scene {
     }
 
     preload() {
-        const modularCategories = ["Acompanantes", "Cerca", "Fondo", "Gallinero", "Huevos", "Placa"];
-        const spritesDir = '../assets/sprites/';
-        const henDir = '../assets/background/Gallinero/';
 
         // Cargar spritesheet para las gallinas
         this.load.spritesheet("chickens", `${spritesDir}chickens/Chickens.png`, { frameWidth: imageWidth, frameHeight: imageHeight });
 
         // Obtener los estados del proyecto (esto puede ser asíncrono en un caso real)
         getProjectStatuses();
+
+        this.load.image('FlechaDerecha', `${spritesDir}buttons/FlechaDerecha.png`);
 
         // Pre-cargar las imágenes para las categorías modulares basadas en su estado
         this.preloadScene(modularCategories, henDir);
@@ -54,6 +56,30 @@ class Hen extends Phaser.Scene {
         this.createProjectChikens();
         this.createCompanyName();
         this.returnToHomeButton();
+        this.getTotals();
+    }
+    getTotals(){
+        const users = getTotalUsersByHttp();
+        const x = 35;
+        const y = 50;
+        users.then(users => {
+            totalUsers = users;
+            this.add.text(x, y, `Total Users: ${totalUsers}`, {
+                fill: '#000000',
+                fontSize: '30px Arial',
+                fontStyle: 'bold'
+            });
+        });
+        const surveys = getTotalSurveysByHttp();
+        surveys.then(surveys => {
+            totalSurveys = surveys;
+            this.add.text(x, y+x, `Total Surveys: ${totalSurveys}`, {
+                fill: '#000000',
+                fontSize: '30px Arial',
+                fontStyle: 'bold'
+            });
+        });
+
     }
 
     createProjectChikens() {
@@ -71,7 +97,7 @@ class Hen extends Phaser.Scene {
                 // Crear la imagen del proyecto (gallina)
                 const chicken = this.add.sprite(itemX, itemY, 'chickens');
                 chicken.setScale(0.09);
-                let projectHealth = calculateProjectHealth();
+                let projectHealth = project.projectStatus;
                 projectHealth = Phaser.Math.Clamp(projectHealth, 0, 4);
                 chicken.setFrame(projectHealth);
 
@@ -85,8 +111,16 @@ class Hen extends Phaser.Scene {
                 chicken.setInteractive();
                 chicken.on('pointerdown', () => {
                     // Switch to the ReportScene and pass the projectID
-                    this.scene.start('Report', { projectID: project.projectID, projectName: project.projectName });
+                    this.scene.start('Report', { projectID: project.projectID, projectName: project.projectName , projectKey: project.projectKey});
                 });
+                chicken.on('pointerover', () => {
+                    // Scale the chicken image when the cursor is over it
+                    chicken.setScale(0.1);
+                });
+                chicken.on('pointerout', () => {
+                    // Restore the original scale when the cursor is no longer over the image
+                    chicken.setScale(0.09);
+            });
             });
         });
     }
@@ -131,46 +165,54 @@ class Hen extends Phaser.Scene {
         image.displayHeight = height;
     }
     returnToHomeButton() {
-        // Dimensiones y posición de la caja
-        const boxWidth = 200;
-        const boxHeight = 100;
-        const boxX = width - boxWidth;
-        const boxY = (height / 2) - (boxHeight / 2);
-
-        // Crear la caja amarilla
-        this.surveyBox = this.add.rectangle(boxX, boxY, boxWidth, boxHeight, 0xD2691E);
-        this.surveyBox.setOrigin(0.5); // Establecer el origen en el centro
-
-        // Crear el texto sobre la caja
+        // Dimensions and position of the button
+        const boxWidth = 400;
+        const boxHeight = 200;
+        const boxX = width - boxWidth+150;
+        const boxY = (height / 2) - (boxHeight / 2)+100;
+    
+        // Replace the rectangle with the 'FlechaDerecha' button image
+        this.surveyBox = this.add.image(boxX, boxY, 'FlechaDerecha'); // Use the new image for the button
+        this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Set the image size
+        this.surveyBox.setOrigin(0.5); // Set origin to center
+    
+        // Add text on top of the button (if needed)
         this.returnButton = this.add.text(boxX, boxY, 'Return', {
             fill: '#FFD700',
             fontSize: '50px',
             fontStyle: 'bold'
         });
-        this.returnButton.setOrigin(0.5); // Centrar el texto
-
-        // Hacer la caja interactiva
+        this.returnButton.setOrigin(0.5); // Center the text
+    
+        // Make the button interactive
         this.surveyBox.setInteractive();
-
-        // Definir los colores para los estados
+    
+        // Define colors for different states (only relevant if you want to add color effects on text)
         const normalColor = 0xD2691E;
-        const pressedColor = 0xA0522D; // Color ligeramente más oscuro
-
-        // Cambiar el color al presionar el botón
+        const pressedColor = 0xA0522D; // Slightly darker color
+    
+        // Handle button press (click)
         this.surveyBox.on('pointerdown', () => {
-            this.surveyBox.setFillStyle(pressedColor);
+            this.surveyBox.setDisplaySize(boxWidth * 0.95, boxHeight * 0.95); // Slightly shrink on press
         });
-
-        // Restaurar el color original al soltar el botón o mover el cursor fuera de la caja
+    
+        // Restore the size and navigate to the 'Home' scene when releasing the button
         this.surveyBox.on('pointerup', () => {
-            this.surveyBox.setFillStyle(normalColor);
-            this.scene.start('Home'); // Ejecuta la acción del botón
+            this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
+            this.scene.start('Home'); // Execute the button action
         });
-
+    
+        // Increase the button size on hover
+        this.surveyBox.on('pointerover', () => {
+            this.surveyBox.setDisplaySize(boxWidth * 1.1, boxHeight * 1.1); // Increase size by 10%
+        });
+    
+        // Restore the original size when the pointer leaves the button
         this.surveyBox.on('pointerout', () => {
-            this.surveyBox.setFillStyle(normalColor);
+            this.surveyBox.setDisplaySize(boxWidth, boxHeight); // Restore original size
         });
     }
+    
 }
 
 function getProjectStatuses() {
@@ -186,6 +228,52 @@ function* getStatusIterator() {
     for (let X of Object.values(statuses)) {
         yield X;
     }
+}
+//GET http://localhost:8080/users/total
+async function getTotalUsersByHttp() {
+    let totalUsers = 0;
+    try {
+        const response = await fetch(`${backendUrl}users/total`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        totalUsers = await response.json();
+
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+
+    return totalUsers.total;
+}
+//GET http://localhost:8080/survey/count
+async function getTotalSurveysByHttp() {
+    let totalSurveys = 0;
+    try {
+        const response = await fetch(`${backendUrl}survey/count`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        totalSurveys = await response.json();
+
+    } catch (error) {
+        console.error('Error fetching inventory:', error);
+    }
+
+    return totalSurveys.count;
 }
 
 async function getProjectsByHttp() {
@@ -218,15 +306,12 @@ async function getProjectsByHttp() {
 function calculateStatuses() {
     return {
         companionStatus: 0,
-        fenceStatus: 1,
-        backgroundStatus: 2,
+        fenceStatus: 0,
+        backgroundStatus: 0,
         henStatus: 0,
-        eggsStatus: 1,
-        plateStatus: 2
+        eggsStatus: 0,
+        plateStatus: 0
     };
-}
-function calculateProjectHealth() {
-    return 2;
 }
 
 export default Hen;
