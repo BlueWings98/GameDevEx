@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  backend:
+    image: northamerica-northeast1-docker.pkg.dev/pivotal-sonar-438015-i9/game-dev-ex-repo/gamedevex-backend:latest
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/yourdatabase
+      SPRING_DATASOURCE_USERNAME: youruser
+      SPRING_DATASOURCE_PASSWORD: yourpassword
+      FRONTEND_URL: http://autodevex.online:3000
+      BACKEND_URL: 34.136.94.49:8080
+    depends_on:
+      - db
+
+  frontend:
+    image: northamerica-northeast1-docker.pkg.dev/pivotal-sonar-438015-i9/game-dev-ex-repo/gamedevex-frontend:latest
+    ports:
+      - "3000:80"   # Exponemos puerto 443 para HTTPS
+    environment:
+      - REACT_APP_FRONTEND_URL= 34.136.94.49:3000
+      - REACT_APP_BACKEND_URL= 34.136.94.49:8080
+    depends_on:
+      - backend
+    volumes:
+      - /etc/letsencrypt/live/autodevex.online:/etc/letsencrypt/live/autodevex.online  # Montamos certificados SSL
+      - /etc/letsencrypt/archive/autodevex.online:/etc/letsencrypt/archive/autodevex.online
+      - /etc/letsencrypt/options-ssl-nginx.conf:/etc/letsencrypt/options-ssl-nginx.conf  # Opciones SSL para Nginx
+    command: nginx -g 'daemon off;'
+
+  db:
+    image: postgres:16.4
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: youruser
+      POSTGRES_PASSWORD: yourpassword
+      POSTGRES_DB: yourdatabase
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
